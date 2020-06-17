@@ -1,0 +1,3 @@
+{
+    "files": ["TransmissionProbabilitiesView.qml","MainWindow.qml","ProjectHandler.py","mocos-gui.py","PhoneTrackingSettingsView.qml","InitialConditionsView.qml","ProjectSettings.py","GeneralSettingsView.qml","DoubleNumField.qml","ContactTrackingSettingsView.qml","ModulationSettingsView.qml"]
+}

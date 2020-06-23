@@ -10,16 +10,16 @@ GridLayout {
     DoubleNumField {
         topValue: 1.0
         targetValue: phoneTracking.usage
-        onTargetValueUpdated: phoneTracking.usage = targetValue
+        onTargetValueChanged: phoneTracking.usage = targetValue
     }
     Label { text: "Detection delay:" }
     DoubleNumField {
         targetValue: phoneTracking.detection_delay
-        onTargetValueUpdated: phoneTracking.detection_delay = targetValue
+        onTargetValueChanged: phoneTracking.detection_delay = targetValue
     }
     Label { text: "Testing delay:" }
     DoubleNumField {
         targetValue: phoneTracking.testing_delay
-        onTargetValueUpdated: phoneTracking.testing_delay = targetValue
+        onTargetValueChanged: phoneTracking.testing_delay = targetValue
     }
 }

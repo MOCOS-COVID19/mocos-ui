@@ -11,8 +11,6 @@ ApplicationWindow {
 
     visible: true
 
-    signal saveProjectAs(string path)
-
     Component.onCompleted: {
         mainWindow.width = initialConditionsButton.width + generalSettingsButtons.width +
                 contactTrackingSettingsButton.width + transmissionSettingsButton.width +
@@ -26,7 +24,7 @@ ApplicationWindow {
         sidebarVisible: true
         nameFilters: [ "JSON files (*.json)" ]
         onAccepted: {
-            mainWindow.saveProjectAs(projectSaveDialog.fileUrl)
+            projectHandler.saveAs(projectSaveDialog.fileUrl)
         }
     }
 

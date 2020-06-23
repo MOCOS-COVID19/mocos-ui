@@ -8,22 +8,22 @@ GridLayout {
 
     Label { text: "Household:" }
     DoubleNumField {
-        targetValue: contactTracking.probability
-        onTargetValueUpdated: contactTracking.probability = targetValue
+        targetValue: transmissionProbabilities.household
+        onTargetValueChanged: transmissionProbabilities.household = targetValue
     }
     Label { text: "Constant:" }
     DoubleNumField {
-        targetValue: contactTracking.backward_detection_delay
-        onTargetValueUpdated: contactTracking.backward_detection_delay = targetValue
+        targetValue: transmissionProbabilities.constant
+        onTargetValueChanged: transmissionProbabilities.constant = targetValue
     }
     Label { text: "Hospital:" }
     DoubleNumField {
-        targetValue: contactTracking.forward_detection_delay
-        onTargetValueUpdated: contactTracking.forward_detection_delay = targetValue
+        targetValue: transmissionProbabilities.hospital
+        onTargetValueChanged: transmissionProbabilities.hospital = targetValue
     }
     Label { text: "Friendship:" }
     DoubleNumField {
-        targetValue: contactTracking.testing_time
-        onTargetValueUpdated: contactTracking.testing_time = targetValue
+        targetValue: transmissionProbabilities.friendship
+        onTargetValueChanged: transmissionProbabilities.friendship = targetValue
     }
 }

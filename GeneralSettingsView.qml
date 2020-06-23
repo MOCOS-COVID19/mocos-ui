@@ -7,10 +7,9 @@ GridLayout {
     columnSpacing: 10
 
     Label { text: "Number of trajectories:" }
-    TextField {
-        text: generalSettings.num_trajectories
-        onEditingFinished: generalSettings.num_trajectories = parseInt(text)
-        validator: IntValidator{ bottom: 0 }
+    IntNumField {
+        targetValue: generalSettings.num_trajectories
+        onTargetValueChanged: generalSettings.num_trajectories = targetValue
     }
     Label { text: "Population path:" }
     TextField {
@@ -21,12 +20,11 @@ GridLayout {
     DoubleNumField {
         topValue: 1.0
         targetValue: generalSettings.detection_mild_probability
-        onTargetValueUpdated: generalSettings.detection_mild_probability = targetValue
+        onTargetValueChanged: generalSettings.detection_mild_probability = targetValue
     }
     Label { text: "Stop simulation treshold:" }
-    TextField {
-        text: generalSettings.stop_simulation_threshold
-        onEditingFinished: generalSettings.stop_simulation_threshold = parseInt(text)
-        validator: IntValidator{ bottom: 0 }
+    IntNumField {
+        targetValue: generalSettings.stop_simulation_threshold
+        onTargetValueChanged: generalSettings.stop_simulation_threshold = targetValue
     }
 }

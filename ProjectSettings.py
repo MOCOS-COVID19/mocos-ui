@@ -2,7 +2,7 @@
 from enum import Enum
 from typing import Union
 from PyQt5.QtQml import qmlRegisterType
-from PyQt5.QtCore import QObject, QMetaType, pyqtProperty
+from PyQt5.QtCore import QObject, QMetaType, pyqtProperty, pyqtSignal
 
 class GeneralSettings(QObject):
     _num_trajectories = 1000
@@ -10,19 +10,24 @@ class GeneralSettings(QObject):
     _detection_mild_probability = 0.3
     _stop_simulation_threshold = 10000
 
-    @pyqtProperty(int)
+    num_trajectoriesChanged = pyqtSignal(int, arguments=['num_trajectories'])
+    population_pathChanged = pyqtSignal(str, arguments=['population_path'])
+    detection_mild_probabilityChanged = pyqtSignal(float, arguments=['detection_mild_probability'])
+    stop_simulation_thresholdChanged = pyqtSignal(int, arguments=['stop_simulation_threshold'])
+
+    @pyqtProperty(int, notify=num_trajectoriesChanged)
     def num_trajectories(self):
         return self._num_trajectories
 
-    @pyqtProperty(str)
+    @pyqtProperty(str, notify=population_pathChanged)
     def population_path(self):
         return self._population_path
 
-    @pyqtProperty(float)
+    @pyqtProperty(float, notify=detection_mild_probabilityChanged)
     def detection_mild_probability(self):
         return self._detection_mild_probability
 
-    @pyqtProperty(int)
+    @pyqtProperty(int, notify=stop_simulation_thresholdChanged)
     def stop_simulation_threshold(self):
         return self._stop_simulation_threshold
 
@@ -80,7 +85,7 @@ class ContactTracking(QObject):
     def backward_detection_delay(self, val):
         self._backward_detection_delay = val
 
-    @backward_detection_delay.setter
+    @forward_detection_delay.setter
     def forward_detection_delay(self, val):
         self._forward_detection_delay = val
 
@@ -96,7 +101,7 @@ class ContactTracking(QObject):
             'testing_time' : self._testing_time
         }
 
-class TransmissionProbabilities:
+class TransmissionProbabilities(QObject):
     _household = 0.3
     _constant = 1.35
     _hospital = 0.0
@@ -143,38 +148,63 @@ class TransmissionProbabilities:
         }
 
 class ModulationFunctions(Enum):
-    TANH = 1
+    NONE = "None"
+    TANH = "TanhModulation"
 
-    def __str__(self):
-        switcher = {
-            ModulationFunctions.TANH : "TanhModulation"
-        }
-        return switcher.get(self, "invalid")
+    @staticmethod
+    def values():
+        l = []
+        for f in ModulationFunctions:
+            l.append(f.value)
+        l.pop(0)
+        return l
 
-class TanhModulationParams:
-    _scale = 2000
-    _loc = 500
-    _weight_detected = 1
-    _weight_deaths = 0
-    _limit_value = 0.5
+    @staticmethod
+    def from_value(value):
+        for funcType in ModulationFunctions:
+            if value == funcType.value:
+                return funcType
+        raise NotImplementedError
+
+class ValueTypes(Enum):
+    IntegerValue = 0
+    FloatValue = 1
+
+class ModulationParams:
+    _properties = []
+    _values = []
+    _valueTypes  = []
 
     def serialize(self):
-        return {
-            "scale" : self._scale,
-            "loc"   : self._loc,
-            "weight_detected" : self._weight_detected,
-            "weight_deaths" : self._weight_deaths,
-            "limit_value" : self._limit_value
-        }
+        result = {}
+        for i in range(0, len(self._properties)):
+            result[self._properties[i].lower().replace(" ", "_")] = self._values[i]
+        return result
+
+class EmptyModulationParams(ModulationParams):
+    def __init__(self):
+       super().__init__()
+
+class TanhModulationParams(ModulationParams):
+    def __init__(self):
+        self._properties = ["Scale", "Loc", "Weight detected", "Weight deaths", "Limit value"]
+        self._values = [2000, 500, 1, 0, 0.5]
+        self._valueTypes = [
+            ValueTypes.IntegerValue,
+            ValueTypes.IntegerValue,
+            ValueTypes.IntegerValue,
+            ValueTypes.IntegerValue,
+            ValueTypes.FloatValue
+        ]
 
 class Modulation:
-    _function = ModulationFunctions.TANH
-    _params = Union[TanhModulationParams]
+    _function = ModulationFunctions.NONE
+    _params = TanhModulationParams()
 
     def serialize(self):
         return {
-            "function" : str(self._function),
-            # TODO: "params" : self._params.serialize()
+            "function" : self._function.value,
+            "params" : self._params.serialize()
         }
 
 

@@ -5,35 +5,32 @@ TextField {
     property real bottomValue: 0.0
     property real topValue: +Infinity
     property real targetValue: 0.0
-    signal targetValueUpdated()
 
     selectByMouse: true
-    text: targetValue
+    text: floatValueToText(targetValue)
     inputMethodHints: Qt.ImhFormattedNumbersOnly
 
-    function setTargetValue(newValue) {
-
+    function floatValueToText(num) {
+        if (num == num.toFixed(0)) {
+            return num.toFixed(1)
+        }
+        else {
+            return num
+        }
     }
 
     onEditingFinished: {
         let num = parseFloat(text)
         console.log(num)
         if ( isNaN(num) ) {
-            text = targetValue
+            text = floatValueToText(targetValue)
             return
         }
         if (num < bottomValue || num > topValue) {
-            text = targetValue
+            text = floatValueToText(targetValue)
             return
         }
         targetValue = num
-        targetValueUpdated()
-        if (num == num.toFixed(0)) {
-            text = num.toFixed(1)
-        }
-        else {
-            text = num
-        }
+        text = floatValueToText(targetValue)
     }
-    //validator: RegExpValidator { regExp: /\d{1,1}(?:.\d{1,3})+$/ }
 }

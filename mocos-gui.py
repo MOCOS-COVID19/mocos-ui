@@ -2,7 +2,7 @@
 import sys
 import os
 from ProjectHandler import *
-from ProjectSettings import GeneralSettings, Cardinalities
+from ProjectSettings import Cardinalities, ModulationFunctions
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import QQmlApplicationEngine, QQmlEngine, qmlRegisterType
 from PyQt5.QtCore import *
@@ -16,16 +16,18 @@ if __name__ == "__main__":
     qmlRegisterType(Cardinalities, "ProjectSettingTypes", 1, 0, "Cardinalities")
 
     app = QGuiApplication([])
-    engine = QQmlApplicationEngine(QUrl("file:///" + os.path.dirname(__file__) + "/MainWindow.qml"))
+    engine = QQmlApplicationEngine()
 
     engine.rootContext().setContextProperty("projectHandler", projectHandler)
     engine.rootContext().setContextProperty("initialConditions", projectHandler.settings.initialConditions)
+    engine.rootContext().setContextProperty("transmissionProbabilities", projectHandler.settings.transmissionProbabilities)
     engine.rootContext().setContextProperty("generalSettings", projectHandler.settings.generalSettings)
     engine.rootContext().setContextProperty("phoneTracking", projectHandler.settings.phoneTracking)
     engine.rootContext().setContextProperty("contactTracking", projectHandler.settings.contactTracking)
+    engine.rootContext().setContextProperty("modulationModel", projectHandler.modulationModel)
+
+    engine.load(QUrl("file:///" + os.path.dirname(os.path.abspath(__file__)) + "/MainWindow.qml"))
 
     wnd = engine.rootObjects()[0]
-    wnd.saveProjectAs.connect(projectHandler.saveAs)
-
     wnd.show()
     sys.exit(app.exec_())

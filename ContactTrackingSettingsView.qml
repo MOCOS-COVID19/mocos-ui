@@ -10,21 +10,21 @@ GridLayout {
     DoubleNumField {
         topValue: 1.0
         targetValue: contactTracking.probability
-        onTargetValueUpdated: contactTracking.probability = targetValue
+        onTargetValueChanged: contactTracking.probability = targetValue
     }
     Label { text: "Backward detection delay:" }
     DoubleNumField {
         targetValue: contactTracking.backward_detection_delay
-        onTargetValueUpdated: contactTracking.backward_detection_delay = targetValue
+        onTargetValueChanged: contactTracking.backward_detection_delay = targetValue
     }
     Label { text: "Forward detection delay:" }
     DoubleNumField {
         targetValue: contactTracking.forward_detection_delay
-        onTargetValueUpdated: contactTracking.forward_detection_delay = targetValue
+        onTargetValueChanged: contactTracking.forward_detection_delay = targetValue
     }
     Label { text: "Testing time:" }
     DoubleNumField {
         targetValue: contactTracking.testing_time
-        onTargetValueUpdated: contactTracking.testing_time = targetValue
+        onTargetValueChanged: contactTracking.testing_time = targetValue
     }
 }

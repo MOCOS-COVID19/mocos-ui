@@ -2,103 +2,108 @@
 from enum import Enum
 from typing import Union
 from PyQt5.QtQml import qmlRegisterType
-from PyQt5.QtCore import QObject, QMetaType, pyqtProperty, pyqtSignal
+from PyQt5.QtCore import QObject, QMetaType, pyqtProperty, pyqtSignal, QVariant
 
 class GeneralSettings(QObject):
-    _num_trajectories = 1000
-    _population_path = ""
-    _detection_mild_probability = 0.3
-    _stop_simulation_threshold = 10000
+    _numTrajectories = 1000
+    _populationPath = ""
+    _detectionMildProbability = 0.3
+    _stopSimulationThreshold = 10000
 
-    num_trajectoriesChanged = pyqtSignal(int, arguments=['num_trajectories'])
-    population_pathChanged = pyqtSignal(str, arguments=['population_path'])
-    detection_mild_probabilityChanged = pyqtSignal(float, arguments=['detection_mild_probability'])
-    stop_simulation_thresholdChanged = pyqtSignal(int, arguments=['stop_simulation_threshold'])
+    numTrajectoriesChanged = pyqtSignal(int, arguments=['value'])
+    populationPathChanged = pyqtSignal(str, arguments=['value'])
+    detectionMildProbabilityChanged = pyqtSignal(float, arguments=['value'])
+    stopSimulationThresholdChanged = pyqtSignal(int, arguments=['value'])
 
-    @pyqtProperty(int, notify=num_trajectoriesChanged)
-    def num_trajectories(self):
-        return self._num_trajectories
+    @pyqtProperty(int, notify=numTrajectoriesChanged)
+    def numTrajectories(self):
+        return self._numTrajectories
 
-    @pyqtProperty(str, notify=population_pathChanged)
-    def population_path(self):
-        return self._population_path
+    @pyqtProperty(str, notify=populationPathChanged)
+    def populationPath(self):
+        return self._populationPath
 
-    @pyqtProperty(float, notify=detection_mild_probabilityChanged)
-    def detection_mild_probability(self):
-        return self._detection_mild_probability
+    @pyqtProperty(float, notify=detectionMildProbabilityChanged)
+    def detectionMildProbability(self):
+        return self._detectionMildProbability
 
-    @pyqtProperty(int, notify=stop_simulation_thresholdChanged)
-    def stop_simulation_threshold(self):
-        return self._stop_simulation_threshold
+    @pyqtProperty(int, notify=stopSimulationThresholdChanged)
+    def stopSimulationThreshold(self):
+        return self._stopSimulationThreshold
 
-    @num_trajectories.setter
-    def num_trajectories(self, val):
-        self._num_trajectories = val
+    @numTrajectories.setter
+    def numTrajectories(self, val):
+        self._numTrajectories = val
 
-    @population_path.setter
-    def population_path(self, path):
-        self._population_path = path
+    @populationPath.setter
+    def populationPath(self, path):
+        self._populationPath = path
 
-    @detection_mild_probability.setter
-    def detection_mild_probability(self, val):
-        self._detection_mild_probability = val
+    @detectionMildProbability.setter
+    def detectionMildProbability(self, val):
+        self._detectionMildProbability = val
 
-    @stop_simulation_threshold.setter
-    def stop_simulation_threshold(self, val):
-        self._stop_simulation_threshold = val
+    @stopSimulationThreshold.setter
+    def stopSimulationThreshold(self, val):
+        self._stopSimulationThreshold = val
 
     def serialize(self):
         return {
-            'num_trajectories' : self._num_trajectories,
-            'population_path'  : self._population_path,
-            'detection_mild_proba' : self._detection_mild_probability,
-            'stop_simulation_threshold' : self._stop_simulation_threshold
+            'num_trajectories' : self._numTrajectories,
+            'population_path'  : self._populationPath,
+            'detection_mild_proba' : self._detectionMildProbability,
+            'stop_simulation_threshold' : self._stopSimulationThreshold
         }
 
 class ContactTracking(QObject):
     _probability = 0.5
-    _backward_detection_delay = 1.75
-    _forward_detection_delay = 1.75
-    _testing_time = 0.25
+    _backwardDetectionDelay = 1.75
+    _forwardDetectionDelay = 1.75
+    _testingTime = 0.25
 
-    @pyqtProperty(float)
+    probabilityChanged = pyqtSignal(float, arguments=['value'])
+    backwardDetectionDelayChanged = pyqtSignal(float, arguments=['value'])
+    forwardDetectionDelayChanged = pyqtSignal(float, arguments=['value'])
+    testingTimeChanged = pyqtSignal(float, arguments=['value'])
+
+    @pyqtProperty(float, notify=probabilityChanged)
     def probability(self):
         return self._probability
 
-    @pyqtProperty(float)
-    def backward_detection_delay(self):
-        return self._backward_detection_delay
+    @pyqtProperty(float, notify=backwardDetectionDelayChanged)
+    def backwardDetectionDelay(self):
+        return self._backwardDetectionDelay
 
-    @pyqtProperty(float)
-    def forward_detection_delay(self):
-        return self._forward_detection_delay
+    @pyqtProperty(float, notify=forwardDetectionDelayChanged)
+    def forwardDetectionDelay(self):
+        return self._forwardDetectionDelay
 
-    @pyqtProperty(float)
-    def testing_time(self):
-        return self._testing_time
+    @pyqtProperty(float, notify=testingTimeChanged)
+    def testingTime(self):
+        return self._testingTime
 
     @probability.setter
     def probability(self, val):
         self._probability = val
 
-    @backward_detection_delay.setter
-    def backward_detection_delay(self, val):
-        self._backward_detection_delay = val
+    @backwardDetectionDelay.setter
+    def backwardDetectionDelay(self, val):
+        self._backwardDetectionDelay = val
 
-    @forward_detection_delay.setter
-    def forward_detection_delay(self, val):
-        self._forward_detection_delay = val
+    @forwardDetectionDelay.setter
+    def forwardDetectionDelay(self, val):
+        self._forwardDetectionDelay = val
 
-    @testing_time.setter
-    def testing_time(self, val):
-        self._testing_time = val
+    @testingTime.setter
+    def testingTime(self, val):
+        self._testingTime = val
 
     def serialize(self):
         return {
             'probability' : self._probability,
-            'backward_detection_delay' : self._backward_detection_delay,
-            'forward_detection_delay' : self._forward_detection_delay,
-            'testing_time' : self._testing_time
+            'backward_detectionDelay' : self._backwardDetectionDelay,
+            'forward_detectionDelay' : self._forwardDetectionDelay,
+            'testing_time' : self._testingTime
         }
 
 class TransmissionProbabilities(QObject):
@@ -107,19 +112,24 @@ class TransmissionProbabilities(QObject):
     _hospital = 0.0
     _friendship = 0.0
 
-    @pyqtProperty(float)
+    householdChanged = pyqtSignal(float, arguments=['value'])
+    constantChanged = pyqtSignal(float, arguments=['value'])
+    hospitalChanged = pyqtSignal(float, arguments=['value'])
+    friendshipChanged = pyqtSignal(float, arguments=['value'])
+
+    @pyqtProperty(float, notify=householdChanged)
     def household(self):
         return self._household
 
-    @pyqtProperty(float)
+    @pyqtProperty(float, notify=constantChanged)
     def constant(self):
         return self._constant
 
-    @pyqtProperty(float)
+    @pyqtProperty(float, notify=hospitalChanged)
     def hospital(self):
         return self._hospital
 
-    @pyqtProperty(float)
+    @pyqtProperty(float, notify=friendshipChanged)
     def friendship(self):
         return self._friendship
 
@@ -148,7 +158,6 @@ class TransmissionProbabilities(QObject):
         }
 
 class ModulationFunctions(Enum):
-    NONE = "None"
     TANH = "TanhModulation"
 
     @staticmethod
@@ -156,7 +165,6 @@ class ModulationFunctions(Enum):
         l = []
         for f in ModulationFunctions:
             l.append(f.value)
-        l.pop(0)
         return l
 
     @staticmethod
@@ -168,7 +176,7 @@ class ModulationFunctions(Enum):
 
 class ValueTypes(Enum):
     IntegerValue = 0
-    FloatValue = 1
+    DoubleValue = 1
 
 class ModulationParams:
     _properties = []
@@ -194,24 +202,26 @@ class TanhModulationParams(ModulationParams):
             ValueTypes.IntegerValue,
             ValueTypes.IntegerValue,
             ValueTypes.IntegerValue,
-            ValueTypes.FloatValue
+            ValueTypes.DoubleValue
         ]
 
 class Modulation:
-    _function = ModulationFunctions.NONE
-    _params = TanhModulationParams()
+    _function = ModulationFunctions.TANH
+    _tanhModulationParams = TanhModulationParams()
 
     def serialize(self):
         return {
             "function" : self._function.value,
-            "params" : self._params.serialize()
+            "params" : self._tanhModulationParams.serialize()
         }
 
 
 class Cardinalities(QObject):
     _infectious = 100
 
-    @pyqtProperty(int)
+    infectiousChanged = pyqtSignal(int, arguments=["value"])
+
+    @pyqtProperty(int, notify=infectiousChanged)
     def infectious(self):
         return self._infectious
 
@@ -227,7 +237,9 @@ class Cardinalities(QObject):
 class InitialConditions(QObject):
     _cardinalities = Cardinalities()
 
-    @pyqtProperty(Cardinalities)
+    cardinalitiesChanged = pyqtSignal(QVariant, arguments=["value"])
+
+    @pyqtProperty(Cardinalities, notify=cardinalitiesChanged)
     def cardinalities(self):
         return self._cardinalities
 
@@ -238,38 +250,42 @@ class InitialConditions(QObject):
 
 class PhoneTracking(QObject):
     _usage = 0.0
-    _detection_delay = 0.25
-    _testing_delay = 1.5
+    _detectionDelay = 0.25
+    _testingDelay = 1.5
 
-    @pyqtProperty(float)
+    usageChanged = pyqtSignal(float, arguments=["value"])
+    detectionDelayChanged = pyqtSignal(float, arguments=["value"])
+    testingDelayChanged = pyqtSignal(float, arguments=["value"])
+
+    @pyqtProperty(float, notify=usageChanged)
     def usage(self):
         return self._usage
 
-    @pyqtProperty(float)
-    def detection_delay(self):
-        return self._detection_delay
+    @pyqtProperty(float, notify=detectionDelayChanged)
+    def detectionDelay(self):
+        return self._detectionDelay
 
-    @pyqtProperty(float)
-    def testing_delay(self):
-        return self._testing_delay
+    @pyqtProperty(float, notify=testingDelayChanged)
+    def testingDelay(self):
+        return self._testingDelay
 
     @usage.setter
     def usage(self, val):
         self._usage = val
 
-    @detection_delay.setter
-    def detection_delay(self, val):
-        self._detection_delay = val
+    @detectionDelay.setter
+    def detectionDelay(self, val):
+        self._detectionDelay = val
 
-    @testing_delay.setter
-    def testing_delay(self, val):
-        self._testing_delay = val
+    @testingDelay.setter
+    def testingDelay(self, val):
+        self._testingDelay = val
 
     def serialize(self):
         return {
             "usage" : self._usage,
-            "detection_delay" : self._detection_delay,
-            "testing_delay" : self._testing_delay
+            "detection_delay" : self._detectionDelay,
+            "testing_delay" : self._testingDelay
         }
 
 class ProjectSettings:

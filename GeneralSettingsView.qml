@@ -8,23 +8,23 @@ GridLayout {
 
     Label { text: "Number of trajectories:" }
     IntNumField {
-        targetValue: generalSettings.num_trajectories
-        onTargetValueChanged: generalSettings.num_trajectories = targetValue
+        targetValue: generalSettings.numTrajectories
+        onTargetValueChanged: generalSettings.numTrajectories = targetValue
     }
     Label { text: "Population path:" }
     TextField {
-        text: generalSettings.population_path
-        onEditingFinished: generalSettings.population_path = text
+        text: generalSettings.populationPath
+        onEditingFinished: generalSettings.populationPath = text
     }
     Label { text: "Detection mild probability:" }
     DoubleNumField {
         topValue: 1.0
-        targetValue: generalSettings.detection_mild_probability
-        onTargetValueChanged: generalSettings.detection_mild_probability = targetValue
+        targetValue: generalSettings.detectionMildProbability
+        onTargetValueChanged: generalSettings.detectionMildProbability = targetValue
     }
     Label { text: "Stop simulation treshold:" }
     IntNumField {
-        targetValue: generalSettings.stop_simulation_threshold
-        onTargetValueChanged: generalSettings.stop_simulation_threshold = targetValue
+        targetValue: generalSettings.stopSimulationThreshold
+        onTargetValueChanged: generalSettings.stopSimulationThreshold = targetValue
     }
 }

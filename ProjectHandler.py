@@ -5,25 +5,28 @@ import json
 from PyQt5.QtCore import * #QObject, QVariant, QAbstractTableModel, QModelIndex, pyqtSlot
 
 class FunctionParametersModel(QAbstractTableModel):
-    @pyqtProperty(int)
-    def PropertyName(self):
-        return Qt.UserRole + 1
+
+    dummySignalToRemoveQmlWarning = pyqtSignal(int)
 
     @pyqtProperty(int)
+    def PropertyName(self, notify=dummySignalToRemoveQmlWarning):
+        return Qt.UserRole + 1
+
+    @pyqtProperty(int, notify=dummySignalToRemoveQmlWarning)
     def PropertyValue(self):
         return Qt.UserRole + 2
 
-    @pyqtProperty(int)
+    @pyqtProperty(int, notify=dummySignalToRemoveQmlWarning)
     def PropertyType(self):
         return Qt.UserRole + 3
 
-    @pyqtProperty(int)
-    def IntegerValueProperty(self):
+    @pyqtProperty(int, notify=dummySignalToRemoveQmlWarning)
+    def IntegerTypeProperty(self):
         return ValueTypes.IntegerValue.value
 
-    @pyqtProperty(int)
-    def DoubleValueProperty(self):
-        return ValueTypes.FloatValue.value
+    @pyqtProperty(int, notify=dummySignalToRemoveQmlWarning)
+    def DoubleTypeProperty(self):
+        return ValueTypes.DoubleValue.value
 
     _data = EmptyModulationParams()
 
@@ -69,7 +72,7 @@ class FunctionParametersModel(QAbstractTableModel):
         if self._data._valueTypes[index.row()] == ValueTypes.IntegerValue:
             self._data._values[index.row()] = int(value)
             return True
-        if self._data._valueTypes[index.row()] == ValueTypes.FloatValue:
+        if self._data._valueTypes[index.row()] == ValueTypes.DoubleValue:
             self._data._values[index.row()] = value
             return True
         return False
@@ -84,6 +87,11 @@ class FunctionParametersModel(QAbstractTableModel):
 class ProjectHandler(QObject):
     settings = ProjectSettings()
     modulationModel = FunctionParametersModel()
+
+    def __init__(self):
+        super().__init__()
+        self.settings.modulation._function = ModulationFunctions.TANH
+        self.modulationModel.setParameters(self.settings.modulation._tanhModulationParams)
 
     @pyqtSlot(str)
     def saveAs(self, path):
@@ -100,6 +108,6 @@ class ProjectHandler(QObject):
     def loadParamsForFunction(self, funcType):
         wantedFunc = ModulationFunctions.from_value(funcType)
         if self.settings.modulation._function != wantedFunc:
-            self.settings.modulation._function = wantedFunc
-            self.settings.modulation._params = TanhModulationParams()
-            self.modulationModel.setParameters(self.settings.modulation._params)
+            if wantedFunc == ModulationFunctions.TANH:
+                self.settings.modulation._function = ModulationFunctions.TANH
+                self.modulationModel.setParameters(self.settings.modulation._tanhModulationParams)

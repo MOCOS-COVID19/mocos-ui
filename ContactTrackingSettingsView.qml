@@ -14,17 +14,17 @@ GridLayout {
     }
     Label { text: "Backward detection delay:" }
     DoubleNumField {
-        targetValue: contactTracking.backward_detection_delay
-        onTargetValueChanged: contactTracking.backward_detection_delay = targetValue
+        targetValue: contactTracking.backwardDetectionDelay
+        onTargetValueChanged: contactTracking.backwardDetectionDelay = targetValue
     }
     Label { text: "Forward detection delay:" }
     DoubleNumField {
-        targetValue: contactTracking.forward_detection_delay
-        onTargetValueChanged: contactTracking.forward_detection_delay = targetValue
+        targetValue: contactTracking.forwardDetectionDelay
+        onTargetValueChanged: contactTracking.forwardDetectionDelay = targetValue
     }
     Label { text: "Testing time:" }
     DoubleNumField {
-        targetValue: contactTracking.testing_time
-        onTargetValueChanged: contactTracking.testing_time = targetValue
+        targetValue: contactTracking.testingTime
+        onTargetValueChanged: contactTracking.testingTime = targetValue
     }
 }

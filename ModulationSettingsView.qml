@@ -110,7 +110,7 @@ Item {
                         }
                         else {
                             let pt = modulationModel.getPropertyType(styleData.row)
-                            return pt == modulationModel.IntegerValueProperty ? propertyIntegerValueComponent : propertyDoubleValueComponent
+                            return pt == modulationModel.IntegerTypeProperty ? propertyIntegerValueComponent : propertyDoubleValueComponent
                         }
                     }
                 }

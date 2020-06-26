@@ -1,3 +1,4 @@
 {
     "files": ["ModulationSettingsView.qml","ProjectHandler.py","mocos-gui.py","InitialConditionsView.qml","TransmissionProbabilitiesView.qml","ProjectSettings.py","PhoneTrackingSettingsView.qml","MainWindow.qml","GeneralSettingsView.qml","DoubleNumField.qml","ContactTrackingSettingsView.qml","IntNumField.qml"]
+
 }

@@ -11,12 +11,16 @@ import logging
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.DEBUG)
 
-    projectHandler = ProjectHandler()
-
     qmlRegisterType(Cardinalities, "ProjectSettingTypes", 1, 0, "Cardinalities")
+
 
     app = QGuiApplication([])
     engine = QQmlApplicationEngine()
+
+    app.setApplicationName("MOCOS")
+    app.setOrganizationDomain("mocos.pl")
+
+    projectHandler = ProjectHandler()
 
     engine.rootContext().setContextProperty("projectHandler", projectHandler)
     engine.rootContext().setContextProperty("initialConditions", projectHandler.settings.initialConditions)

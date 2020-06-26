@@ -38,6 +38,7 @@ class GeneralSettings(QObject):
     @populationPath.setter
     def populationPath(self, path):
         self._populationPath = path
+        self.populationPathChanged.emit(path)
 
     @detectionMildProbability.setter
     def detectionMildProbability(self, val):

@@ -30,7 +30,7 @@ if __name__ == "__main__":
     engine.rootContext().setContextProperty("contactTracking", projectHandler.settings.contactTracking)
     engine.rootContext().setContextProperty("modulationModel", projectHandler.modulationModel)
 
-    engine.load(QUrl("file:///" + os.path.dirname(os.path.abspath(__file__)) + "/MainWindow.qml"))
+    engine.load(QUrl("file:///" + os.path.dirname(os.path.abspath(__file__)) + "/views/MainWindow.qml"))
 
     wnd = engine.rootObjects()[0]
     wnd.show()

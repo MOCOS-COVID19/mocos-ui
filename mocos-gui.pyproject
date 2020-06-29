@@ -1,4 +1,16 @@
 {
-    "files": ["ModulationSettingsView.qml","ProjectHandler.py","mocos-gui.py","InitialConditionsView.qml","TransmissionProbabilitiesView.qml","ProjectSettings.py","PhoneTrackingSettingsView.qml","MainWindow.qml","GeneralSettingsView.qml","DoubleNumField.qml","ContactTrackingSettingsView.qml","IntNumField.qml"]
-
+    "files": [
+        "mocos-gui.py",
+        "ProjectHandler.py",
+        "ProjectSettings.py",
+        "views/MainWindow.qml",
+        "views/ModulationSettingsView.qml",
+        "views/PhoneTrackingSettingsView.qml",
+        "views/GeneralSettingsView.qml",
+        "views/InitialConditionsView.qml",
+        "views/TransmissionProbabilitiesView.qml",
+        "views/ContactTrackingSettingsView.qml",
+        "views/DoubleNumField.qml",
+        "views/IntNumField.qml"
+        ]
 }

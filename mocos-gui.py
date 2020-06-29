@@ -1,8 +1,8 @@
 # This Python file uses the following encoding: utf-8
 import sys
 import os
-from ProjectHandler import *
-from ProjectSettings import Cardinalities, ModulationFunctions
+from model.ProjectHandler import ProjectHandler
+from model.ProjectSettings import Cardinalities, ModulationFunctions
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtQml import QQmlApplicationEngine, QQmlEngine, qmlRegisterType
 from PyQt5.QtCore import *

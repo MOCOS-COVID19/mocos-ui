@@ -1,5 +1,5 @@
 # This Python file uses the following encoding: utf-8
-from ProjectSettings import *
+from model.ProjectSettings import *
 import logging
 import json
 from PyQt5.QtCore import * #QObject, QVariant, QAbstractTableModel, QModelIndex, pyqtSlot

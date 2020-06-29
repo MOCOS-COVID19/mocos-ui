@@ -21,7 +21,6 @@ TextField {
 
     onEditingFinished: {
         let num = parseFloat(text)
-        console.log(num)
         if ( isNaN(num) ) {
             text = floatValueToText(targetValue)
             return

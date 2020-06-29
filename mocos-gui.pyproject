@@ -1,8 +1,8 @@
 {
     "files": [
         "mocos-gui.py",
-        "ProjectHandler.py",
-        "ProjectSettings.py",
+        "model/ProjectHandler.py",
+        "model/ProjectSettings.py",
         "views/MainWindow.qml",
         "views/ModulationSettingsView.qml",
         "views/PhoneTrackingSettingsView.qml",

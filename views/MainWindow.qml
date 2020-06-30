@@ -35,7 +35,6 @@ ApplicationWindow {
         sidebarVisible: true
         nameFilters: [ "JLD2 files (*.jld2)" ]
         onAccepted: {
-            console.log(populationFileOpenDialog.fileUrl)
             generalSettings.populationPath = populationFileOpenDialog.fileUrl
         }
     }

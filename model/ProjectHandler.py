@@ -3,6 +3,7 @@ from model.ProjectSettings import *
 import logging
 import json
 from PyQt5.QtCore import * #QObject, QVariant, QAbstractTableModel, QModelIndex, pyqtSlot
+import sys
 
 class FunctionParametersModel(QAbstractTableModel):
 
@@ -96,6 +97,8 @@ class ProjectHandler(QObject):
     @pyqtSlot(str)
     def saveAs(self, path):
         path = path.replace("file:///", "")
+        if sys.platform == "darwin":
+            path = "/" + path
         fh = open(path, "w", encoding='utf-8')
         json.dump( self.settings.serialize(), fh, indent=4, ensure_ascii=False )
         fh.close()

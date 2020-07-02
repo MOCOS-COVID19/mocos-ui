@@ -35,6 +35,14 @@ Item {
 
             rowDelegate: Item { height: tableView.defaultRowHeight }
 
+            Component.onCompleted: {
+                console.log(Layout.minimumHeight, modulationModel.rowCount(), propertyNameColumn.height)
+                Layout.minimumHeight = propertyNameColumn.height + defaultRowHeight * modulationModel.rowCount()
+                console.log(Layout.minimumHeight)
+            }
+
+            onHeightChanged: console.log("onHeightChanged= ", height)
+
             QC14.TableViewColumn {
                 id: propertyNameColumn
                 title: "Property"

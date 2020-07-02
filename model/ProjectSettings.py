@@ -112,11 +112,20 @@ class TransmissionProbabilities(QObject):
     _constant = 1.35
     _hospital = 0.0
     _friendship = 0.0
+    _isHouseholdKernelEnabled = _household != 0.0
+    _isConstantKernelEnabled = _constant != 0.0
+    _isHospitalKernelEnabled = _hospital != 0.0
+    _isFriendshipKernelEnabled = _friendship != 0.0
 
     householdChanged = pyqtSignal(float, arguments=['value'])
     constantChanged = pyqtSignal(float, arguments=['value'])
     hospitalChanged = pyqtSignal(float, arguments=['value'])
     friendshipChanged = pyqtSignal(float, arguments=['value'])
+
+    householdKernelEnabledChanged = pyqtSignal(bool, arguments=['value'])
+    constantKernelEnabledChanged = pyqtSignal(bool, arguments=['value'])
+    hospitalKernelEnabledChanged = pyqtSignal(bool, arguments=['value'])
+    friendshipKernelEnabledChanged = pyqtSignal(bool, arguments=['value'])
 
     @pyqtProperty(float, notify=householdChanged)
     def household(self):
@@ -134,6 +143,22 @@ class TransmissionProbabilities(QObject):
     def friendship(self):
         return self._friendship
 
+    @pyqtProperty(bool, notify=constantKernelEnabledChanged)
+    def isHouseholdKernelEnabled(self):
+        return self._isHouseholdKernelEnabled
+
+    @pyqtProperty(bool, notify=constantKernelEnabledChanged)
+    def isConstantKernelEnabled(self):
+        return self._isConstantKernelEnabled
+
+    @pyqtProperty(bool, notify=hospitalKernelEnabledChanged)
+    def isHospitalKernelEnabled(self):
+        return self._isHospitalKernelEnabled
+
+    @pyqtProperty(bool, notify=friendshipKernelEnabledChanged)
+    def isFriendshipKernelEnabled(self):
+        return self._isFriendshipKernelEnabled
+
     @household.setter
     def household(self, val):
         self._household = val
@@ -150,12 +175,36 @@ class TransmissionProbabilities(QObject):
     def friendship(self, val):
         self._friendship = val
 
+    @isHouseholdKernelEnabled.setter
+    def isHouseholdKernelEnabled(self, value):
+        if self._isHouseholdKernelEnabled != value:
+            self._isHouseholdKernelEnabled = value
+            self.householdKernelEnabledChanged.emit(value)
+
+    @isConstantKernelEnabled.setter
+    def isConstantKernelEnabled(self, value):
+        if self._isConstantKernelEnabled != value:
+            self._isConstantKernelEnabled = value
+            self.constantKernelEnabledChanged.emit(value)
+
+    @isHospitalKernelEnabled.setter
+    def isHospitalKernelEnabled(self, value):
+        if self._isHospitalKernelEnabled != value:
+            self._isHospitalKernelEnabled = value
+            self.hospitalKernelEnabledChanged.emit(value)
+
+    @isFriendshipKernelEnabled.setter
+    def isFriendshipKernelEnabled(self, value):
+        if self._isFriendshipKernelEnabled != value:
+            self._isFriendshipKernelEnabled = value
+            self.friendshipKernelEnabledChanged.emit(value)
+
     def serialize(self):
         return {
-            "household"  : self._household,
-            "constant"   : self._constant,
-            "hospital"   : self._hospital,
-            "friendship" : self._friendship
+            "household"  : self._household if self._isHouseholdKernelEnabled else 0.0,
+            "constant"   : self._constant if self._isConstantKernelEnabled else 0.0,
+            "hospital"   : self._hospital if self._isHospitalKernelEnabled else 0.0,
+            "friendship" : self._friendship  if self._isFriendshipKernelEnabled else 0.0
         }
 
 class ModulationFunctions(Enum):

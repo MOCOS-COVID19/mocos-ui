@@ -11,6 +11,7 @@
         "views/TransmissionProbabilitiesView.qml",
         "views/ContactTrackingSettingsView.qml",
         "views/DoubleNumField.qml",
-        "views/IntNumField.qml"
+        "views/IntNumField.qml",
+        "views/KernelEnablingButton.qml"
         ]
 }

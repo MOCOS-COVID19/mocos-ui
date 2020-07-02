@@ -32,4 +32,13 @@ TextField {
         targetValue = num
         text = floatValueToText(targetValue)
     }
+
+    onEnabledChanged: {
+        if (enabled) {
+            text = floatValueToText(targetValue)
+        }
+        else {
+            text = "0.0"
+        }
+    }
 }

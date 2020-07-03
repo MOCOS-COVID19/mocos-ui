@@ -21,6 +21,8 @@ if __name__ == "__main__":
     app = QGuiApplication([])
     engine = QQmlApplicationEngine()
 
+    app.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     app.aboutToQuit.connect(shutdown)
     app.setApplicationName("MOCOS")
     app.setOrganizationDomain("mocos.pl")

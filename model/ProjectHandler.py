@@ -89,11 +89,6 @@ class ProjectHandler(QObject):
     settings = ProjectSettings()
     modulationModel = FunctionParametersModel()
 
-    def __init__(self):
-        super().__init__()
-        self.settings.modulation._function = ModulationFunctions.TANH
-        self.modulationModel.setParameters(self.settings.modulation._tanhModulationParams)
-
     @pyqtSlot(str)
     def saveAs(self, path):
         path = path.replace("file:///", "")
@@ -107,10 +102,19 @@ class ProjectHandler(QObject):
     def getModulationFunctionTypes(self):
         return ModulationFunctions.values()
 
+    @pyqtSlot(result=QVariant)
+    def getActiveModulationFunction(self):
+        logging.debug("getActiveModulationFunction " + self.settings.modulation._function.value)
+        return self.settings.modulation._function.value
+
     @pyqtSlot(str)
     def loadParamsForFunction(self, funcType):
         wantedFunc = ModulationFunctions.from_value(funcType)
-        if self.settings.modulation._function != wantedFunc:
-            if wantedFunc == ModulationFunctions.TANH:
-                self.settings.modulation._function = ModulationFunctions.TANH
-                self.modulationModel.setParameters(self.settings.modulation._tanhModulationParams)
+        if wantedFunc == ModulationFunctions.TANH:
+            self.settings.modulation._function = ModulationFunctions.TANH
+            logging.debug("loadParamsForFunction " + self.settings.modulation._function.value)
+            self.modulationModel.setParameters(self.settings.modulation._tanhModulationParams)
+        elif wantedFunc == ModulationFunctions.NONE:
+            self.settings.modulation._function = ModulationFunctions.NONE
+            logging.debug("loadParamsForFunction " + self.settings.modulation._function.value)
+            self.modulationModel.setParameters(self.settings.modulation._emptyModulationParams)

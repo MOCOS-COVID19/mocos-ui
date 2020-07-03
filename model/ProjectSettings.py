@@ -208,6 +208,7 @@ class TransmissionProbabilities(QObject):
         }
 
 class ModulationFunctions(Enum):
+    NONE = "None"
     TANH = "TanhModulation"
 
     @staticmethod
@@ -256,10 +257,19 @@ class TanhModulationParams(ModulationParams):
         ]
 
 class Modulation:
-    _function = ModulationFunctions.TANH
+    _function = ModulationFunctions.NONE
+    _emptyModulationParams = EmptyModulationParams()
     _tanhModulationParams = TanhModulationParams()
 
+    def getActiveParams(self):
+        if _function == ModulationFunctions.NONE:
+            return _emptyModulationParams
+        elif _function == ModulationFunctions.TANH:
+            return _tanhModulationParams
+        raise NotImplementedError
+
     def serialize(self):
+        assert(self._function != ModulationFunctions.NONE)
         return {
             "function" : self._function.value,
             "params" : self._tanhModulationParams.serialize()
@@ -351,6 +361,7 @@ class ProjectSettings:
         serialized['initial_conditions'] = self.initialConditions.serialize()
         serialized['contact_tracking'] = self.contactTracking.serialize()
         serialized['transmission_probabilities'] = self.transmissionProbabilities.serialize()
-        serialized['modulation'] = self.modulation.serialize()
+        if (self.modulation._function != ModulationFunctions.NONE):
+            serialized['modulation'] = self.modulation.serialize()
         serialized['phone_tracking'] = self.phoneTracking.serialize()
         return serialized

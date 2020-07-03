@@ -6,10 +6,6 @@ import QtQuick.Controls 1.4 as QC14
 Item {
     id: modulationSettingsView
 
-    Component.onCompleted: {
-        projectHandler.loadParamsForFunction(modulationFuncComboBox.currentText)
-    }
-
     ColumnLayout {
         GridLayout {
             columns: 2
@@ -19,6 +15,12 @@ Item {
             ComboBox {
                 id: modulationFuncComboBox
                 model: projectHandler.getModulationFunctionTypes()
+                currentIndex: projectHandler.getModulationFunctionTypes().indexOf(projectHandler.getActiveModulationFunction())
+                onCurrentTextChanged: {
+                    projectHandler.loadParamsForFunction(modulationFuncComboBox.currentText)
+                    tableView.Layout.minimumHeight = tableView.defaultRowHeight * modulationModel.rowCount()
+                            + tableView.defaultHeaderHeight + 1
+                }
             }
         }
 
@@ -28,6 +30,8 @@ Item {
 
             property int defaultHeaderHeight: 20
             property int defaultRowHeight: 30
+            verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+            horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
 
             headerDelegate: Rectangle {
                 implicitHeight: tableView.defaultHeaderHeight

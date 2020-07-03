@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.4
 
-ToolButton {
+Button {
     id: householdEnableButton
     function getTextBasedOnKernelEnabled() {
         if (isEnabled) {
@@ -11,14 +11,18 @@ ToolButton {
         }
     }
 
+    function handleClicked() {
+        isEnabled = !isEnabled
+        afterClicked()
+    }
+
     property bool isEnabled: true
     signal afterClicked()
 
     text: getTextBasedOnKernelEnabled()
     onIsEnabledChanged: text = getTextBasedOnKernelEnabled()
 
-    onClicked: {
-        isEnabled = !isEnabled
-        afterClicked()
-    }
+    onClicked: handleClicked()
+    Keys.onEnterPressed: handleClicked()
+    Keys.onReturnPressed: handleClicked()
 }

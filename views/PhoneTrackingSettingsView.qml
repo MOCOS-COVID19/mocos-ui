@@ -8,18 +8,24 @@ GridLayout {
 
     Label { text: "Usage:" }
     DoubleNumField {
+        id: usageInputField
         topValue: 1.0
         targetValue: phoneTracking.usage
         onTargetValueChanged: phoneTracking.usage = targetValue
+        KeyNavigation.tab: detectionDelayInputField
     }
     Label { text: "Detection delay:" }
     DoubleNumField {
+        id: detectionDelayInputField
         targetValue: phoneTracking.detectionDelay
         onTargetValueChanged: phoneTracking.detectionDelay = targetValue
+        KeyNavigation.tab: testingDelayInputField
     }
     Label { text: "Testing delay:" }
     DoubleNumField {
+        id: testingDelayInputField
         targetValue: phoneTracking.testingDelay
         onTargetValueChanged: phoneTracking.testingDelay = targetValue
+        KeyNavigation.tab: usageInputField
     }
 }

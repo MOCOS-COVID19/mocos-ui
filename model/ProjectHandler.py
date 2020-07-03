@@ -104,7 +104,6 @@ class ProjectHandler(QObject):
 
     @pyqtSlot(result=QVariant)
     def getActiveModulationFunction(self):
-        logging.debug("getActiveModulationFunction " + self.settings.modulation._function.value)
         return self.settings.modulation._function.value
 
     @pyqtSlot(str)
@@ -112,9 +111,7 @@ class ProjectHandler(QObject):
         wantedFunc = ModulationFunctions.from_value(funcType)
         if wantedFunc == ModulationFunctions.TANH:
             self.settings.modulation._function = ModulationFunctions.TANH
-            logging.debug("loadParamsForFunction " + self.settings.modulation._function.value)
             self.modulationModel.setParameters(self.settings.modulation._tanhModulationParams)
         elif wantedFunc == ModulationFunctions.NONE:
             self.settings.modulation._function = ModulationFunctions.NONE
-            logging.debug("loadParamsForFunction " + self.settings.modulation._function.value)
             self.modulationModel.setParameters(self.settings.modulation._emptyModulationParams)

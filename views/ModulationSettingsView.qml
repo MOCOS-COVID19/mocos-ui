@@ -26,22 +26,37 @@ Item {
             id: tableView
             clip: true
 
+            property int defaultHeaderHeight: 20
             property int defaultRowHeight: 30
 
+            headerDelegate: Rectangle {
+                implicitHeight: tableView.defaultHeaderHeight
+                border.color: "darkgrey"
+                color: "lightgrey"
+                Label {
+                    rightPadding: 15
+                    leftPadding: 15
+                    horizontalAlignment: {
+                        if (styleData.column == 0) {
+                            return Text.AlignRight
+                        }
+                        else {
+                            return Text.AlignLeft
+                        }
+                    }
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.fill: parent
+                    text: styleData.value
+                }
+            }
+
             Layout.minimumWidth: 400
-            Layout.minimumHeight: 240
-            Layout.preferredWidth: modulationSettingsView.width
-            Layout.preferredHeight: modulationSettingsView.height
 
             rowDelegate: Item { height: tableView.defaultRowHeight }
 
             Component.onCompleted: {
-                console.log(Layout.minimumHeight, modulationModel.rowCount(), propertyNameColumn.height)
-                Layout.minimumHeight = propertyNameColumn.height + defaultRowHeight * modulationModel.rowCount()
-                console.log(Layout.minimumHeight)
+                Layout.minimumHeight = defaultRowHeight * modulationModel.rowCount() + defaultHeaderHeight + 1
             }
-
-            onHeightChanged: console.log("onHeightChanged= ", height)
 
             QC14.TableViewColumn {
                 id: propertyNameColumn

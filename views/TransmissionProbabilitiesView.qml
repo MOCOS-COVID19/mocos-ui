@@ -10,7 +10,7 @@ GridLayout {
     DoubleNumField {
         id: householdFactorField
         targetValue: transmissionProbabilities.household
-        enabled: transmissionProbabilities.isHouseholdtKernelEnabled
+        enabled: transmissionProbabilities.isHouseholdKernelEnabled
         onTargetValueChanged: transmissionProbabilities.household = targetValue
     }
     KernelEnablingButton {

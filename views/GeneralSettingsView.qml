@@ -8,6 +8,7 @@ GridLayout {
 
     Label { text: "Number of trajectories:" }
     IntNumField {
+        bottomValue: 0
         targetValue: generalSettings.numTrajectories
         onTargetValueChanged: generalSettings.numTrajectories = targetValue
     }
@@ -24,6 +25,7 @@ GridLayout {
     }
     Label { text: "Stop simulation treshold:" }
     IntNumField {
+        bottomValue: 0
         targetValue: generalSettings.stopSimulationThreshold
         onTargetValueChanged: generalSettings.stopSimulationThreshold = targetValue
     }

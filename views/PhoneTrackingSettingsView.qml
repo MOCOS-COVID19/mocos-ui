@@ -9,6 +9,7 @@ GridLayout {
     Label { text: "Usage:" }
     DoubleNumField {
         id: usageInputField
+        focus: true
         topValue: 1.0
         targetValue: phoneTracking.usage
         onTargetValueChanged: phoneTracking.usage = targetValue

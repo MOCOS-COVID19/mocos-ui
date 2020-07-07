@@ -13,13 +13,17 @@ Item {
 
             Label { text: "Function type:" }
             ComboBox {
+                focus: true
                 id: modulationFuncComboBox
                 model: projectHandler.getModulationFunctionTypes()
                 currentIndex: projectHandler.getModulationFunctionTypes().indexOf(projectHandler.getActiveModulationFunction())
+                KeyNavigation.tab: tableView
                 onCurrentTextChanged: {
                     projectHandler.loadParamsForFunction(modulationFuncComboBox.currentText)
                     tableView.Layout.minimumHeight = tableView.defaultRowHeight * modulationModel.rowCount()
                             + tableView.defaultHeaderHeight + 1
+                    tableView.fillListOfEditFields()
+                    KeyNavigation.tab = tableView.getItemToFocusAfterComboBox()
                 }
             }
         }
@@ -33,15 +37,26 @@ Item {
             verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
             horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
 
+            KeyNavigation.tab: modulationFuncComboBox
+
+            function getItemToFocusAfterComboBox() {
+                if (tableView.listOfEditFields.length === 0) {
+                    return tableView
+                }
+                return tableView.listOfEditFields[0]
+            }
+
             headerDelegate: Rectangle {
+                activeFocusOnTab: false
                 implicitHeight: tableView.defaultHeaderHeight
                 border.color: "darkgrey"
                 color: "lightgrey"
+                objectName: "headerDelegate"
                 Label {
                     rightPadding: 15
                     leftPadding: 15
                     horizontalAlignment: {
-                        if (styleData.column == 0) {
+                        if (styleData.column === 0) {
                             return Text.AlignRight
                         }
                         else {
@@ -58,8 +73,30 @@ Item {
 
             rowDelegate: Item { height: tableView.defaultRowHeight }
 
+            property variant listOfEditFields: []
+
+            function fillListOfEditFields() {
+                this.listOfEditFields = []
+                this.traverseChildrenItemsLookingForEditFields(tableView)
+            }
+
+            function traverseChildrenItemsLookingForEditFields(item) {
+                if (item instanceof DoubleNumField) {
+                    listOfEditFields.push(item)
+                }
+                else if (item instanceof IntNumField) {
+                    listOfEditFields.push(item)
+                }
+
+                for (let i=0; i<item.children.length; ++i) {
+                    traverseChildrenItemsLookingForEditFields(item.children[i])
+                }
+            }
+
             Component.onCompleted: {
                 Layout.minimumHeight = defaultRowHeight * modulationModel.rowCount() + defaultHeaderHeight + 1
+                tableView.fillListOfEditFields()
+                modulationFuncComboBox.KeyNavigation.tab = tableView.getItemToFocusAfterComboBox()
             }
 
             QC14.TableViewColumn {
@@ -68,6 +105,7 @@ Item {
                 role: "propertyName"
                 movable: false
                 width: tableView.viewport.width * 0.4
+                objectName: "propertyNameColumn"
             }
 
             QC14.TableViewColumn {
@@ -76,11 +114,15 @@ Item {
                 role: "propertyValue"
                 movable: false
                 width: tableView.viewport.width - propertyNameColumn.width
+                objectName: "propertyValueColumn"
             }
 
             model: modulationModel
 
             itemDelegate: Item {
+                objectName: "itemDelegate"
+                property int row: styleData.row
+                property int column: styleData.column
                 Component {
                     id: propertyNameComponent
                     Rectangle {
@@ -102,12 +144,13 @@ Item {
                         implicitWidth: propertyValueColumn.width
                         implicitHeight: tableView.defaultRowHeight
                         IntNumField {
+                            property int row: styleData.row
                             anchors.fill: parent
                             targetValue: styleData.value
                             onTargetValueChanged: {
                                 modulationModel.setData(
-                                                      modulationModel.index(styleData.row, styleData.column),
-                                                      targetValue, modulationModel.PropertyValue)
+                                    modulationModel.index(styleData.row, styleData.column),
+                                    targetValue, modulationModel.PropertyValue)
                             }
                         }
                     }
@@ -119,12 +162,13 @@ Item {
                         implicitWidth: propertyValueColumn.width
                         implicitHeight: tableView.defaultRowHeight
                         DoubleNumField {
+                            property int row: styleData.row
                             anchors.fill: parent
                             targetValue: styleData.value
                             onTargetValueChanged: {
                                 modulationModel.setData(
-                                                      modulationModel.index(styleData.row, styleData.column),
-                                                      targetValue, modulationModel.PropertyValue)
+                                    modulationModel.index(styleData.row, styleData.column),
+                                        targetValue, modulationModel.PropertyValue)
                             }
                         }
                     }
@@ -132,12 +176,13 @@ Item {
 
                 Loader {
                     sourceComponent: {
-                        if (styleData.column == 0) {
+                        if (styleData.column === 0) {
                             return propertyNameComponent
                         }
                         else {
                             let pt = modulationModel.getPropertyType(styleData.row)
-                            return pt == modulationModel.IntegerTypeProperty ? propertyIntegerValueComponent : propertyDoubleValueComponent
+                            return pt === modulationModel.IntegerTypeProperty ?
+                                        propertyIntegerValueComponent : propertyDoubleValueComponent
                         }
                     }
                 }

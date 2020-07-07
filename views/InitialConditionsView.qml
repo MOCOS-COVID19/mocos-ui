@@ -8,8 +8,11 @@ GridLayout {
 
     Label { text: "Infectious:" }
     IntNumField {
+        id: infectiousNumField
+        focus: true
         targetValue: initialConditions.cardinalities.infectious
         onTargetValueChanged: initialConditions.cardinalities.infectious = targetValue
         bottomValue: 0
+        KeyNavigation.tab: infectiousNumField
     }
 }

@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.5
 import QtQuick.Controls 2.4
 import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.0
@@ -11,8 +11,39 @@ ApplicationWindow {
 
     visible: true
 
+    property variant contentSources: [
+        "InitialConditionsView.qml",
+        "GeneralSettingsView.qml",
+        "ContactTrackingSettingsView.qml",
+        "TransmissionProbabilitiesView.qml",
+        "ModulationSettingsView.qml",
+        "PhoneTrackingSettingsView.qml" ]
+    property int currentSourceId: 1
+
+    function loadSourceId(id) {
+        contentLoader.focus = true
+        console.assert(id >= 0)
+        console.assert(id < mainWindow.contentSources.length)
+        currentSourceId = id
+        contentLoader.setSource(contentSources[currentSourceId])
+        toolBar.highlightButtonWithSourceId(id)
+    }
+
+    function loadNextSource() {
+        ++mainWindow.currentSourceId
+        if (mainWindow.currentSourceId >= mainWindow.contentSources.length) {
+            mainWindow.currentSourceId = 0
+        }
+        loadSourceId(currentSourceId)
+    }
+
+    Shortcut {
+        sequence: StandardKey.NextChild
+        onActivated: loadNextSource()
+    }
+
     Component.onCompleted: {
-        mainWindow.width = initialConditionsButton.width + generalSettingsButtons.width +
+        mainWindow.width = initialConditionsButton.width + generalSettingsButton.width +
                 contactTrackingSettingsButton.width + transmissionSettingsButton.width +
                 modulationSettingsButton.width + phoneTrackingSettingsButton.width + 50;
     }
@@ -51,75 +82,84 @@ ApplicationWindow {
     header: ToolBar {
         RowLayout {
             id: toolBar
-            function highlightSelectedSection(sender) {
+            function highlightButtonWithSourceId(id) {
                 for (let i=0; i<toolBar.children.length; ++i) {
                     if (toolBar.children[i] instanceof ToolButton) {
-                        toolBar.children[i].highlighted = false
+                        toolBar.children[i].highlighted = toolBar.children[i].sourceId == id
                     }
                 }
-                sender.highlighted = true
             }
 
             ToolButton {
                 id: initialConditionsButton
+                property int sourceId: 0
+                activeFocusOnTab : false
                 text: "Initial Conditions"
                 onClicked: {
-                    contentLoader.setSource( "InitialConditionsView.qml" )
-                    toolBar.highlightSelectedSection(initialConditionsButton)
+                    mainWindow.loadSourceId(sourceId)
                 }
             }
             ToolButton {
-                id: generalSettingsButtons
+                id: generalSettingsButton
+                property int sourceId: 1
+                activeFocusOnTab : false
                 text: "General"
                 onClicked: {
-                    contentLoader.setSource( "GeneralSettingsView.qml" )
-                    toolBar.highlightSelectedSection(generalSettingsButtons)
+                    mainWindow.loadSourceId(sourceId)
                 }
             }
             ToolButton {
                 id: contactTrackingSettingsButton
+                property int sourceId: 2
+                activeFocusOnTab : false
                 text: "Contact Tracking"
                 onClicked: {
-                    contentLoader.setSource( "ContactTrackingSettingsView.qml" )
-                    toolBar.highlightSelectedSection(contactTrackingSettingsButton)
+                    mainWindow.loadSourceId(sourceId)
                 }
             }
             ToolButton {
                 id: transmissionSettingsButton
+                property int sourceId: 3
+                activeFocusOnTab : false
                 text: "Transmission"
                 onClicked: {
-                    contentLoader.setSource( "TransmissionProbabilitiesView.qml" )
-                    toolBar.highlightSelectedSection(transmissionSettingsButton)
+                    mainWindow.loadSourceId(sourceId)
                 }
             }
             ToolButton {
                 id: modulationSettingsButton
+                property int sourceId: 4
+                activeFocusOnTab : false
                 text: "Modulation"
                 onClicked: {
-                    contentLoader.setSource( "ModulationSettingsView.qml" )
-                    toolBar.highlightSelectedSection(modulationSettingsButton)
+                    mainWindow.loadSourceId(sourceId)
                 }
             }
             ToolButton {
                 id: phoneTrackingSettingsButton
+                property int sourceId: 5
+                activeFocusOnTab : false
                 text: "Phone Tracking"
                 onClicked: {
-                    contentLoader.setSource( "PhoneTrackingSettingsView.qml" )
-                    toolBar.highlightSelectedSection(phoneTrackingSettingsButton)
+                    mainWindow.loadSourceId(sourceId)
                 }
             }
         }
     }
 
     Item {
+        anchors.fill: parent
+
         Control {
             padding: 10
+//            anchors.fill: parent
+
             contentItem: Loader {
                 id: contentLoader
+                focus: true
 
                 Component.onCompleted: {
-                    contentLoader.setSource( "GeneralSettingsView.qml" )
-                    generalSettingsButtons.highlighted = true
+                    mainWindow.loadSourceId(generalSettingsButton.sourceId)
                 }
             }
         }

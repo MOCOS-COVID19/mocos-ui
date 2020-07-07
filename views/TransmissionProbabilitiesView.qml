@@ -9,6 +9,7 @@ GridLayout {
     Label { text: "Household:" }
     DoubleNumField {
         id: householdFactorField
+        focus: true
         targetValue: transmissionProbabilities.household
         enabled: transmissionProbabilities.isHouseholdKernelEnabled
         onTargetValueChanged: transmissionProbabilities.household = targetValue

@@ -9,6 +9,7 @@ GridLayout {
     Label { text: "Probability:" }
     DoubleNumField {
         id: probabilityInputField
+        focus: true
         topValue: 1.0
         targetValue: contactTracking.probability
         onTargetValueChanged: contactTracking.probability = targetValue

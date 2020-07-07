@@ -9,6 +9,7 @@ GridLayout {
     Label { text: "Number of trajectories:" }
     IntNumField {
         id: numTrajectoriesInputField
+        focus: true
         bottomValue: 0
         targetValue: generalSettings.numTrajectories
         onTargetValueChanged: generalSettings.numTrajectories = targetValue

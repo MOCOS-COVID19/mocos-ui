@@ -59,21 +59,9 @@ ApplicationWindow {
         }
     }
 
-    FileDialog {
-        id: populationFileOpenDialog
-        folder: shortcuts.home
-        selectExisting: true
-        sidebarVisible: true
-        nameFilters: [ "JLD2 files (*.jld2)" ]
-        onAccepted: {
-            generalSettings.populationPath = populationFileOpenDialog.fileUrl
-        }
-    }
-
     menuBar: MenuBar {
         Menu {
             title: "&File"
-            MenuItem { text: "Load &population file"; onTriggered: populationFileOpenDialog.visible = true }
             MenuItem { text: "&Save As..."; onTriggered: projectSaveDialog.visible = true }
             MenuItem { text: "&Close"; onTriggered: mainWindow.close() }
         }
@@ -152,7 +140,8 @@ ApplicationWindow {
 
         Control {
             padding: 10
-//            anchors.fill: parent
+            anchors.left: parent.left
+            anchors.right: parent.right
 
             contentItem: Loader {
                 id: contentLoader

@@ -89,11 +89,15 @@ class ProjectHandler(QObject):
     settings = ProjectSettings()
     modulationModel = FunctionParametersModel()
 
+    def formatPath(self, path):
+        result = path.replace("file:///", "")
+        if sys.platform == "darwin":
+            result = "/" + path
+        return result
+
     @pyqtSlot(str)
     def saveAs(self, path):
-        path = path.replace("file:///", "")
-        if sys.platform == "darwin":
-            path = "/" + path
+        path = self.formatPath(path)
         fh = open(path, "w", encoding='utf-8')
         json.dump( self.settings.serialize(), fh, indent=4, ensure_ascii=False )
         fh.close()
@@ -115,3 +119,7 @@ class ProjectHandler(QObject):
         elif wantedFunc == ModulationFunctions.NONE:
             self.settings.modulation._function = ModulationFunctions.NONE
             self.modulationModel.setParameters(self.settings.modulation._emptyModulationParams)
+
+    @pyqtSlot(str)
+    def setPopulationFilePath(self, path):
+        self.settings.generalSettings.populationPath = self.formatPath(path)

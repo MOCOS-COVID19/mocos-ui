@@ -6,6 +6,8 @@ TextField {
     property alias topValue: valueValidator.top
     property real targetValue: 0
 
+    signal afterEditingFinished
+
     selectByMouse: true
     text: targetValue
 
@@ -13,5 +15,6 @@ TextField {
 
     onEditingFinished: {
         targetValue = parseInt(text)
+        afterEditingFinished()
     }
 }

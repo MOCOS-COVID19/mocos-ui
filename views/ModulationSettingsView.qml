@@ -6,6 +6,14 @@ import QtQuick.Controls 1.4 as QC14
 Item {
     id: modulationSettingsView
 
+    Connections {
+        target: projectHandler
+        onModulationFunctionChanged: {
+            modulationFuncComboBox.currentIndex =
+                projectHandler.getModulationFunctionTypes().indexOf(projectHandler.getActiveModulationFunction())
+        }
+    }
+
     ColumnLayout {
         GridLayout {
             columns: 2

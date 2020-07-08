@@ -24,7 +24,7 @@ GridLayout {
         focus: true
         bottomValue: 0
         targetValue: generalSettings.numTrajectories
-        onTargetValueChanged: generalSettings.numTrajectories = targetValue
+        onAfterEditingFinished: generalSettings.numTrajectories = targetValue
         KeyNavigation.tab: populationPathInputField
     }
     Label { text: "Population path:" }
@@ -45,7 +45,7 @@ GridLayout {
         id: detectionMildProbabilityInputField
         topValue: 1.0
         targetValue: generalSettings.detectionMildProbability
-        onTargetValueChanged: generalSettings.detectionMildProbability = targetValue
+        onAfterEditingFinished: generalSettings.detectionMildProbability = targetValue
         KeyNavigation.tab: stopSimulationThresholdInputField
     }
     Label { text: "Stop simulation treshold:" }
@@ -53,7 +53,20 @@ GridLayout {
         id: stopSimulationThresholdInputField
         bottomValue: 0
         targetValue: generalSettings.stopSimulationThreshold
-        onTargetValueChanged: generalSettings.stopSimulationThreshold = targetValue
+        onAfterEditingFinished: generalSettings.stopSimulationThreshold = targetValue
         KeyNavigation.tab: numTrajectoriesInputField
+    }
+
+    Connections {
+        target: generalSettings
+        onNumTrajectoriesChanged: {
+            numTrajectoriesInputField.text = generalSettings.numTrajectories
+        }
+        onDetectionMildProbabilityChanged: {
+            detectionMildProbabilityInputField.text = generalSettings.detectionMildProbability
+        }
+        onStopSimulationThresholdChanged: {
+            stopSimulationThresholdInputField.text = generalSettings.stopSimulationThreshold
+        }
     }
 }

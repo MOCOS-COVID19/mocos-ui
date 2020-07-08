@@ -6,6 +6,8 @@ TextField {
     property real topValue: +Infinity
     property real targetValue: 0.0
 
+    signal afterEditingFinished
+
     selectByMouse: true
     text: floatValueToText(targetValue)
     inputMethodHints: Qt.ImhFormattedNumbersOnly
@@ -31,6 +33,7 @@ TextField {
         }
         targetValue = num
         text = floatValueToText(targetValue)
+        afterEditingFinished()
     }
 
     onEnabledChanged: {

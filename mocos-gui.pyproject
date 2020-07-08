@@ -3,6 +3,7 @@
         "mocos-gui.py",
         "model/ProjectHandler.py",
         "model/ProjectSettings.py",
+        "model/ConfigurationValidator.py",
         "views/MainWindow.qml",
         "views/ModulationSettingsView.qml",
         "views/PhoneTrackingSettingsView.qml",
@@ -12,6 +13,8 @@
         "views/ContactTrackingSettingsView.qml",
         "views/DoubleNumField.qml",
         "views/IntNumField.qml",
-        "views/KernelEnablingButton.qml"
+        "views/KernelEnablingButton.qml",
+        "model/Configuration.schema",
+        "model/TanhParameters.schema"
         ]
 }

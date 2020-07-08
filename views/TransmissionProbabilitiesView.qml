@@ -12,7 +12,7 @@ GridLayout {
         focus: true
         targetValue: transmissionProbabilities.household
         enabled: transmissionProbabilities.isHouseholdKernelEnabled
-        onTargetValueChanged: transmissionProbabilities.household = targetValue
+        onAfterEditingFinished: transmissionProbabilities.household = targetValue
         KeyNavigation.tab: constantFactorField
     }
     KernelEnablingButton {
@@ -29,7 +29,7 @@ GridLayout {
         id: constantFactorField
         targetValue: transmissionProbabilities.constant
         enabled: transmissionProbabilities.isConstantKernelEnabled
-        onTargetValueChanged: transmissionProbabilities.constant = targetValue
+        onAfterEditingFinished: transmissionProbabilities.constant = targetValue
         KeyNavigation.tab: hospitalFactorField
     }
     KernelEnablingButton {
@@ -46,7 +46,7 @@ GridLayout {
         id: hospitalFactorField
         targetValue: transmissionProbabilities.hospital
         enabled: transmissionProbabilities.isHospitalKernelEnabled
-        onTargetValueChanged: transmissionProbabilities.hospital = targetValue
+        onAfterEditingFinished: transmissionProbabilities.hospital = targetValue
         KeyNavigation.tab: friendshipKernelField
     }
     KernelEnablingButton {
@@ -63,7 +63,7 @@ GridLayout {
         id: friendshipKernelField
         targetValue: transmissionProbabilities.friendship
         enabled: transmissionProbabilities.isFriendshipKernelEnabled
-        onTargetValueChanged: transmissionProbabilities.friendship = targetValue
+        onAfterEditingFinished: transmissionProbabilities.friendship = targetValue
         KeyNavigation.tab: householdKernelEnablingButton
     }
     KernelEnablingButton {
@@ -74,5 +74,32 @@ GridLayout {
             friendshipKernelField.enabled = isEnabled
         }
         KeyNavigation.tab: householdFactorField
+    }
+
+    Component.onDestruction: {
+        transmissionProbabilities.isHouseholdKernelEnabled = transmissionProbabilities.household !== 0
+        transmissionProbabilities.isConstantKernelEnabled = transmissionProbabilities.constant !== 0
+        transmissionProbabilities.isHospitalKernelEnabled = transmissionProbabilities.hospital !== 0
+        transmissionProbabilities.isFriendshipKernelEnabled = transmissionProbabilities.friendship !== 0
+    }
+
+    Connections {
+        target: transmissionProbabilities
+        onHouseholdChanged: {
+            householdFactorField.targetValue = transmissionProbabilities.household
+            householdFactorField.text = transmissionProbabilities.household
+        }
+        onConstantChanged: {
+            constantFactorField.targetValue = transmissionProbabilities.constant
+            constantFactorField.text = transmissionProbabilities.constant
+        }
+        onHospitalChanged: {
+            hospitalFactorField.targetValue = transmissionProbabilities.hospital
+            hospitalFactorField.text = transmissionProbabilities.hospital
+        }
+        onFriendshipChanged: {
+            friendshipKernelField.targetValue = transmissionProbabilities.friendship
+            friendshipKernelField.text = transmissionProbabilities.friendship
+        }
     }
 }

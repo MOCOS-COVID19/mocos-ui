@@ -11,8 +11,13 @@ GridLayout {
         id: infectiousNumField
         focus: true
         targetValue: initialConditions.cardinalities.infectious
-        onTargetValueChanged: initialConditions.cardinalities.infectious = targetValue
+        onAfterEditingFinished: initialConditions.cardinalities.infectious = targetValue
         bottomValue: 0
         KeyNavigation.tab: infectiousNumField
+    }
+
+    Connections {
+        target: initialConditions.cardinalities
+        onInfectiousChanged: infectiousNumField.text = initialConditions.cardinalities.infectious
     }
 }

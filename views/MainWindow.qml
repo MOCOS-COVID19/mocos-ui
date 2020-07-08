@@ -1,6 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 2.4
-import QtQuick.Dialogs 1.0
+import QtQuick.Dialogs 1.1
 import QtQuick.Layouts 1.0
 
 ApplicationWindow {
@@ -42,6 +42,14 @@ ApplicationWindow {
         onActivated: loadNextSource()
     }
 
+    Connections {
+        target: projectHandler
+        onShowErrorMsg: {
+            errorMessageDialog.text = msg
+            errorMessageDialog.visible = true
+        }
+    }
+
     Component.onCompleted: {
         mainWindow.width = initialConditionsButton.width + generalSettingsButton.width +
                 contactTrackingSettingsButton.width + transmissionSettingsButton.width +
@@ -59,9 +67,30 @@ ApplicationWindow {
         }
     }
 
+    FileDialog {
+        id: projectOpenDialog
+        folder: shortcuts.home
+        selectExisting: true
+        sidebarVisible: true
+        nameFilters: [ "JSON files (*.json)" ]
+        onAccepted: {
+            projectHandler.open(projectOpenDialog.fileUrl)
+        }
+    }
+
+    MessageDialog {
+        id: errorMessageDialog
+        title: "Error"
+        icon: StandardIcon.Critical
+        onAccepted: {
+            visible = false
+        }
+    }
+
     menuBar: MenuBar {
         Menu {
             title: "&File"
+            MenuItem { text: "&Open..."; onTriggered: projectOpenDialog.visible = true }
             MenuItem { text: "&Save As..."; onTriggered: projectSaveDialog.visible = true }
             MenuItem { text: "&Close"; onTriggered: mainWindow.close() }
         }

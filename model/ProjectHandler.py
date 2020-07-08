@@ -2,8 +2,11 @@
 from model.ProjectSettings import *
 import logging
 import json
-from PyQt5.QtCore import * #QObject, QVariant, QAbstractTableModel, QModelIndex, pyqtSlot
+from PyQt5.QtCore import *
 import sys
+import os
+from model.ConfigurationValidator import ConfigurationValidator
+from jsonschema import ValidationError
 
 class FunctionParametersModel(QAbstractTableModel):
 
@@ -89,6 +92,9 @@ class ProjectHandler(QObject):
     settings = ProjectSettings()
     modulationModel = FunctionParametersModel()
 
+    showErrorMsg = pyqtSignal(str, arguments=['msg'])
+    modulationFunctionChanged = pyqtSignal()
+
     def formatPath(self, path):
         result = path.replace("file:///", "")
         if sys.platform == "darwin":
@@ -101,6 +107,22 @@ class ProjectHandler(QObject):
         fh = open(path, "w", encoding='utf-8')
         json.dump( self.settings.serialize(), fh, indent=4, ensure_ascii=False )
         fh.close()
+
+    @pyqtSlot(str)
+    def open(self, path):
+        try:
+            path = self.formatPath(path)
+            inputFileHandle = open(path, 'r', encoding='utf-8')
+            data = json.loads(inputFileHandle.read())
+            ConfigurationValidator.validateAgainstSchema(data)
+            self.settings.populate(data)
+            self.modulationFunctionChanged.emit()
+        except FileNotFoundError as error:
+            self.showErrorMsg.emit(str(error))
+        except json.decoder.JSONDecodeError as error:
+            self.showErrorMsg.emit("File: configuration.schema is corrupted: {0}".format(str(error)))
+        except ValidationError as error:
+            self.showErrorMsg.emit("Unable to open file at: {0} due to wrong input data: {1}".format(path, str(error)))
 
     @pyqtSlot(result=QVariant)
     def getModulationFunctionTypes(self):

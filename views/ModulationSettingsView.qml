@@ -20,6 +20,7 @@ Item {
                 KeyNavigation.tab: tableView
                 onCurrentTextChanged: {
                     projectHandler.loadParamsForFunction(modulationFuncComboBox.currentText)
+                    tableView.visible = modulationModel.rowCount() > 0
                     tableView.Layout.minimumHeight = tableView.defaultRowHeight * modulationModel.rowCount()
                             + tableView.defaultHeaderHeight + 1
                     tableView.fillListOfEditFields()
@@ -36,6 +37,7 @@ Item {
             property int defaultRowHeight: 30
             verticalScrollBarPolicy: Qt.ScrollBarAlwaysOff
             horizontalScrollBarPolicy: Qt.ScrollBarAlwaysOff
+            backgroundVisible: false
 
             KeyNavigation.tab: modulationFuncComboBox
 

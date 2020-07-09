@@ -1,0 +1,17 @@
+{
+    "files": [
+        "mocos-gui.py",
+        "model/ProjectHandler.py",
+        "model/ProjectSettings.py",
+        "views/MainWindow.qml",
+        "views/ModulationSettingsView.qml",
+        "views/PhoneTrackingSettingsView.qml",
+        "views/GeneralSettingsView.qml",
+        "views/InitialConditionsView.qml",
+        "views/TransmissionProbabilitiesView.qml",
+        "views/ContactTrackingSettingsView.qml",
+        "views/DoubleNumField.qml",
+        "views/IntNumField.qml",
+        "views/KernelEnablingButton.qml"
+        ]
+}

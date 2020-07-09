@@ -102,8 +102,8 @@ class ContactTracking(QObject):
     def serialize(self):
         return {
             'probability' : self._probability,
-            'backward_detectionDelay' : self._backwardDetectionDelay,
-            'forward_detectionDelay' : self._forwardDetectionDelay,
+            'backward_detection_delay' : self._backwardDetectionDelay,
+            'forward_detection_delay' : self._forwardDetectionDelay,
             'testing_time' : self._testingTime
         }
 

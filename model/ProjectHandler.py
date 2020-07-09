@@ -92,12 +92,14 @@ class ProjectHandler(QObject):
     def formatPath(self, path):
         result = path.replace("file:///", "")
         if sys.platform == "darwin":
-            result = "/" + path
+            result = "/" + result
         return result
 
     @pyqtSlot(str)
     def saveAs(self, path):
+        logging.debug("pre: " + path)
         path = self.formatPath(path)
+        logging.debug("post: " + path)
         fh = open(path, "w", encoding='utf-8')
         json.dump( self.settings.serialize(), fh, indent=4, ensure_ascii=False )
         fh.close()

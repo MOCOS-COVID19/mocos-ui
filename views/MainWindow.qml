@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.0
 ApplicationWindow {
     id:  mainWindow
     objectName: "mainWindow"
-    title: "MOCOS"
+    title: createMainWindowTitle()
     height: 500
 
     visible: true
@@ -37,9 +37,33 @@ ApplicationWindow {
         loadSourceId(currentSourceId)
     }
 
+    function createMainWindowTitle() {
+        let title = projectHandler.getOpenedConfName()
+        if (projectHandler.isOpenedConfModified()) {
+            title += "*"
+        }
+        title += " - MOCOS"
+        return title
+    }
+
+    function handleQuickSave() {
+        if (projectHandler.isConfirationOpenedFromFile()) {
+            projectHandler.quickSave()
+        }
+        else {
+            projectSaveDialog.visible = true
+        }
+    }
+
     Shortcut {
         sequence: StandardKey.NextChild
         onActivated: loadNextSource()
+    }
+
+    Shortcut {
+        id: quickSaveShortcut
+        sequence: StandardKey.Save
+        onActivated: handleQuickSave()
     }
 
     Connections {
@@ -47,6 +71,12 @@ ApplicationWindow {
         onShowErrorMsg: {
             errorMessageDialog.text = msg
             errorMessageDialog.visible = true
+        }
+        onOpenedNewConf: {
+            mainWindow.title = createMainWindowTitle()
+        }
+        onOpenedConfModified: {
+            mainWindow.title = createMainWindowTitle()
         }
     }
 
@@ -91,7 +121,8 @@ ApplicationWindow {
         Menu {
             title: "&File"
             MenuItem { text: "&Open..."; onTriggered: projectOpenDialog.visible = true }
-            MenuItem { text: "&Save As..."; onTriggered: projectSaveDialog.visible = true }
+            MenuItem { text: "Save &As..."; onTriggered: projectSaveDialog.visible = true }
+            MenuItem { text: "&Save"; onTriggered: mainWindow.handleQuickSave() }
             MenuItem { text: "&Close"; onTriggered: mainWindow.close() }
         }
     }

@@ -29,12 +29,12 @@ if __name__ == "__main__":
     app.setOrganizationDomain("mocos.pl")
 
     engine.rootContext().setContextProperty("projectHandler", projectHandler)
-    engine.rootContext().setContextProperty("initialConditions", projectHandler.settings.initialConditions)
-    engine.rootContext().setContextProperty("transmissionProbabilities", projectHandler.settings.transmissionProbabilities)
-    engine.rootContext().setContextProperty("generalSettings", projectHandler.settings.generalSettings)
-    engine.rootContext().setContextProperty("phoneTracking", projectHandler.settings.phoneTracking)
-    engine.rootContext().setContextProperty("contactTracking", projectHandler.settings.contactTracking)
-    engine.rootContext().setContextProperty("modulationModel", projectHandler.modulationModel)
+    engine.rootContext().setContextProperty("initialConditions", projectHandler._settings.initialConditions)
+    engine.rootContext().setContextProperty("transmissionProbabilities", projectHandler._settings.transmissionProbabilities)
+    engine.rootContext().setContextProperty("generalSettings", projectHandler._settings.generalSettings)
+    engine.rootContext().setContextProperty("phoneTracking", projectHandler._settings.phoneTracking)
+    engine.rootContext().setContextProperty("contactTracking", projectHandler._settings.contactTracking)
+    engine.rootContext().setContextProperty("modulationModel", projectHandler._modulationModel)
 
     engine.load(QUrl("file:///" + os.path.dirname(os.path.abspath(__file__)) + "/views/MainWindow.qml"))
 

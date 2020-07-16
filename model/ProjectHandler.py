@@ -11,6 +11,7 @@ from jsonschema import ValidationError
 class FunctionParametersModel(QAbstractTableModel):
 
     dummySignalToRemoveQmlWarning = pyqtSignal(int)
+    dataModified = pyqtSignal()
 
     @pyqtProperty(int)
     def PropertyName(self, notify=dummySignalToRemoveQmlWarning):
@@ -75,9 +76,11 @@ class FunctionParametersModel(QAbstractTableModel):
         assert(index.row() < len(self._data._properties))
         if self._data._valueTypes[index.row()] == ValueTypes.IntegerValue:
             self._data._values[index.row()] = int(value)
+            self.dataModified.emit()
             return True
         if self._data._valueTypes[index.row()] == ValueTypes.DoubleValue:
             self._data._values[index.row()] = value
+            self.dataModified.emit()
             return True
         return False
 
@@ -89,11 +92,40 @@ class FunctionParametersModel(QAbstractTableModel):
         }
 
 class ProjectHandler(QObject):
-    settings = ProjectSettings()
-    modulationModel = FunctionParametersModel()
+    _settings = ProjectSettings()
+    _modulationModel = FunctionParametersModel()
+    _openedFilePath = None
+    _isOpenedConfModified = False
 
     showErrorMsg = pyqtSignal(str, arguments=['msg'])
     modulationFunctionChanged = pyqtSignal()
+    openedNewConf = pyqtSignal()
+    openedConfModified = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        setModifiedToTrue = lambda: self.setOpenedConfModified(True)
+        self._settings.generalSettings.numTrajectoriesChanged.connect(setModifiedToTrue)
+        self._settings.generalSettings.populationPathChanged.connect(setModifiedToTrue)
+        self._settings.generalSettings.detectionMildProbabilityChanged.connect(setModifiedToTrue)
+        self._settings.generalSettings.stopSimulationThresholdChanged.connect(setModifiedToTrue)
+        self._settings.initialConditions.cardinalities.infectiousChanged.connect(setModifiedToTrue)
+        self._settings.contactTracking.probabilityChanged.connect(setModifiedToTrue)
+        self._settings.contactTracking.backwardDetectionDelayChanged.connect(setModifiedToTrue)
+        self._settings.contactTracking.forwardDetectionDelayChanged.connect(setModifiedToTrue)
+        self._settings.contactTracking.testingTimeChanged.connect(setModifiedToTrue)
+        self._settings.transmissionProbabilities.householdChanged.connect(setModifiedToTrue)
+        self._settings.transmissionProbabilities.constantChanged.connect(setModifiedToTrue)
+        self._settings.transmissionProbabilities.hospitalChanged.connect(setModifiedToTrue)
+        self._settings.transmissionProbabilities.friendshipChanged.connect(setModifiedToTrue)
+        self._settings.transmissionProbabilities.householdKernelEnabledChanged.connect(setModifiedToTrue)
+        self._settings.transmissionProbabilities.constantKernelEnabledChanged.connect(setModifiedToTrue)
+        self._settings.transmissionProbabilities.hospitalKernelEnabledChanged.connect(setModifiedToTrue)
+        self._settings.transmissionProbabilities.friendshipKernelEnabledChanged.connect(setModifiedToTrue)
+        self._settings.phoneTracking.usageChanged.connect(setModifiedToTrue)
+        self._settings.phoneTracking.detectionDelayChanged.connect(setModifiedToTrue)
+        self._settings.phoneTracking.testingDelayChanged.connect(setModifiedToTrue)
+        self._modulationModel.dataModified.connect(setModifiedToTrue)
 
     def formatPath(self, path):
         result = path.replace("file:///", "")
@@ -105,8 +137,14 @@ class ProjectHandler(QObject):
     def saveAs(self, path):
         path = self.formatPath(path)
         fh = open(path, "w", encoding='utf-8')
-        json.dump( self.settings.serialize(), fh, indent=4, ensure_ascii=False )
+        json.dump( self._settings.serialize(), fh, indent=4, ensure_ascii=False )
         fh.close()
+        self.setOpenedConfModified(False)
+
+    @pyqtSlot()
+    def quickSave(self):
+        assert(self._openedFilePath != None)
+        self.saveAs(self._openedFilePath)
 
     @pyqtSlot(str)
     def open(self, path):
@@ -115,8 +153,11 @@ class ProjectHandler(QObject):
             inputFileHandle = open(path, 'r', encoding='utf-8')
             data = json.loads(inputFileHandle.read())
             ConfigurationValidator.validateAgainstSchema(data)
-            self.settings.populate(data)
+            self._settings.populate(data)
             self.modulationFunctionChanged.emit()
+            self._openedFilePath = path
+            self._isOpenedConfModified = False
+            self.openedNewConf.emit()
         except FileNotFoundError as error:
             self.showErrorMsg.emit(str(error))
         except json.decoder.JSONDecodeError as error:
@@ -124,24 +165,46 @@ class ProjectHandler(QObject):
         except ValidationError as error:
             self.showErrorMsg.emit("Unable to open file at: {0} due to wrong input data: {1}".format(path, str(error)))
 
+    @pyqtSlot(result=str)
+    def getOpenedConfName(self):
+        if self._openedFilePath == None:
+            return "new"
+        else:
+            return self._openedFilePath
+
+    @pyqtSlot(result=bool)
+    def isConfirationOpenedFromFile(self):
+        return self._openedFilePath != None
+
+    @pyqtSlot(result=bool)
+    def isOpenedConfModified(self):
+        return self._isOpenedConfModified
+
+    def setOpenedConfModified(self, isModified=True):
+        if self._isOpenedConfModified != isModified:
+            self._isOpenedConfModified = isModified
+            self.openedConfModified.emit()
+
     @pyqtSlot(result=QVariant)
     def getModulationFunctionTypes(self):
         return ModulationFunctions.values()
 
     @pyqtSlot(result=QVariant)
     def getActiveModulationFunction(self):
-        return self.settings.modulation._function.value
+        return self._settings.modulation._function.value
 
-    @pyqtSlot(str)
-    def loadParamsForFunction(self, funcType):
+    @pyqtSlot(str, bool)
+    def loadParamsForFunction(self, funcType, isModifyingConf):
         wantedFunc = ModulationFunctions.from_value(funcType)
         if wantedFunc == ModulationFunctions.TANH:
-            self.settings.modulation._function = ModulationFunctions.TANH
-            self.modulationModel.setParameters(self.settings.modulation._tanhModulationParams)
+            self._settings.modulation._function = ModulationFunctions.TANH
+            self._modulationModel.setParameters(self._settings.modulation._tanhModulationParams)
         elif wantedFunc == ModulationFunctions.NONE:
-            self.settings.modulation._function = ModulationFunctions.NONE
-            self.modulationModel.setParameters(self.settings.modulation._emptyModulationParams)
+            self._settings.modulation._function = ModulationFunctions.NONE
+            self._modulationModel.setParameters(self._settings.modulation._emptyModulationParams)
+        if isModifyingConf:
+            self.setOpenedConfModified(True)
 
     @pyqtSlot(str)
     def setPopulationFilePath(self, path):
-        self.settings.generalSettings.populationPath = self.formatPath(path)
+        self._settings.generalSettings.populationPath = self.formatPath(path)

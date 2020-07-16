@@ -26,13 +26,15 @@ Item {
                 model: projectHandler.getModulationFunctionTypes()
                 currentIndex: projectHandler.getModulationFunctionTypes().indexOf(projectHandler.getActiveModulationFunction())
                 KeyNavigation.tab: tableView
+                property bool isInitialization: true
                 onCurrentTextChanged: {
-                    projectHandler.loadParamsForFunction(modulationFuncComboBox.currentText)
+                    projectHandler.loadParamsForFunction(modulationFuncComboBox.currentText, !isInitialization)
                     tableView.visible = modulationModel.rowCount() > 0
                     tableView.Layout.minimumHeight = tableView.defaultRowHeight * modulationModel.rowCount()
                             + tableView.defaultHeaderHeight + 1
                     tableView.fillListOfEditFields()
                     KeyNavigation.tab = tableView.getItemToFocusAfterComboBox()
+                    isInitialization = false
                 }
             }
         }

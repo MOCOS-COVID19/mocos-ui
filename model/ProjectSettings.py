@@ -40,23 +40,27 @@ class GeneralSettings(QObject):
 
     @numTrajectories.setter
     def numTrajectories(self, val):
-        self._numTrajectories = val
-        self.numTrajectoriesChanged.emit()
+        if self._numTrajectories != val:
+            self._numTrajectories = val
+            self.numTrajectoriesChanged.emit()
 
     @populationPath.setter
     def populationPath(self, path):
-        self._populationPath = path
-        self.populationPathChanged.emit()
+        if self._populationPath != path:
+            self._populationPath = path
+            self.populationPathChanged.emit()
 
     @detectionMildProbability.setter
     def detectionMildProbability(self, val):
-        self._detectionMildProbability = val
-        self.detectionMildProbabilityChanged.emit()
+        if self._detectionMildProbability != val:
+            self._detectionMildProbability = val
+            self.detectionMildProbabilityChanged.emit()
 
     @stopSimulationThreshold.setter
     def stopSimulationThreshold(self, val):
-        self._stopSimulationThreshold = val
-        self.stopSimulationThresholdChanged.emit()
+        if self._stopSimulationThreshold != val:
+            self._stopSimulationThreshold = val
+            self.stopSimulationThresholdChanged.emit()
 
     def serialize(self):
         return {
@@ -105,21 +109,26 @@ class ContactTracking(QObject):
 
     @probability.setter
     def probability(self, val):
-        self._probability = val
-        self.probabilityChanged.emit()
+        if self._probability != val:
+            self._probability = val
+            self.probabilityChanged.emit()
 
     @backwardDetectionDelay.setter
     def backwardDetectionDelay(self, val):
-        self._backwardDetectionDelay = val
-        self.backwardDetectionDelayChanged.emit()
+        if self._backwardDetectionDelay != val:
+            self._backwardDetectionDelay = val
+            self.backwardDetectionDelayChanged.emit()
 
     @forwardDetectionDelay.setter
     def forwardDetectionDelay(self, val):
-        self._forwardDetectionDelay = val
-        self.forwardDetectionDelayChanged.emit()
+        if self._forwardDetectionDelay != val:
+            self._forwardDetectionDelay = val
+            self.forwardDetectionDelayChanged.emit()
 
     @testingTime.setter
     def testingTime(self, val):
+        if self._testingTime == val:
+            return
         self._testingTime = val
         self.testingTimeChanged.emit()
 
@@ -195,23 +204,27 @@ class TransmissionProbabilities(QObject):
 
     @household.setter
     def household(self, val):
-        self._household = val
-        self.householdChanged.emit()
+        if self._household != val:
+            self._household = val
+            self.householdChanged.emit()
 
     @constant.setter
     def constant(self, val):
-        self._constant = val
-        self.constantChanged.emit()
+        if self._constant != val:
+            self._constant = val
+            self.constantChanged.emit()
 
     @hospital.setter
     def hospital(self, val):
-        self._hospital = val
-        self.hospitalChanged.emit()
+        if self._hospital != val:
+            self._hospital = val
+            self.hospitalChanged.emit()
 
     @friendship.setter
     def friendship(self, val):
-        self._friendship = val
-        self.friendshipChanged.emit()
+        if self._friendship != val:
+            self._friendship = val
+            self.friendshipChanged.emit()
 
     @isHouseholdKernelEnabled.setter
     def isHouseholdKernelEnabled(self, value):
@@ -347,8 +360,9 @@ class Cardinalities(QObject):
 
     @infectious.setter
     def infectious(self, val):
-        self._infectious = val
-        self.infectiousChanged.emit()
+        if self._infectious != val:
+            self._infectious = val
+            self.infectiousChanged.emit()
 
     def serialize(self):
         return {
@@ -408,18 +422,21 @@ class PhoneTracking(QObject):
 
     @usage.setter
     def usage(self, val):
-        self._usage = val
-        self.usageChanged.emit()
+        if self._usage != val:
+            self._usage = val
+            self.usageChanged.emit()
 
     @detectionDelay.setter
     def detectionDelay(self, val):
-        self._detectionDelay = val
-        self.detectionDelayChanged.emit()
+        if self._detectionDelay != val:
+            self._detectionDelay = val
+            self.detectionDelayChanged.emit()
 
     @testingDelay.setter
     def testingDelay(self, val):
-        self._testingDelay = val
-        self.testingDelayChanged.emit()
+        if self._testingDelay != val:
+            self._testingDelay = val
+            self.testingDelayChanged.emit()
 
     def serialize(self):
         return {

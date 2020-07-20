@@ -1,11 +1,12 @@
 {
     "type" : "object",
-    "parameters" : {
-        "scale": {"type" : "integer", "minimum": 0},
-        "loc": {"type" : "integer", "minimum": 0},
-        "weight_detected": {"type" : "integer", "minimum": 0},
-        "weight_deaths": {"type" : "integer", "minimum": 0},
+    "properties" : {
+        "scale": {"type" : "number", "minimum": 0.0},
+        "loc": {"type" : "number"},
+        "weight_detected": {"type" : "number", "minimum": 0.0},
+        "weight_deaths": {"type" : "number", "minimum": 0.0},
         "limit_value": {"type" : "number", "minimum": 0.0}
     },
-    "required" : ["scale", "loc", "weight_detected", "weight_deaths", "limit_value"]
+    "required" : ["scale", "loc", "weight_detected", "weight_deaths", "limit_value"],
+    "additionalProperties": false
 }

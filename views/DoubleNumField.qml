@@ -27,6 +27,9 @@ TextField {
             text = floatValueToText(targetValue)
             return
         }
+        if (targetValue === num) {
+            return
+        }
         if (num < bottomValue || num > topValue) {
             text = floatValueToText(targetValue)
             return

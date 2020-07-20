@@ -1,5 +1,4 @@
 from model.ProjectSettings import *
-import logging
 import os
 import json
 from jsonschema import validate

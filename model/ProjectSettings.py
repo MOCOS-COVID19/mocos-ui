@@ -3,7 +3,6 @@ from enum import Enum
 from typing import Union
 from PyQt5.QtQml import qmlRegisterType
 from PyQt5.QtCore import QObject, QMetaType, pyqtProperty, pyqtSignal, QVariant
-import logging
 
 class GeneralSettings(QObject):
     _numTrajectories = 1000
@@ -277,8 +276,9 @@ class ModulationFunctions(Enum):
         raise NotImplementedError
 
 class ValueTypes(Enum):
-    IntegerValue = 0
-    DoubleValue = 1
+    PositiveIntegerValue = 0
+    PositiveDoubleValue = 1
+    InfiniteDoubleValue = 2
 
 class ModulationParams:
     _properties = []
@@ -305,13 +305,13 @@ class TanhModulationParams(ModulationParams):
 
     def __init__(self):
         self._properties = ["Scale", "Loc", "Weight detected", "Weight deaths", "Limit value"]
-        self._values = [2000, 500, 1, 0, 0.5]
+        self._values = [2000.0, 500.0, 1.0, 0.0, 0.5]
         self._valueTypes = [
-            ValueTypes.IntegerValue,
-            ValueTypes.IntegerValue,
-            ValueTypes.IntegerValue,
-            ValueTypes.IntegerValue,
-            ValueTypes.DoubleValue
+            ValueTypes.PositiveDoubleValue,
+            ValueTypes.InfiniteDoubleValue,
+            ValueTypes.PositiveDoubleValue,
+            ValueTypes.PositiveDoubleValue,
+            ValueTypes.PositiveDoubleValue
         ]
 
 class Modulation:

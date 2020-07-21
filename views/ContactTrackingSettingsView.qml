@@ -12,28 +12,44 @@ GridLayout {
         focus: true
         topValue: 1.0
         targetValue: contactTracking.probability
-        onTargetValueChanged: contactTracking.probability = targetValue
+        onAfterEditingFinished: contactTracking.probability = targetValue
         KeyNavigation.tab: backwardDetectionDelayInputField
     }
     Label { text: "Backward detection delay:" }
     DoubleNumField {
         id: backwardDetectionDelayInputField
         targetValue: contactTracking.backwardDetectionDelay
-        onTargetValueChanged: contactTracking.backwardDetectionDelay = targetValue
+        onAfterEditingFinished: contactTracking.backwardDetectionDelay = targetValue
         KeyNavigation.tab: forwardDetectionDelayInputField
     }
     Label { text: "Forward detection delay:" }
     DoubleNumField {
         id: forwardDetectionDelayInputField
         targetValue: contactTracking.forwardDetectionDelay
-        onTargetValueChanged: contactTracking.forwardDetectionDelay = targetValue
+        onAfterEditingFinished: contactTracking.forwardDetectionDelay = targetValue
         KeyNavigation.tab: testingTimeInputField
     }
     Label { text: "Testing time:" }
     DoubleNumField {
         id: testingTimeInputField
         targetValue: contactTracking.testingTime
-        onTargetValueChanged: contactTracking.testingTime = targetValue
+        onAfterEditingFinished: contactTracking.testingTime = targetValue
         KeyNavigation.tab: probabilityInputField
+    }
+
+    Connections {
+        target: contactTracking
+        onProbabilityChanged: {
+            probabilityInputField.text = contactTracking.probability
+        }
+        onBackwardDetectionDelayChanged: {
+            backwardDetectionDelayInputField.text = contactTracking.backwardDetectionDelay
+        }
+        onForwardDetectionDelayChanged: {
+            forwardDetectionDelayInputField.text = contactTracking.forwardDetectionDelay
+        }
+        onTestingTimeChanged: {
+            testingTimeInputField.text = contactTracking.testingTime
+        }
     }
 }

@@ -6,6 +6,27 @@ import QtQuick.Controls 1.4 as QC14
 Item {
     id: modulationSettingsView
 
+    function loadNewParams(isInitialization) {
+        projectHandler.loadParamsForFunction(modulationFuncComboBox.currentText, !isInitialization)
+        tableView.visible = modulationModel.rowCount() > 0
+        tableView.Layout.minimumHeight = tableView.defaultRowHeight * modulationModel.rowCount()
+                + tableView.defaultHeaderHeight + 1
+        tableView.fillListOfEditFields()
+        modulationFuncComboBox.KeyNavigation.tab = tableView.getItemToFocusAfterComboBox()
+    }
+
+    Connections {
+        target: projectHandler
+        onModulationFunctionChanged: {
+            let newIndex = projectHandler.getModulationFunctionTypes().indexOf(projectHandler.getActiveModulationFunction())
+            if (modulationFuncComboBox.currentIndex === newIndex) {
+                modulationSettingsView.loadNewParams(false)
+            } else {
+                modulationFuncComboBox.currentIndex = newIndex
+            }
+        }
+    }
+
     ColumnLayout {
         GridLayout {
             columns: 2
@@ -18,13 +39,10 @@ Item {
                 model: projectHandler.getModulationFunctionTypes()
                 currentIndex: projectHandler.getModulationFunctionTypes().indexOf(projectHandler.getActiveModulationFunction())
                 KeyNavigation.tab: tableView
+                property bool isInitialization: true
                 onCurrentTextChanged: {
-                    projectHandler.loadParamsForFunction(modulationFuncComboBox.currentText)
-                    tableView.visible = modulationModel.rowCount() > 0
-                    tableView.Layout.minimumHeight = tableView.defaultRowHeight * modulationModel.rowCount()
-                            + tableView.defaultHeaderHeight + 1
-                    tableView.fillListOfEditFields()
-                    KeyNavigation.tab = tableView.getItemToFocusAfterComboBox()
+                    modulationSettingsView.loadNewParams(isInitialization)
+                    isInitialization = false
                 }
             }
         }
@@ -159,13 +177,32 @@ Item {
                 }
 
                 Component {
-                    id: propertyDoubleValueComponent
+                    id: propertyPositiveDoubleValueComponent
                     Rectangle {
                         implicitWidth: propertyValueColumn.width
                         implicitHeight: tableView.defaultRowHeight
                         DoubleNumField {
                             property int row: styleData.row
                             anchors.fill: parent
+                            targetValue: styleData.value
+                            onTargetValueChanged: {
+                                modulationModel.setData(
+                                    modulationModel.index(styleData.row, styleData.column),
+                                        targetValue, modulationModel.PropertyValue)
+                            }
+                        }
+                    }
+                }
+
+                Component {
+                    id: propertyInfiniteDoubleValueComponent
+                    Rectangle {
+                        implicitWidth: propertyValueColumn.width
+                        implicitHeight: tableView.defaultRowHeight
+                        DoubleNumField {
+                            property int row: styleData.row
+                            anchors.fill: parent
+                            bottomValue: -Infinity
                             targetValue: styleData.value
                             onTargetValueChanged: {
                                 modulationModel.setData(
@@ -183,8 +220,13 @@ Item {
                         }
                         else {
                             let pt = modulationModel.getPropertyType(styleData.row)
-                            return pt === modulationModel.IntegerTypeProperty ?
-                                        propertyIntegerValueComponent : propertyDoubleValueComponent
+                            if (pt === modulationModel.PositiveIntegerTypeProperty) {
+                                return propertyPositiveIntegerValueComponent
+                            }
+                            else if (pt === modulationModel.PositiveDoubleTypeProperty) {
+                                return propertyPositiveDoubleValueComponent
+                            }
+                            return propertyInfiniteDoubleValueComponent
                         }
                     }
                 }

@@ -1,0 +1,71 @@
+{
+    "type" : "object",
+    "properties" : {
+        "num_trajectories" : {"type" : "integer", "minimum": 0},
+        "population_path" : {"type" : "string"},
+        "detection_mild_proba" : {"type" : "number", "minimum": 0.0},
+        "stop_simulation_threshold" : {"type" : "integer", "minimum": 0},
+        "initial_conditions" : {
+            "type" : "object",
+            "properties" : {
+                "cardinalities" : {
+                    "type" : "object",
+                    "properties" : {
+                        "infectious" : {"type" : "integer", "minimum": 0}
+                    },
+                    "required" : ["infectious"],
+                    "additionalProperties": false
+                }
+            },
+            "required" : ["cardinalities"],
+            "additionalProperties": false
+        },
+        "contact_tracking": {
+            "type" : "object",
+            "properties" : {
+                "probability": {"type" : "number", "minimum": 0.0, "maximum": 1.0},
+                "backward_detection_delay": {"type" : "number", "minimum": 0.0 },
+                "forward_detection_delay": {"type" : "number", "minimum": 0.0 },
+                "testing_time": {"type" : "number", "minimum": 0.0 }
+            },
+            "required" : ["probability", "backward_detection_delay", "forward_detection_delay", "testing_time"],
+            "additionalProperties": false
+        },
+        "transmission_probabilities": {
+            "type" : "object",
+            "properties" : {
+                "household": {"type" : "number", "minimum": 0.0},
+                "constant": {"type" : "number", "minimum": 0.0},
+                "hospital": {"type" : "number", "minimum": 0.0},
+                "friendship": {"type" : "number", "minimum": 0.0}
+            },
+            "required" : ["household", "constant", "hospital", "friendship"],
+            "additionalProperties": false
+        },
+        "phone_tracking": {
+            "type" : "object",
+            "properties" : {
+                "usage": {"type" : "number", "minimum": 0.0},
+                "detection_delay": {"type" : "number", "minimum": 0.0},
+                "testing_delay": {"type" : "number", "minimum": 0.0}
+            },
+            "required" : ["usage", "detection_delay", "testing_delay"],
+            "additionalProperties": false
+        },
+        "modulation": {
+            "type" : "object",
+            "additionalProperties": false,
+            "properties" : {
+                "function": {
+                    "type" : "string",
+                    "enum": ["TanhModulation"]
+                },
+                "params": {
+                    "type" : "object"
+                }
+            }
+        }
+    },
+    "required": ["num_trajectories", "population_path", "detection_mild_proba", "stop_simulation_threshold", "initial_conditions", "contact_tracking", "transmission_probabilities", "phone_tracking"],
+    "additionalProperties": false
+}

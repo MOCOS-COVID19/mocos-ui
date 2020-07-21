@@ -1,12 +1,12 @@
 import QtQuick 2.5
 import QtQuick.Controls 2.4
-import QtQuick.Dialogs 1.0
+import QtQuick.Dialogs 1.1
 import QtQuick.Layouts 1.0
 
 ApplicationWindow {
     id:  mainWindow
     objectName: "mainWindow"
-    title: "MOCOS"
+    title: createMainWindowTitle()
     height: 500
 
     visible: true
@@ -37,9 +37,47 @@ ApplicationWindow {
         loadSourceId(currentSourceId)
     }
 
+    function createMainWindowTitle() {
+        let title = projectHandler.getOpenedConfName()
+        if (projectHandler.isOpenedConfModified()) {
+            title += "*"
+        }
+        title += " - MOCOS"
+        return title
+    }
+
+    function handleQuickSave() {
+        if (projectHandler.isConfirationOpenedFromFile()) {
+            projectHandler.quickSave()
+        }
+        else {
+            projectSaveDialog.visible = true
+        }
+    }
+
     Shortcut {
         sequence: StandardKey.NextChild
         onActivated: loadNextSource()
+    }
+
+    Shortcut {
+        id: quickSaveShortcut
+        sequence: StandardKey.Save
+        onActivated: handleQuickSave()
+    }
+
+    Connections {
+        target: projectHandler
+        onShowErrorMsg: {
+            errorMessageDialog.text = msg
+            errorMessageDialog.visible = true
+        }
+        onOpenedNewConf: {
+            mainWindow.title = createMainWindowTitle()
+        }
+        onOpenedConfModified: {
+            mainWindow.title = createMainWindowTitle()
+        }
     }
 
     Component.onCompleted: {
@@ -59,10 +97,32 @@ ApplicationWindow {
         }
     }
 
+    FileDialog {
+        id: projectOpenDialog
+        folder: shortcuts.home
+        selectExisting: true
+        sidebarVisible: true
+        nameFilters: [ "JSON files (*.json)" ]
+        onAccepted: {
+            projectHandler.open(projectOpenDialog.fileUrl)
+        }
+    }
+
+    MessageDialog {
+        id: errorMessageDialog
+        title: "Error"
+        icon: StandardIcon.Critical
+        onAccepted: {
+            visible = false
+        }
+    }
+
     menuBar: MenuBar {
         Menu {
             title: "&File"
-            MenuItem { text: "&Save As..."; onTriggered: projectSaveDialog.visible = true }
+            MenuItem { text: "&Open..."; onTriggered: projectOpenDialog.visible = true }
+            MenuItem { text: "Save &As..."; onTriggered: projectSaveDialog.visible = true }
+            MenuItem { text: "&Save"; onTriggered: mainWindow.handleQuickSave() }
             MenuItem { text: "&Close"; onTriggered: mainWindow.close() }
         }
     }

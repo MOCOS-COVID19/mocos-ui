@@ -1,0 +1,14 @@
+dist: bionic
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+# command to install dependencies
+install:
+  - pip install -U pip setuptools wheel
+  - pip install -r requirements.txt
+  - pip install -r requirements-ci.txt
+# command to run tests
+script:
+  - flake8 .

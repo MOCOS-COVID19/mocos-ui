@@ -1,11 +1,17 @@
 # This Python file uses the following encoding: utf-8
 from model.ProjectSettings import *
 import json
-from PyQt5.QtCore import *
+from PyQt5.QtCore import QAbstractTableModel, pyqtSignal, pyqtSlot, Qt, QByteArray, QObject
+from PyQt5.QtWidgets import QFileDialog
 import sys
 import os
 from model.ConfigurationValidator import ConfigurationValidator
+from model.Utilities import formatPath
+from model.ApplicationSettings import ApplicationSettings
+from model.SimulationRunner import SimulationRunner
 from jsonschema import ValidationError
+import logging
+import subprocess
 
 class FunctionParametersModel(QAbstractTableModel):
     dummySignalToRemoveQmlWarning = pyqtSignal(int)
@@ -113,14 +119,20 @@ class FunctionParametersModel(QAbstractTableModel):
 class ProjectHandler(QObject):
     _settings = ProjectSettings()
     _modulationModel = FunctionParametersModel()
+    _applicationSettings = ApplicationSettings()
+    _simulationRunner = SimulationRunner()
+
     _openedFilePath = None
     _isOpenedConfModified = False
     _isModifyingConfOngoing = True
+
+    __runSimulationAfterSaving = False 
 
     showErrorMsg = pyqtSignal(str, arguments=['msg'])
     modulationFunctionChanged = pyqtSignal()
     openedNewConf = pyqtSignal()
     openedConfModified = pyqtSignal()
+    requestSavingConfiguration = pyqtSignal()
 
     def setOpenedConfModifiedIfModificationOngoing(self):
         if self._isModifyingConfOngoing:
@@ -148,24 +160,21 @@ class ProjectHandler(QObject):
         self._settings.transmissionProbabilities.friendshipKernelEnabledChanged.connect(setModifiedToTrue)
         self._settings.phoneTracking.usageChanged.connect(setModifiedToTrue)
         self._settings.phoneTracking.detectionDelayChanged.connect(setModifiedToTrue)
-        self._settings.phoneTracking.testingDelayChanged.connect(setModifiedToTrue)
+        self._settings.phoneTracking.usageByHouseholdChanged.connect(setModifiedToTrue)
         self._modulationModel.dataChanged.connect(lambda tr, bl, role: setModifiedToTrue())
-
-    def formatPath(self, path):
-        result = path.replace("file:///", "")
-        if sys.platform == "darwin":
-            result = "/" + result
-        return result
 
     @pyqtSlot(str)
     def saveAs(self, path):
-        path = self.formatPath(path)
+        path = formatPath(path)
         fh = open(path, "w", encoding='utf-8')
         json.dump( self._settings.serialize(), fh, indent=4, ensure_ascii=False )
         fh.close()
         self._openedFilePath = path
         self.openedNewConf.emit()
         self.setOpenedConfModified(False)
+        if self.__runSimulationAfterSaving:
+            self.__runSimulationAfterSaving = False
+            self.runSimulation()
 
     @pyqtSlot()
     def quickSave(self):
@@ -175,7 +184,7 @@ class ProjectHandler(QObject):
     @pyqtSlot(str)
     def open(self, path):
         try:
-            path = self.formatPath(path)
+            path = formatPath(path)
             inputFileHandle = open(path, 'r', encoding='utf-8')
             data = json.loads(inputFileHandle.read())
             ConfigurationValidator.validateAgainstSchema(data)
@@ -187,7 +196,7 @@ class ProjectHandler(QObject):
         except FileNotFoundError as error:
             self.showErrorMsg.emit(str(error))
         except json.decoder.JSONDecodeError as error:
-            self.showErrorMsg.emit("File: configuration.schema is corrupted: {0}".format(str(error)))
+            self.showErrorMsg.emit("File: json schema is corrupted: {0}".format(str(error)))
         except ValidationError as error:
             self.showErrorMsg.emit("Unable to open file at: {0} due to wrong input data: {1}".format(path, str(error)))
 
@@ -236,4 +245,25 @@ class ProjectHandler(QObject):
 
     @pyqtSlot(str)
     def setPopulationFilePath(self, path):
-        self._settings.generalSettings.populationPath = self.formatPath(path)
+        self._settings.generalSettings.populationPath = formatPath(path)
+
+    @pyqtSlot()
+    def runSimulation(self):
+        if not self._settings.generalSettings._populationPath:
+            self.showErrorMsg.emit("Simulation can't be run: population path not defined.")
+            return
+        if not self._openedFilePath:
+            self.__runSimulationAfterSaving = True
+            self.requestSavingConfiguration.emit()
+            return
+        self._simulationRunner.openedFilePath = self._openedFilePath
+        self._simulationRunner.pathToCLI = self._applicationSettings.pathToCLI
+        self._simulationRunner.outputDaily = self._applicationSettings.outputDaily
+        self._simulationRunner.outputSummary = self._applicationSettings.outputSummary
+        self._simulationRunner.outputParamsDump = self._applicationSettings.outputParamsDump
+        self._simulationRunner.outputRunDumpPrefix = self._applicationSettings.outputRunDumpPrefix
+        self._simulationRunner.start()
+
+    @pyqtSlot()
+    def stopSimulation(self):
+        self._simulationRunner.stop()

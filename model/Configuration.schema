@@ -47,9 +47,9 @@
             "properties" : {
                 "usage": {"type" : "number", "minimum": 0.0},
                 "detection_delay": {"type" : "number", "minimum": 0.0},
-                "testing_delay": {"type" : "number", "minimum": 0.0}
+                "usage_by_household": {"type" : "boolean"}
             },
-            "required" : ["usage", "detection_delay", "testing_delay"],
+            "required" : ["usage", "detection_delay", "usage_by_household"],
             "additionalProperties": false
         },
         "modulation": {

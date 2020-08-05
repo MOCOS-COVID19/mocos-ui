@@ -393,16 +393,16 @@ class InitialConditions(QObject):
 class PhoneTracking(QObject):
     _usage = 0.0
     _detectionDelay = 0.25
-    _testingDelay = 1.5
+    _usageByHousehold = True
 
     usageChanged = pyqtSignal()
     detectionDelayChanged = pyqtSignal()
-    testingDelayChanged = pyqtSignal()
+    usageByHouseholdChanged = pyqtSignal()
 
     class Properties(Enum):
         Usage = 'usage'
         DetectionDelay = 'detection_delay'
-        TestingDelay = 'testing_delay'
+        UsageByHousehold = 'usage_by_household'
 
     @staticmethod
     def description():
@@ -416,9 +416,9 @@ class PhoneTracking(QObject):
     def detectionDelay(self):
         return self._detectionDelay
 
-    @pyqtProperty(float, notify=testingDelayChanged)
-    def testingDelay(self):
-        return self._testingDelay
+    @pyqtProperty(bool, notify=usageByHouseholdChanged)
+    def usageByHousehold(self):
+        return self._usageByHousehold
 
     @usage.setter
     def usage(self, val):
@@ -432,17 +432,17 @@ class PhoneTracking(QObject):
             self._detectionDelay = val
             self.detectionDelayChanged.emit()
 
-    @testingDelay.setter
-    def testingDelay(self, val):
-        if self._testingDelay != val:
-            self._testingDelay = val
-            self.testingDelayChanged.emit()
+    @usageByHousehold.setter
+    def usageByHousehold(self, val):
+        if self._usageByHousehold != val:
+            self._usageByHousehold = val
+            self.usageByHouseholdChanged.emit()
 
     def serialize(self):
         return {
             self.Properties.Usage.value          : self._usage,
             self.Properties.DetectionDelay.value : self._detectionDelay,
-            self.Properties.TestingDelay.value   : self._testingDelay
+            self.Properties.UsageByHousehold.value   : self._usageByHousehold
         }
 
 class SettingsSetter:
@@ -503,7 +503,7 @@ class SettingsSetter:
             pt = jsonData[PhoneTracking.description()]
             settings.phoneTracking.usage = pt[PhoneTracking.Properties.Usage.value]
             settings.phoneTracking.detectionDelay = pt[PhoneTracking.Properties.DetectionDelay.value]
-            settings.phoneTracking.testingDelay = pt[PhoneTracking.Properties.TestingDelay.value]
+            settings.phoneTracking.usageByHousehold = pt[PhoneTracking.Properties.UsageByHousehold.value]
 
         @staticmethod
         def _copyTransmissionProbabilities(settings, jsonData):

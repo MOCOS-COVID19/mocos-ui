@@ -17,7 +17,8 @@ ApplicationWindow {
         "ContactTrackingSettingsView.qml",
         "TransmissionProbabilitiesView.qml",
         "ModulationSettingsView.qml",
-        "PhoneTrackingSettingsView.qml" ]
+        "PhoneTrackingSettingsView.qml",
+        "RunSimulationView.qml" ]
     property int currentSourceId: 1
 
     function loadSourceId(id) {
@@ -78,12 +79,16 @@ ApplicationWindow {
         onOpenedConfModified: {
             mainWindow.title = createMainWindowTitle()
         }
+        onRequestSavingConfiguration: {
+            projectSaveDialog.visible = true
+        }
     }
 
     Component.onCompleted: {
         mainWindow.width = initialConditionsButton.width + generalSettingsButton.width +
                 contactTrackingSettingsButton.width + transmissionSettingsButton.width +
-                modulationSettingsButton.width + phoneTrackingSettingsButton.width + 50;
+                modulationSettingsButton.width + phoneTrackingSettingsButton.width +
+                runSimulationSettingsButton.width + 50;
     }
 
     FileDialog {
@@ -192,7 +197,24 @@ ApplicationWindow {
                     mainWindow.loadSourceId(sourceId)
                 }
             }
+            ToolButton {
+                id: runSimulationSettingsButton
+                property int sourceId: 6
+                activeFocusOnTab : false
+                text: "Run"
+                onClicked: {
+                    mainWindow.loadSourceId(sourceId)
+                }
+            }
         }
+    }
+
+    property var logWindow: {
+        var component = Qt.createComponent("LogWindow.qml")
+        if (component.status === Component.Ready) {
+            return component.createObject(mainWindow)
+        }
+        console.assert(false)
     }
 
     Item {
@@ -206,9 +228,16 @@ ApplicationWindow {
             contentItem: Loader {
                 id: contentLoader
                 focus: true
-
                 Component.onCompleted: {
                     mainWindow.loadSourceId(generalSettingsButton.sourceId)
+                }
+            }
+
+            Connections {
+                ignoreUnknownSignals: true
+                target: contentLoader.item
+                onShowLogWindow: {
+                    logWindow.visible = true
                 }
             }
         }

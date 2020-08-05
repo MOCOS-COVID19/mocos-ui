@@ -20,13 +20,16 @@ GridLayout {
         id: detectionDelayInputField
         targetValue: phoneTracking.detectionDelay
         onAfterEditingFinished: phoneTracking.detectionDelay = targetValue
-        KeyNavigation.tab: testingDelayInputField
+        KeyNavigation.tab: usageByHouseholdInputField
     }
-    Label { text: "Testing delay:" }
-    DoubleNumField {
-        id: testingDelayInputField
-        targetValue: phoneTracking.testingDelay
-        onAfterEditingFinished: phoneTracking.testingDelay = targetValue
+    Label { text: "Usage by household:" }
+    CheckBox {
+        id: usageByHouseholdInputField
+        checkState: phoneTracking.usageByHousehold ? Qt.Checked : Qt.Unchecked
+        onCheckStateChanged: {
+            phoneTracking.usageByHousehold = checkState === Qt.Checked
+        }
+
         KeyNavigation.tab: usageInputField
     }
 
@@ -34,6 +37,8 @@ GridLayout {
         target: phoneTracking
         onUsageChanged: usageInputField.text = phoneTracking.usage
         onDetectionDelayChanged: detectionDelayInputField.text = phoneTracking.detectionDelay
-        onTestingDelayChanged: testingDelayInputField.text = phoneTracking.testingDelay
+        onUsageByHouseholdChanged: {
+            usageByHouseholdInputField.checkState = phoneTracking.usageByHousehold ? Qt.Checked : Qt.Unchecked
+        }
     }
 }

@@ -124,7 +124,9 @@ class SimulationRunner(QThread):
         self.notifyProgress.emit(0.0)
         self.clearLog.emit()
         dirname = os.path.dirname(self.pathToCLI)
-        self.__process = subprocess.Popen(self.__createCommand(), shell=True, \
+        cmd = self.__createCommand()
+        self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
+        self.__process = subprocess.Popen(cmd, shell=True, \
             cwd=dirname, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, \
             encoding="utf-8")
         if self.__isThreadStopped_Safe():
@@ -166,5 +168,5 @@ class SimulationRunner(QThread):
         if self.__process != None:
             self.__setThreadStopped_Safe(True)
             self.wait()
-            self.__proscess.kill()
+            self.__process.kill()
             self.__process = None

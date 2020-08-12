@@ -1,0 +1,3 @@
+[submodule "3rdparty/modelling-ncov2019"]
+	path = 3rdparty/modelling-ncov2019
+	url = https://github.com/MOCOS-COVID19/modelling-ncov2019/

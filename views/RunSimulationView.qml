@@ -9,13 +9,13 @@ ColumnLayout {
     signal showLogWindow()
 
     FileDialog {
-        id: cliSelectDialog
+        id: juliaSelectDialog
         folder: shortcuts.home
         selectExisting: true
         sidebarVisible: true
-        nameFilters: [ "JULIA scripts (*.jl)" ]
+        nameFilters: [ "JULIA executable (*)" ]
         onAccepted: {
-            applicationSettings.pathToCLI = cliSelectDialog.fileUrl
+            applicationSettings.juliaCommand = juliaSelectDialog.fileUrl
         }
     }
 
@@ -41,19 +41,19 @@ ColumnLayout {
         columns: 4
         columnSpacing: 10
         Label {
-            text: "CLI:"
+            text: "Julia command:"
         }
         TextField {
-            text: applicationSettings.pathToCLI
+            text: applicationSettings.juliaCommand
             readOnly: true
         }
         Button {
             text: "Select"
-            onClicked: cliSelectDialog.visible = true
+            onClicked: juliaSelectDialog.visible = true
         }
         Button {
-            text: "Clear"
-            onClicked: applicationSettings.pathToCLI = ""
+            text: "Default"
+            onClicked: applicationSettings.juliaCommand = "julia"
         }
         Label {
             text: "Output daily:"

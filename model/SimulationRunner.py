@@ -6,6 +6,7 @@ import enum
 import logging
 import threading
 import queue
+from shutil import which
 
 def enqueueOutStream(output, q):
     while True:
@@ -28,7 +29,7 @@ class SimulationRunner(QThread):
         STOPPED = "Stopped"
         DONE = "Done"
 
-    pathToCLI = ""
+    juliaCommand = ""
     openedFilePath = ""
     outputDaily = ""
     outputSummary = ""
@@ -60,7 +61,7 @@ class SimulationRunner(QThread):
             self.__currentState == SimulationRunner.SimulationState.SIMULATION_ONGOING)
 
     def __createCommand(self):
-        cliname = os.path.basename(self.pathToCLI)
+        cliname = "advanced_cli.jl"
         cmd = ["julia", cliname]
         if self.outputParamsDump:
             cmd.append("--output-params-dump")
@@ -117,13 +118,13 @@ class SimulationRunner(QThread):
         return self.__currentProgress
 
     def run(self):
-        if self.pathToCLI == "" or self.openedFilePath == "":
+        self.notifyProgress.emit(0.0)
+        self.clearLog.emit()
+        if (not os.access(self.juliaCommand, os.X_OK) and not which(self.juliaCommand)) or self.openedFilePath == "":
             return
         self.__currentState = SimulationRunner.InitState.INIT
         self.notifyState.emit(self.__currentState.value)
-        self.notifyProgress.emit(0.0)
-        self.clearLog.emit()
-        dirname = os.path.dirname(self.pathToCLI)
+        dirname = os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + "/../3rdparty/modelling-ncov2019/julia/src/")
         cmd = self.__createCommand()
         self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
         self.__process = subprocess.Popen(cmd, shell=True, \

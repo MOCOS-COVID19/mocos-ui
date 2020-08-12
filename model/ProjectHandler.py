@@ -257,7 +257,7 @@ class ProjectHandler(QObject):
             self.requestSavingConfiguration.emit()
             return
         self._simulationRunner.openedFilePath = self._openedFilePath
-        self._simulationRunner.pathToCLI = self._applicationSettings.pathToCLI
+        self._simulationRunner.juliaCommand = self._applicationSettings.juliaCommand
         self._simulationRunner.outputDaily = self._applicationSettings.outputDaily
         self._simulationRunner.outputSummary = self._applicationSettings.outputSummary
         self._simulationRunner.outputParamsDump = self._applicationSettings.outputParamsDump

@@ -6,20 +6,20 @@ import json
 from enum import Enum
 
 class ApplicationSettings(QObject):
-    _pathToCLI = ""
+    _juliaCommand = "julia"
     _outputDaily = ""
     _outputSummary = ""
     _outputParamsDump = ""
     _outputRunDumpPrefix = ""
 
     class PropertyNames(Enum):
-        PATH_TO_CLI = "path_to_cli"
+        JULIA_COMMAND = "julia_command"
         OUTPUT_DAILY = "output_daily"
         OUTPUT_SUMMARY = "output_summary"
         OUTPUT_PARAMS_DUMP = "output_params_dump"
         OUTPUT_RUN_DUMP_PREFIX = "output_run_dump_prefix"
 
-    pathToCLIChanged = pyqtSignal()
+    juliaCommandChanged = pyqtSignal()
     outputDailyChanged = pyqtSignal()
     outputSummaryChanged = pyqtSignal()
     outputParamsDumpChanged = pyqtSignal()
@@ -40,7 +40,7 @@ class ApplicationSettings(QObject):
                 return
 
             content = json.loads(lines)
-            self._pathToCLI = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.PATH_TO_CLI.value)
+            self._juliaCommand = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value)
             self._outputDaily = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
             self._outputSummary = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
             self._outputParamsDump = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
@@ -53,8 +53,8 @@ class ApplicationSettings(QObject):
         try:
             appSettingsFileHandle = open(os.path.join(os.path.dirname(__file__), 'app.settings'), 'w', encoding='utf-8')
             data = {}
-            if self._pathToCLI != "":
-                data[ApplicationSettings.PropertyNames.PATH_TO_CLI.value] = self._pathToCLI
+            if self._juliaCommand != "":
+                data[ApplicationSettings.PropertyNames.JULIA_COMMAND.value] = self._juliaCommand
             if self._outputDaily != "":
                 data[ApplicationSettings.PropertyNames.OUTPUT_DAILY.value] = self._outputDaily
             if self._outputSummary != "":
@@ -68,9 +68,9 @@ class ApplicationSettings(QObject):
         except OSError:
             pass
 
-    @pyqtProperty(str, notify=pathToCLIChanged)
-    def pathToCLI(self):
-        return self._pathToCLI
+    @pyqtProperty(str, notify=juliaCommandChanged)
+    def juliaCommand(self):
+        return self._juliaCommand
 
     @pyqtProperty(str, notify=outputDailyChanged)
     def outputDaily(self):
@@ -88,13 +88,13 @@ class ApplicationSettings(QObject):
     def outputRunDumpPrefix(self):
         return self._outputRunDumpPrefix
 
-    @pathToCLI.setter
-    def pathToCLI(self, path):
+    @juliaCommand.setter
+    def juliaCommand(self, path):
         path = formatPath(path)
-        if self._pathToCLI != path:
-            self._pathToCLI = path
+        if self._juliaCommand != path:
+            self._juliaCommand = path
             self.__save()
-            self.pathToCLIChanged.emit()
+            self.juliaCommandChanged.emit()
 
     @outputDaily.setter
     def outputDaily(self, path):

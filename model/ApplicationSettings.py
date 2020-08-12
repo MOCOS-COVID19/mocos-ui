@@ -30,6 +30,11 @@ class ApplicationSettings(QObject):
             return ""
         return data[key]
 
+    def getOr(self, data, key, alternative):
+        if data.get(key) == None:
+            return alternative
+        return data[key]
+
     def __init__(self):
         try:
             QObject.__init__(self)
@@ -40,7 +45,7 @@ class ApplicationSettings(QObject):
                 return
 
             content = json.loads(lines)
-            self._juliaCommand = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value)
+            self._juliaCommand = self.getOr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value, "julia")
             self._outputDaily = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
             self._outputSummary = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
             self._outputParamsDump = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
@@ -89,10 +94,11 @@ class ApplicationSettings(QObject):
         return self._outputRunDumpPrefix
 
     @juliaCommand.setter
-    def juliaCommand(self, path):
-        path = formatPath(path)
-        if self._juliaCommand != path:
-            self._juliaCommand = path
+    def juliaCommand(self, cmd):
+        if cmd != "julia":
+            cmd = formatPath(cmd)
+        if self._juliaCommand != cmd:
+            self._juliaCommand = cmd
             self.__save()
             self.juliaCommandChanged.emit()
 

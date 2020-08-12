@@ -1,5 +1,5 @@
 import os
-from model.Utilities import formatPath
+from model.Utilities import formatPath, getOrEmptyStr, getOr
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal
 import logging
 import json
@@ -25,16 +25,6 @@ class ApplicationSettings(QObject):
     outputParamsDumpChanged = pyqtSignal()
     outputRunDumpPrefixChanged = pyqtSignal()
 
-    def getOrEmptyStr(self, data, key):
-        if data.get(key) == None:
-            return ""
-        return data[key]
-
-    def getOr(self, data, key, alternative):
-        if data.get(key) == None:
-            return alternative
-        return data[key]
-
     def __init__(self):
         try:
             QObject.__init__(self)
@@ -45,11 +35,11 @@ class ApplicationSettings(QObject):
                 return
 
             content = json.loads(lines)
-            self._juliaCommand = self.getOr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value, "julia")
-            self._outputDaily = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
-            self._outputSummary = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
-            self._outputParamsDump = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
-            self._outputRunDumpPrefix = self.getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
+            self._juliaCommand = getOr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value, "julia")
+            self._outputDaily = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
+            self._outputSummary = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
+            self._outputParamsDump = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
+            self._outputRunDumpPrefix = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
             appSettingsFileHandle.close()
         except OSError:
             pass

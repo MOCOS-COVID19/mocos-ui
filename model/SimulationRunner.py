@@ -129,7 +129,7 @@ class SimulationRunner(QThread):
         self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
         self.__process = subprocess.Popen(cmd, shell=True, \
             cwd=dirname, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, \
-            encoding="utf-8")
+            env={**os.environ, "JULIA_PROJECT": dirname}, encoding="utf-8")
         if self.__isThreadStopped_Safe():
             self.__currentState = SimulationRunner.InitState.NONE
             return

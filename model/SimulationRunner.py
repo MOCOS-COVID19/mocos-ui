@@ -117,6 +117,11 @@ class SimulationRunner(QThread):
     def currentProgress(self):
         return self.__currentProgress
 
+    @staticmethod
+    def PATH_TO_ADVANCED_CLI():
+        return os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + \
+            "/../3rdparty/modelling-ncov2019/julia/src/")
+
     def run(self):
         self.notifyProgress.emit(0.0)
         self.clearLog.emit()
@@ -124,7 +129,7 @@ class SimulationRunner(QThread):
             return
         self.__currentState = SimulationRunner.InitState.INIT
         self.notifyState.emit(self.__currentState.value)
-        dirname = os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + "/../3rdparty/modelling-ncov2019/julia/src/")
+        dirname = SimulationRunner.PATH_TO_ADVANCED_CLI()
         cmd = self.__createCommand()
         self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
         self.__process = subprocess.Popen(cmd, shell=True, \

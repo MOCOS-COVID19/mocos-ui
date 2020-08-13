@@ -44,8 +44,16 @@ ColumnLayout {
             text: "Julia command:"
         }
         TextField {
+            id: juliaCommandField
             text: applicationSettings.juliaCommand
-            readOnly: true
+            onAccepted: applicationSettings.juliaCommand = text
+            onActiveFocusChanged: {
+                if (!activeFocus) {
+                    applicationSettings.juliaCommand = text !== "" ? text : "julia"
+                }
+            }
+            color: applicationSettings.juliaCommandAcceptable ? "black" : "red"
+            KeyNavigation.tab: outputDailyField
         }
         Button {
             text: "Select"
@@ -59,8 +67,12 @@ ColumnLayout {
             text: "Output daily:"
         }
         TextField {
+            id: outputDailyField
             text: applicationSettings.outputDaily
-            readOnly: true
+            onAccepted: applicationSettings.outputDaily = text
+            onActiveFocusChanged: if (!activeFocus) applicationSettings.outputDaily = text
+            color: applicationSettings.outputDailyAcceptable ? "black" : "red"
+            KeyNavigation.tab: outputSummaryField
         }
         Button {
             function setOutputDaily() {
@@ -83,8 +95,12 @@ ColumnLayout {
             text: "Output summary:"
         }
         TextField {
+            id: outputSummaryField
             text: applicationSettings.outputSummary
-            readOnly: true
+            onAccepted: applicationSettings.outputSummary = text
+            onActiveFocusChanged: if (!activeFocus) applicationSettings.outputSummary = text
+            color: applicationSettings.outputSummaryAcceptable ? "black" : "red"
+            KeyNavigation.tab: outputParamsDumpField
         }
         Button {
             function setOutputSummary() {
@@ -107,8 +123,12 @@ ColumnLayout {
             text: "Output params dump:"
         }
         TextField {
+            id: outputParamsDumpField
             text: applicationSettings.outputParamsDump
-            readOnly: true
+            onFocusChanged: applicationSettings.outputParamsDump = text
+            onAccepted: applicationSettings.outputParamsDump = text
+            color: applicationSettings.outputParamsDumpAcceptable ? "black" : "red"
+            KeyNavigation.tab: outputRunDumpPrefixField
         }
         Button {
             function setOutputParamsDump() {
@@ -130,8 +150,12 @@ ColumnLayout {
             text: "Output run dump prefix:"
         }
         TextField {
+            id: outputRunDumpPrefixField
             text: applicationSettings.outputRunDumpPrefix
-            readOnly: true
+            onAccepted: applicationSettings.outputRunDumpPrefix = text
+            onActiveFocusChanged: if (!activeFocus) applicationSettings.outputRunDumpPrefix = text
+            color: applicationSettings.outputRunDumpPrefixAcceptable ? "black" : "red"
+            KeyNavigation.tab: runSimulationButton
         }
         Button {
             text: "Select"
@@ -160,6 +184,7 @@ ColumnLayout {
             id: showLogButton
             text: "LOG"
             onClicked: runSimulationView.showLogWindow()
+            KeyNavigation.tab: juliaCommandField
         }
     }
     Label {

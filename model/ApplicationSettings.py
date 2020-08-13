@@ -24,6 +24,11 @@ class ApplicationSettings(QObject):
     outputSummaryChanged = pyqtSignal()
     outputParamsDumpChanged = pyqtSignal()
     outputRunDumpPrefixChanged = pyqtSignal()
+    juliaCommandAcceptabilityCheckReq = pyqtSignal()
+    outputDailyAcceptabilityCheckReq = pyqtSignal()
+    outputSummaryAcceptabilityCheckReq = pyqtSignal()
+    outputParamsDumpAcceptabilityCheckReq = pyqtSignal()
+    outputRunDumpPrefixAcceptabilityCheckReq = pyqtSignal()
 
     def __init__(self):
         try:
@@ -83,6 +88,31 @@ class ApplicationSettings(QObject):
     def outputRunDumpPrefix(self):
         return self._outputRunDumpPrefix
 
+    @pyqtProperty(bool, notify=juliaCommandAcceptabilityCheckReq)
+    def juliaCommandAcceptable(self):
+        return self._juliaCommand == "julia" or os.access(self._juliaCommand, os.X_OK)
+
+    @pyqtProperty(bool, notify=outputDailyAcceptabilityCheckReq)
+    def outputDailyAcceptable(self):
+        return self._outputDaily == "" or (os.path.dirname(self._outputDaily) != self._outputDaily \
+            and os.access(os.path.dirname(self._outputDaily), os.W_OK))
+
+    @pyqtProperty(bool, notify=outputSummaryAcceptabilityCheckReq)
+    def outputSummaryAcceptable(self):
+        return self._outputSummary == "" or (os.path.dirname(self._outputSummary) != self._outputSummary \
+            and os.access(os.path.dirname(self._outputSummary), os.W_OK))
+
+    @pyqtProperty(bool, notify=outputParamsDumpAcceptabilityCheckReq)
+    def outputParamsDumpAcceptable(self):
+        return self._outputParamsDump == "" or (os.path.isdir(self._outputParamsDump) and \
+            os.access(self._outputParamsDump, os.W_OK))
+
+    @pyqtProperty(bool, notify=outputRunDumpPrefixAcceptabilityCheckReq)
+    def outputRunDumpPrefixAcceptable(self):
+        return self._outputRunDumpPrefix == "" \
+            or (os.path.dirname(self._outputRunDumpPrefix) != self._outputRunDumpPrefix \
+            and os.access(os.path.dirname(self._outputRunDumpPrefix), os.W_OK))
+
     @juliaCommand.setter
     def juliaCommand(self, cmd):
         if cmd != "julia":
@@ -91,6 +121,7 @@ class ApplicationSettings(QObject):
             self._juliaCommand = cmd
             self.__save()
             self.juliaCommandChanged.emit()
+            self.juliaCommandAcceptabilityCheckReq.emit()
 
     @outputDaily.setter
     def outputDaily(self, path):
@@ -99,6 +130,7 @@ class ApplicationSettings(QObject):
             self._outputDaily = path
             self.__save()
             self.outputDailyChanged.emit()
+            self.outputDailyAcceptabilityCheckReq.emit()
 
     @outputSummary.setter
     def outputSummary(self, path):
@@ -107,6 +139,7 @@ class ApplicationSettings(QObject):
             self._outputSummary = path
             self.__save()
             self.outputSummaryChanged.emit()
+            self.outputSummaryAcceptabilityCheckReq.emit()
 
     @outputParamsDump.setter
     def outputParamsDump(self, path):
@@ -115,6 +148,7 @@ class ApplicationSettings(QObject):
             self._outputParamsDump = path
             self.__save()
             self.outputParamsDumpChanged.emit()
+            self.outputParamsDumpAcceptabilityCheckReq.emit()
 
     @outputRunDumpPrefix.setter
     def outputRunDumpPrefix(self, path):
@@ -123,3 +157,4 @@ class ApplicationSettings(QObject):
             self._outputRunDumpPrefix = path
             self.__save()
             self.outputRunDumpPrefixChanged.emit()
+            self.outputRunDumpAcceptabilityCheckReq.emit()

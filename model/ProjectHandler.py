@@ -252,6 +252,15 @@ class ProjectHandler(QObject):
         if not self._settings.generalSettings._populationPath:
             self.showErrorMsg.emit("Simulation can't be run: population path not defined.")
             return
+        if not self._applicationSettings.juliaCommandAcceptable or \
+           not self._applicationSettings.outputDailyAcceptable or \
+           not self._applicationSettings.outputSummaryAcceptable or \
+           not self._applicationSettings.outputParamsDumpAcceptable or \
+           not self._applicationSettings.outputRunDumpPrefixAcceptable:
+            self.showErrorMsg.emit("Simulation can't be run: simulation settings incorrect.")
+            return
+
+
         if not self._openedFilePath:
             self.__runSimulationAfterSaving = True
             self.requestSavingConfiguration.emit()

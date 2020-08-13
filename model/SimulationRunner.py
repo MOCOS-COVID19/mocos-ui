@@ -2,6 +2,7 @@
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThread, QMutex, QMutexLocker
 import subprocess
 import os
+import sys
 import enum
 import logging
 import threading
@@ -122,6 +123,10 @@ class SimulationRunner(QThread):
         return os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + \
             "/../3rdparty/modelling-ncov2019/julia/src/")
 
+    @staticmethod
+    def isShellUsageRequired():
+        return sys.platform != "darwin"
+
     def run(self):
         self.notifyProgress.emit(0.0)
         self.clearLog.emit()
@@ -132,7 +137,7 @@ class SimulationRunner(QThread):
         dirname = SimulationRunner.PATH_TO_ADVANCED_CLI()
         cmd = self.__createCommand()
         self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
-        self.__process = subprocess.Popen(cmd, shell=True, \
+        self.__process = subprocess.Popen(cmd, shell=SimulationRunner.isShellUsageRequired(), \
             cwd=dirname, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, \
             env={**os.environ, "JULIA_PROJECT": dirname}, encoding="utf-8")
         if self.__isThreadStopped_Safe():

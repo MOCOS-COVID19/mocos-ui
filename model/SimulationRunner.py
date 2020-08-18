@@ -36,6 +36,7 @@ class SimulationRunner(QThread):
     outputSummary = ""
     outputParamsDump = ""
     outputRunDumpPrefix = ""
+    numOfThreads = 1
     __currentState = InitState.NONE
     __currentProgress = 0
     __process = None
@@ -139,7 +140,8 @@ class SimulationRunner(QThread):
         self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
         self.__process = subprocess.Popen(cmd, shell=SimulationRunner.isShellUsageRequired(), \
             cwd=dirname, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, \
-            env={**os.environ, "JULIA_PROJECT": dirname}, encoding="utf-8")
+            env={**os.environ, "JULIA_PROJECT": dirname, "JULIA_NUM_THREADS": str(self.numOfThreads)}, \
+            encoding="utf-8")
         if self.__isThreadStopped_Safe():
             self.__currentState = SimulationRunner.InitState.NONE
             return

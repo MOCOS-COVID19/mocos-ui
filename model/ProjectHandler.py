@@ -259,8 +259,6 @@ class ProjectHandler(QObject):
            not self._applicationSettings.outputRunDumpPrefixAcceptable:
             self.showErrorMsg.emit("Simulation can't be run: simulation settings incorrect.")
             return
-
-
         if not self._openedFilePath:
             self.__runSimulationAfterSaving = True
             self.requestSavingConfiguration.emit()
@@ -271,6 +269,7 @@ class ProjectHandler(QObject):
         self._simulationRunner.outputSummary = self._applicationSettings.outputSummary
         self._simulationRunner.outputParamsDump = self._applicationSettings.outputParamsDump
         self._simulationRunner.outputRunDumpPrefix = self._applicationSettings.outputRunDumpPrefix
+        self._simulationRunner.numOfThreads = self._applicationSettings.numOfThreads
         self._simulationRunner.start()
 
     @pyqtSlot()

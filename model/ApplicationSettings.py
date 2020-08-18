@@ -1,6 +1,6 @@
 import os
 from model.Utilities import formatPath, getOrEmptyStr, getOr
-from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
 import logging
 import json
 from enum import Enum
@@ -11,6 +11,7 @@ class ApplicationSettings(QObject):
     _outputSummary = ""
     _outputParamsDump = ""
     _outputRunDumpPrefix = ""
+    _numOfThreads = 1
 
     class PropertyNames(Enum):
         JULIA_COMMAND = "julia_command"
@@ -18,6 +19,7 @@ class ApplicationSettings(QObject):
         OUTPUT_SUMMARY = "output_summary"
         OUTPUT_PARAMS_DUMP = "output_params_dump"
         OUTPUT_RUN_DUMP_PREFIX = "output_run_dump_prefix"
+        NUM_OF_THREADS = "num_of_threads"
 
     juliaCommandChanged = pyqtSignal()
     outputDailyChanged = pyqtSignal()
@@ -29,6 +31,7 @@ class ApplicationSettings(QObject):
     outputSummaryAcceptabilityCheckReq = pyqtSignal()
     outputParamsDumpAcceptabilityCheckReq = pyqtSignal()
     outputRunDumpPrefixAcceptabilityCheckReq = pyqtSignal()
+    numOfThreadsChanged = pyqtSignal()
 
     def __init__(self):
         try:
@@ -45,6 +48,9 @@ class ApplicationSettings(QObject):
             self._outputSummary = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
             self._outputParamsDump = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
             self._outputRunDumpPrefix = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
+            self._numOfThreads = getOr(content, ApplicationSettings.PropertyNames.NUM_OF_THREADS.value, 1)
+            if self._numOfThreads > self.getMaxNumOfThreads():
+                self._numOfThreads = self.getMaxNumOfThreads()
             appSettingsFileHandle.close()
         except OSError:
             pass
@@ -63,6 +69,7 @@ class ApplicationSettings(QObject):
                 data[ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value] = self._outputParamsDump
             if self._outputRunDumpPrefix != "":
                 data[ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value] = self._outputRunDumpPrefix
+            data[ApplicationSettings.PropertyNames.NUM_OF_THREADS.value] = self._numOfThreads
             json.dump( data, appSettingsFileHandle, indent=4, ensure_ascii=False )
             appSettingsFileHandle.close()
         except OSError:
@@ -113,6 +120,10 @@ class ApplicationSettings(QObject):
             or (os.path.dirname(self._outputRunDumpPrefix) != self._outputRunDumpPrefix \
             and os.access(os.path.dirname(self._outputRunDumpPrefix), os.W_OK))
 
+    @pyqtProperty(int, notify=numOfThreadsChanged)
+    def numOfThreads(self):
+        return self._numOfThreads
+
     @juliaCommand.setter
     def juliaCommand(self, cmd):
         if cmd != "julia":
@@ -158,3 +169,15 @@ class ApplicationSettings(QObject):
             self.__save()
             self.outputRunDumpPrefixChanged.emit()
             self.outputRunDumpAcceptabilityCheckReq.emit()
+
+    @numOfThreads.setter
+    def numOfThreads(self, threadsNum):
+        value = int(threadsNum)
+        if value >= 1 and value <= self.getMaxNumOfThreads():
+            self._numOfThreads = value
+            self.__save()
+        self.numOfThreadsChanged.emit()
+
+    @pyqtSlot(result=int)
+    def getMaxNumOfThreads(self):
+        return os.cpu_count()

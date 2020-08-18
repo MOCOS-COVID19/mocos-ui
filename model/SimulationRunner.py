@@ -7,7 +7,9 @@ import enum
 import logging
 import threading
 import queue
+import tempfile
 from shutil import which
+from model.Utilities import formatPath
 
 def enqueueOutStream(output, q):
     while True:
@@ -30,8 +32,8 @@ class SimulationRunner(QThread):
         STOPPED = "Stopped"
         DONE = "Done"
 
-    juliaCommand = ""
     openedFilePath = ""
+    juliaCommand = ""
     outputDaily = ""
     outputSummary = ""
     outputParamsDump = ""
@@ -176,6 +178,7 @@ class SimulationRunner(QThread):
         else:
             self.__currentState = SimulationRunner.SimulationState.DONE
         self.notifyState.emit(self.__currentState.value)
+        self.clean()
 
     def stop(self):
         if self.__process != None:
@@ -183,3 +186,7 @@ class SimulationRunner(QThread):
             self.wait()
             self.__process.kill()
             self.__process = None
+
+    def clean(self):
+        if self.openedFilePath.find(formatPath(tempfile.gettempdir())) != -1:
+            os.remove(self.openedFilePath)

@@ -12,6 +12,7 @@ from model.SimulationRunner import SimulationRunner
 from jsonschema import ValidationError
 import logging
 import subprocess
+import tempfile
 
 class FunctionParametersModel(QAbstractTableModel):
     dummySignalToRemoveQmlWarning = pyqtSignal(int)
@@ -126,17 +127,21 @@ class ProjectHandler(QObject):
     _isOpenedConfModified = False
     _isModifyingConfOngoing = True
 
-    __runSimulationAfterSaving = False 
-
     showErrorMsg = pyqtSignal(str, arguments=['msg'])
     modulationFunctionChanged = pyqtSignal()
     openedNewConf = pyqtSignal()
     openedConfModified = pyqtSignal()
-    requestSavingConfiguration = pyqtSignal()
 
     def setOpenedConfModifiedIfModificationOngoing(self):
         if self._isModifyingConfOngoing:
             self.setOpenedConfModified(True)
+
+    def __saveConfToTempFile(self):
+        fh = tempfile.NamedTemporaryFile( mode='w', encoding='utf-8', delete=False )
+        json.dump( self._settings.serialize(), fh, indent=4, ensure_ascii=False )
+        path = formatPath(fh.name)
+        fh.close()
+        return path
 
     def __init__(self):
         super().__init__()
@@ -172,9 +177,6 @@ class ProjectHandler(QObject):
         self._openedFilePath = path
         self.openedNewConf.emit()
         self.setOpenedConfModified(False)
-        if self.__runSimulationAfterSaving:
-            self.__runSimulationAfterSaving = False
-            self.runSimulation()
 
     @pyqtSlot()
     def quickSave(self):
@@ -259,11 +261,9 @@ class ProjectHandler(QObject):
            not self._applicationSettings.outputRunDumpPrefixAcceptable:
             self.showErrorMsg.emit("Simulation can't be run: simulation settings incorrect.")
             return
-        if not self._openedFilePath:
-            self.__runSimulationAfterSaving = True
-            self.requestSavingConfiguration.emit()
-            return
         self._simulationRunner.openedFilePath = self._openedFilePath
+        if not self._simulationRunner.openedFilePath:
+            self._simulationRunner.openedFilePath = self.__saveConfToTempFile()
         self._simulationRunner.juliaCommand = self._applicationSettings.juliaCommand
         self._simulationRunner.outputDaily = self._applicationSettings.outputDaily
         self._simulationRunner.outputSummary = self._applicationSettings.outputSummary

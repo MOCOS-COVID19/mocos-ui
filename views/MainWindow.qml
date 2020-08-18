@@ -79,9 +79,6 @@ ApplicationWindow {
         onOpenedConfModified: {
             mainWindow.title = createMainWindowTitle()
         }
-        onRequestSavingConfiguration: {
-            projectSaveDialog.visible = true
-        }
     }
 
     Component.onCompleted: {

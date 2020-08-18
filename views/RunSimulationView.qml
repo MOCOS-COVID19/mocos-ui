@@ -155,7 +155,7 @@ ColumnLayout {
             onAccepted: applicationSettings.outputRunDumpPrefix = text
             onActiveFocusChanged: if (!activeFocus) applicationSettings.outputRunDumpPrefix = text
             color: applicationSettings.outputRunDumpPrefixAcceptable ? "black" : "red"
-            KeyNavigation.tab: runSimulationButton
+            KeyNavigation.tab: numOfThreadsField
         }
         Button {
             text: "Select"
@@ -164,6 +164,26 @@ ColumnLayout {
         Button {
             text: "Clear"
             onClicked: applicationSettings.outputRunDumpPrefix = ""
+        }
+        Label {
+            text: "Number of threads:"
+        }
+        TextField {
+            id: numOfThreadsField
+            text: applicationSettings.numOfThreads
+            validator: IntValidator{}
+            onAccepted: applicationSettings.numOfThreads = text
+            onActiveFocusChanged: if (!activeFocus) applicationSettings.numOfThreads = text
+            KeyNavigation.tab: runSimulationButton
+        }
+        Slider {
+            id: numOfThreadsSlider
+            value: applicationSettings.numOfThreads
+            from: 1.0
+            to: applicationSettings.getMaxNumOfThreads()
+            stepSize: 1.0
+            onMoved: applicationSettings.numOfThreads = from + position * (to-from)
+            Layout.columnSpan: 2
         }
     }
     Row {

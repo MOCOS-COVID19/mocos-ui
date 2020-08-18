@@ -17,4 +17,11 @@ TextField {
         targetValue = parseInt(text)
         afterEditingFinished()
     }
+
+    onActiveFocusChanged: {
+        if (!activeFocus) {
+            text = targetValue
+            text = Qt.binding(function(){ return targetValue })
+        }
+    }
 }

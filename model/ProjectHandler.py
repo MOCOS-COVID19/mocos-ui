@@ -120,31 +120,20 @@ class FunctionParametersModel(QAbstractTableModel):
 class ProjectHandler(QObject):
     _settings = ProjectSettings()
     _modulationModel = FunctionParametersModel()
-    _applicationSettings = ApplicationSettings()
-    _simulationRunner = SimulationRunner()
-
+    _applicationSettings = None
+    _simulationRunner = None
     _openedFilePath = None
     _isOpenedConfModified = False
     _isModifyingConfOngoing = True
-
     showErrorMsg = pyqtSignal(str, arguments=['msg'])
     modulationFunctionChanged = pyqtSignal()
     openedNewConf = pyqtSignal()
     openedConfModified = pyqtSignal()
 
-    def setOpenedConfModifiedIfModificationOngoing(self):
-        if self._isModifyingConfOngoing:
-            self.setOpenedConfModified(True)
-
-    def __saveConfToTempFile(self):
-        fh = tempfile.NamedTemporaryFile( mode='w', encoding='utf-8', delete=False )
-        json.dump( self._settings.serialize(), fh, indent=4, ensure_ascii=False )
-        path = formatPath(fh.name)
-        fh.close()
-        return path
-
     def __init__(self):
         super().__init__()
+        self._applicationSettings = ApplicationSettings(lambda: self.workdir())
+        self._simulationRunner = SimulationRunner(lambda: self.workdir())
         setModifiedToTrue = lambda: self.setOpenedConfModifiedIfModificationOngoing()
         self._settings.generalSettings.numTrajectoriesChanged.connect(setModifiedToTrue)
         self._settings.generalSettings.populationPathChanged.connect(setModifiedToTrue)
@@ -167,6 +156,22 @@ class ProjectHandler(QObject):
         self._settings.phoneTracking.detectionDelayChanged.connect(setModifiedToTrue)
         self._settings.phoneTracking.usageByHouseholdChanged.connect(setModifiedToTrue)
         self._modulationModel.dataChanged.connect(lambda tr, bl, role: setModifiedToTrue())
+
+    def setOpenedConfModifiedIfModificationOngoing(self):
+        if self._isModifyingConfOngoing:
+            self.setOpenedConfModified(True)
+
+    def __saveConfToTempFile(self):
+        fh = tempfile.NamedTemporaryFile( mode='w', encoding='utf-8', delete=False )
+        json.dump( self._settings.serialize(), fh, indent=4, ensure_ascii=False )
+        path = formatPath(fh.name)
+        fh.close()
+        return path
+
+    @pyqtSlot(result=str)
+    def workdir(self):
+        wdir = os.path.dirname(self._openedFilePath) if self._openedFilePath else tempfile.gettempdir()
+        return os.path.abspath(wdir)
 
     @pyqtSlot(str)
     def saveAs(self, path):

@@ -1,6 +1,3 @@
-[submodule "3rdparty/modelling-ncov2019"]
-	path = 3rdparty/modelling-ncov2019
-	url = https://github.com/MOCOS-COVID19/modelling-ncov2019/
 [submodule "3rdparty/MocosSimLauncher"]
 	path = 3rdparty/MocosSimLauncher
 	url = https://github.com/MOCOS-COVID19/MocosSimLauncher

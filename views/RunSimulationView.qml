@@ -10,7 +10,7 @@ ColumnLayout {
 
     FileDialog {
         id: juliaSelectDialog
-        folder: shortcuts.home
+        folder: "file:///" + projectHandler.workdir()
         selectExisting: true
         sidebarVisible: true
         nameFilters: [ "JULIA executable (*)" ]
@@ -21,7 +21,7 @@ ColumnLayout {
 
     FileDialog {
         id: jld2FileSelectDialog
-        folder: shortcuts.home
+        folder: "file:///" + projectHandler.workdir()
         selectExisting: false
         sidebarVisible: true
         nameFilters: [ "JULIA IO (*.jld2)" ]
@@ -29,7 +29,7 @@ ColumnLayout {
 
     FileDialog {
         id: runDumpPrefixSelectDialog
-        folder: shortcuts.home
+        folder: "file:///" + projectHandler.workdir()
         selectExisting: false
         sidebarVisible: true
         onAccepted: {
@@ -57,7 +57,10 @@ ColumnLayout {
         }
         Button {
             text: "Select"
-            onClicked: juliaSelectDialog.visible = true
+            onClicked: {
+                juliaSelectDialog.folder = "file:///" + projectHandler.workdir()
+                juliaSelectDialog.visible = true
+            }
         }
         Button {
             text: "Default"
@@ -76,13 +79,13 @@ ColumnLayout {
         }
         Button {
             function setOutputDaily() {
-                console.log(jld2FileSelectDialog.fileUrl)
                 applicationSettings.outputDaily = jld2FileSelectDialog.fileUrl
                 jld2FileSelectDialog.accepted.disconnect(setOutputDaily)
             }
 
             text: "Select"
             onClicked: {
+                jld2FileSelectDialog.folder = "file:///" + projectHandler.workdir()
                 jld2FileSelectDialog.accepted.connect(setOutputDaily)
                 jld2FileSelectDialog.visible = true
             }
@@ -104,13 +107,13 @@ ColumnLayout {
         }
         Button {
             function setOutputSummary() {
-                console.log(jld2FileSelectDialog.fileUrl)
                 applicationSettings.outputSummary = jld2FileSelectDialog.fileUrl
                 jld2FileSelectDialog.accepted.disconnect(setOutputSummary)
             }
 
             text: "Select"
             onClicked: {
+                jld2FileSelectDialog.folder = "file:///" + projectHandler.workdir()
                 jld2FileSelectDialog.accepted.connect(setOutputSummary)
                 jld2FileSelectDialog.visible = true
             }
@@ -120,7 +123,7 @@ ColumnLayout {
             onClicked: applicationSettings.outputSummary = ""
         }
         Label {
-            text: "Output params dump:"
+            text: "Output params dump folder:"
         }
         TextField {
             id: outputParamsDumpField
@@ -132,12 +135,12 @@ ColumnLayout {
         }
         Button {
             function setOutputParamsDump() {
-                console.log(jld2FileSelectDialog.fileUrl)
                 applicationSettings.outputParamsDump = jld2FileSelectDialog.fileUrl
                 jld2FileSelectDialog.accepted.disconnect(setOutputParamsDump)
             }
             text: "Select"
             onClicked: {
+                jld2FileSelectDialog.folder = "file:///" + projectHandler.workdir()
                 jld2FileSelectDialog.accepted.connect(setOutputParamsDump)
                 jld2FileSelectDialog.visible = true
             }

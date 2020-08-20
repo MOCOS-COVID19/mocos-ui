@@ -9,7 +9,7 @@ import threading
 import queue
 import tempfile
 from shutil import which
-from model.Utilities import formatPath
+from model.Utilities import formatPath, ABS_PATH_TO_ADVANCED_CLI
 
 def enqueueOutStream(output, q):
     while True:
@@ -39,6 +39,7 @@ class SimulationRunner(QThread):
     outputParamsDump = ""
     outputRunDumpPrefix = ""
     numOfThreads = 1
+    __getworkdir = None
     __currentState = InitState.NONE
     __currentProgress = 0
     __process = None
@@ -50,8 +51,9 @@ class SimulationRunner(QThread):
     notifyProgress = pyqtSignal(float, arguments=["progress"])
     clearLog = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, getworkdir):
         QThread.__init__(self)
+        self.__getworkdir = getworkdir
         self.notifyProgress.connect(self.__saveCurrentProgress)
 
     def __del__(self):
@@ -69,16 +71,16 @@ class SimulationRunner(QThread):
         cmd = ["julia", cliname]
         if self.outputParamsDump:
             cmd.append("--output-params-dump")
-            cmd.append(self.outputParamsDump)
+            cmd.append( formatPath(self.__getworkdir() + "\\" + self.outputParamsDump) )
         if self.outputDaily:
             cmd.append("--output-daily")
-            cmd.append(self.outputDaily)
+            cmd.append( formatPath(self.__getworkdir() + "\\" + self.outputDaily) )
         if self.outputSummary:
             cmd.append("--output-summary")
-            cmd.append(self.outputSummary)
+            cmd.append( formatPath(self.__getworkdir() + "\\" + self.outputSummary) )
         if self.outputRunDumpPrefix:
             cmd.append("--output-run-dump-prefix")
-            cmd.append(self.outputRunDumpPrefix)
+            cmd.append( formatPath(self.__getworkdir() + "\\" + self.outputRunDumpPrefix) )
         cmd.append(self.openedFilePath)
         return cmd
 
@@ -122,11 +124,6 @@ class SimulationRunner(QThread):
         return self.__currentProgress
 
     @staticmethod
-    def PATH_TO_ADVANCED_CLI():
-        return os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + \
-            "/../3rdparty/modelling-ncov2019/julia/src/")
-
-    @staticmethod
     def isShellUsageRequired():
         return sys.platform != "darwin"
 
@@ -137,7 +134,7 @@ class SimulationRunner(QThread):
             return
         self.__currentState = SimulationRunner.InitState.INIT
         self.notifyState.emit(self.__currentState.value)
-        dirname = SimulationRunner.PATH_TO_ADVANCED_CLI()
+        dirname = ABS_PATH_TO_ADVANCED_CLI()
         cmd = self.__createCommand()
         self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
         self.__process = subprocess.Popen(cmd, shell=SimulationRunner.isShellUsageRequired(), \

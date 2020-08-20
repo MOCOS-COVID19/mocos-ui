@@ -9,7 +9,7 @@ GridLayout {
 
     FileDialog {
         id: populationFileSelectDialog
-        folder: shortcuts.home
+        folder: projectHandler.workdir()
         selectExisting: true
         sidebarVisible: true
         nameFilters: [ "JLD2 files (*.jld2)" ]

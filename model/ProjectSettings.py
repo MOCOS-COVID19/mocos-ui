@@ -3,6 +3,7 @@ from enum import Enum
 from typing import Union
 from PyQt5.QtQml import qmlRegisterType
 from PyQt5.QtCore import QObject, QMetaType, pyqtProperty, pyqtSignal, QVariant
+from model.Utilities import formatPath
 
 class GeneralSettings(QObject):
     _numTrajectories = 1000
@@ -45,6 +46,7 @@ class GeneralSettings(QObject):
 
     @populationPath.setter
     def populationPath(self, path):
+        path = formatPath(path)
         if self._populationPath != path:
             self._populationPath = path
             self.populationPathChanged.emit()
@@ -518,12 +520,13 @@ class SettingsSetter:
             settings.transmissionProbabilities.isFriendshipKernelEnabled = settings.transmissionProbabilities.friendship != 0
 
 class ProjectSettings:
-    initialConditions = InitialConditions()
-    generalSettings = GeneralSettings()
-    contactTracking = ContactTracking()
-    transmissionProbabilities = TransmissionProbabilities()
-    modulation = Modulation()
-    phoneTracking = PhoneTracking()
+    def __init__(self):
+        self.initialConditions = InitialConditions()
+        self.generalSettings = GeneralSettings()
+        self.contactTracking = ContactTracking()
+        self.transmissionProbabilities = TransmissionProbabilities()
+        self.modulation = Modulation()
+        self.phoneTracking = PhoneTracking()
 
     def populate(self, jsonData):
         SettingsSetter.copySettingsFromJson(self, jsonData)

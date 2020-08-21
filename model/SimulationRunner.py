@@ -31,6 +31,7 @@ class SimulationRunner(QThread):
         SIMULATION_ONGOING = "Simulation ongoing"
         STOPPED = "Stopped"
         DONE = "Done"
+        ERROR = "Error"
 
     openedFilePath = ""
     juliaCommand = ""
@@ -67,7 +68,7 @@ class SimulationRunner(QThread):
             self.__currentState == SimulationRunner.SimulationState.SIMULATION_ONGOING)
 
     def __createCommand(self):
-        cliname = "advanced_cli.jl"
+        cliname = "auto_advanced_cli.jl"
         cmd = ["julia", cliname]
         if self.outputParamsDump:
             cmd.append("--output-params-dump")
@@ -168,11 +169,14 @@ class SimulationRunner(QThread):
                 self.__currentState = SimulationRunner.SimulationState.SIMULATION_ONGOING
                 self.notifyState.emit(self.__currentState.value)
                 self.notifyProgress.emit(simProgress)
+            elif line.find("ERROR") != -1:
+                self.__currentState = SimulationRunner.SimulationState.ERROR
+                self.notifyState.emit(self.__currentState.value)
         if self.__isThreadStopped_Safe():
             self.__currentState = SimulationRunner.SimulationState.STOPPED
             self.__setThreadStopped_Safe(False)
             self.notifyProgress.emit(0.0)
-        else:
+        elif self.__currentState != SimulationRunner.SimulationState.ERROR:
             self.__currentState = SimulationRunner.SimulationState.DONE
         self.notifyState.emit(self.__currentState.value)
         self.clean()

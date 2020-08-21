@@ -26,4 +26,4 @@ def getOr(data, key, alternative):
 
 def ABS_PATH_TO_ADVANCED_CLI():
     return os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + \
-        "/../3rdparty/modelling-ncov2019/julia/src/")
+        "/../3rdparty/MocosSimLauncher/")

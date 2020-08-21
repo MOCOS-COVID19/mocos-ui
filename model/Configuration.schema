@@ -68,9 +68,9 @@
         "spreading": {
             "type" : "object",
             "properties" : {
-                "alpha": {"type" : "number"},
-                "x0": {"type" : "number"},
-                "truncation": {"type" : "number"}
+                "alpha": {"type" : "number", "minimum": 0.0},
+                "x0": {"type" : "number", "minimum": 0.0},
+                "truncation": {"type" : "number", "minimum": 0.0}
             },
             "required" : ["alpha", "x0", "truncation"],
             "additionalProperties": false

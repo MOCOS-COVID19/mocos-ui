@@ -64,6 +64,16 @@
                     "type" : "object"
                 }
             }
+        },
+        "spreading": {
+            "type" : "object",
+            "properties" : {
+                "alpha": {"type" : "number"},
+                "x0": {"type" : "number"},
+                "truncation": {"type" : "number"}
+            },
+            "required" : ["alpha", "x0", "truncation"],
+            "additionalProperties": false
         }
     },
     "required": ["num_trajectories", "population_path", "detection_mild_proba", "stop_simulation_threshold", "initial_conditions", "contact_tracking", "transmission_probabilities", "phone_tracking"],

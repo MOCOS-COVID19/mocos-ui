@@ -7,6 +7,7 @@
         "model/SimulationRunner.py",
         "model/ConfigurationValidator.py",
         "model/Utilities.py",
+        "views/ApplicationSettingsWindow.qml",
         "views/MainWindow.qml",
         "views/ModulationSettingsView.qml",
         "views/PhoneTrackingSettingsView.qml",
@@ -17,7 +18,6 @@
         "views/DoubleNumField.qml",
         "views/IntNumField.qml",
         "views/KernelEnablingButton.qml",
-        "views/RunSimulationView.qml",
         "views/LogWindow.qml",
         "model/Configuration.schema",
         "model/TanhParameters.schema"

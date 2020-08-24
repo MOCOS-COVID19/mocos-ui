@@ -1,5 +1,5 @@
 # This Python file uses the following encoding: utf-8
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QThread, QMutex, QMutexLocker
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, pyqtProperty, QThread, QMutex, QMutexLocker
 import subprocess
 import os
 import sys
@@ -27,11 +27,28 @@ class SimulationRunner(QThread):
         LOADING_PARAMS = "loading population and setting up parameters"
         STARTING_SIM = "starting simulation"
 
+        def toPrintable(self):
+            if self == SimulationRunner.InitState.NONE:
+                return " "
+            if self == SimulationRunner.InitState.INIT:
+                return "Initialization: Started"
+            if self == SimulationRunner.InitState.STATED:
+                return "Initialization: Stated"
+            if self == SimulationRunner.InitState.PARSED_ARGS:
+                return "Initialization: Parsed arguments"
+            if self == SimulationRunner.InitState.LOADING_PARAMS:
+                return "Initialization: Loading population and setting up parameters"
+            if self == SimulationRunner.InitState.STARTING_SIM:
+                return "Initialization: Starting simulation"
+
     class SimulationState(enum.Enum):
-        SIMULATION_ONGOING = "Simulation ongoing"
-        STOPPED = "Stopped"
-        DONE = "Done"
-        ERROR = "Error"
+        SIMULATION_ONGOING = "Simulation: In Progress"
+        STOPPED = "Simulation: Stopped"
+        DONE = "Simulation: Done"
+        ERROR = "Simulation: Error"
+
+        def toPrintable(self):
+            return self.value
 
     openedFilePath = ""
     juliaCommand = ""
@@ -48,19 +65,19 @@ class SimulationRunner(QThread):
     __isThreadStopped = False
 
     printSimulationMsg = pyqtSignal(str, arguments=["msg"])
-    notifyState = pyqtSignal(str, arguments=["description"])
-    notifyProgress = pyqtSignal(float, arguments=["progress"])
+    notifyStateAndProgress = pyqtSignal(str, int, arguments=["state", "progress"])
+    isRunningChanged = pyqtSignal()
     clearLog = pyqtSignal()
 
     def __init__(self, getworkdir):
         QThread.__init__(self)
         self.__getworkdir = getworkdir
-        self.notifyProgress.connect(self.__saveCurrentProgress)
+        self.notifyStateAndProgress.connect(self.__saveCurrentProgress)
 
     def __del__(self):
         self.wait()
 
-    @pyqtSlot(result=bool)
+    @pyqtProperty(bool, notify=isRunningChanged)
     def isRunning(self):
         return (isinstance(self.__currentState, SimulationRunner.InitState) and \
             self.__currentState != SimulationRunner.InitState.NONE) or \
@@ -94,7 +111,7 @@ class SimulationRunner(QThread):
         progressPercent = line[len(PROGRESS_STR) : max].strip()
         return float(progressPercent) / 100.0
 
-    def __findNewStateNotif(self, line):
+    def __findInitStateNotif(self, line):
         if line.find("Info:") == -1:
             return (None, None)
         members = list(SimulationRunner.InitState)
@@ -113,12 +130,12 @@ class SimulationRunner(QThread):
         lk = QMutexLocker(self.__mutex)
         self.__isThreadStopped = isStopped
 
-    def __saveCurrentProgress(self, progress):
+    def __saveCurrentProgress(self, state, progress):
         self.__currentProgress = progress
 
     @pyqtSlot(result=str)
     def currentState(self):
-        return self.__currentState.value
+        return self.__currentState.toPrintable()
 
     @pyqtSlot(result=float)
     def currentProgress(self):
@@ -129,12 +146,12 @@ class SimulationRunner(QThread):
         return sys.platform != "darwin"
 
     def run(self):
-        self.notifyProgress.emit(0.0)
         self.clearLog.emit()
         if (not os.access(self.juliaCommand, os.X_OK) and not which(self.juliaCommand)) or self.openedFilePath == "":
             return
         self.__currentState = SimulationRunner.InitState.INIT
-        self.notifyState.emit(self.__currentState.value)
+        self.notifyStateAndProgress.emit(self.__currentState.toPrintable(), 0)
+        self.isRunningChanged.emit()
         dirname = ABS_PATH_TO_ADVANCED_CLI()
         cmd = self.__createCommand()
         self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
@@ -159,26 +176,26 @@ class SimulationRunner(QThread):
             except queue.Empty:
                 continue
             self.printSimulationMsg.emit(line)
-            state, stateProgress = self.__findNewStateNotif(line)
-            if  state != None:
-                self.__currentState = state
-                self.notifyState.emit(self.__currentState.value)
-                self.notifyProgress.emit(stateProgress)
+            initState, initStateProgress = self.__findInitStateNotif(line)
+            if  initState != None:
+                self.__currentState = initState
+                self.notifyStateAndProgress.emit(self.__currentState.toPrintable(), initStateProgress * 100)
+                continue
             simProgress = self.__findSimulationProgressNotif(line)
             if simProgress != None:
                 self.__currentState = SimulationRunner.SimulationState.SIMULATION_ONGOING
-                self.notifyState.emit(self.__currentState.value)
-                self.notifyProgress.emit(simProgress)
-            elif line.find("ERROR") != -1:
+                self.notifyStateAndProgress.emit(self.__currentState.value, simProgress * 100)
+                continue
+            if line.find("ERROR") != -1:
                 self.__currentState = SimulationRunner.SimulationState.ERROR
-                self.notifyState.emit(self.__currentState.value)
+                self.notifyStateAndProgress.emit(self.__currentState.value, -1)
         if self.__isThreadStopped_Safe():
             self.__currentState = SimulationRunner.SimulationState.STOPPED
             self.__setThreadStopped_Safe(False)
-            self.notifyProgress.emit(0.0)
         elif self.__currentState != SimulationRunner.SimulationState.ERROR:
             self.__currentState = SimulationRunner.SimulationState.DONE
-        self.notifyState.emit(self.__currentState.value)
+        self.notifyStateAndProgress.emit(self.__currentState.value, -1)
+        self.isRunningChanged.emit()
         self.clean()
 
     def stop(self):

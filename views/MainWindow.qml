@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 2.4
+import QtQuick.Controls 1.4 as QtQC1_4
 import QtQuick.Dialogs 1.1
 import QtQuick.Layouts 1.0
 
@@ -17,8 +18,7 @@ ApplicationWindow {
         "ContactTrackingSettingsView.qml",
         "TransmissionProbabilitiesView.qml",
         "ModulationSettingsView.qml",
-        "PhoneTrackingSettingsView.qml",
-        "RunSimulationView.qml" ]
+        "PhoneTrackingSettingsView.qml" ]
     property int currentSourceId: 1
 
     function loadSourceId(id) {
@@ -84,8 +84,7 @@ ApplicationWindow {
     Component.onCompleted: {
         mainWindow.width = initialConditionsButton.width + generalSettingsButton.width +
                 contactTrackingSettingsButton.width + transmissionSettingsButton.width +
-                modulationSettingsButton.width + phoneTrackingSettingsButton.width +
-                runSimulationSettingsButton.width + 50;
+                modulationSettingsButton.width + phoneTrackingSettingsButton.width + 50;
     }
 
     FileDialog {
@@ -122,10 +121,63 @@ ApplicationWindow {
     menuBar: MenuBar {
         Menu {
             title: "&File"
-            MenuItem { text: "&Open..."; onTriggered: projectOpenDialog.visible = true }
-            MenuItem { text: "Save &As..."; onTriggered: projectSaveDialog.visible = true }
-            MenuItem { text: "&Save"; onTriggered: mainWindow.handleQuickSave() }
-            MenuItem { text: "&Close"; onTriggered: mainWindow.close() }
+            Action {
+                text: "&Open..."
+                onTriggered: projectOpenDialog.visible = true
+                shortcut: StandardKey.Open
+            }
+            Action {
+                text: "Save &As..."
+                onTriggered: projectSaveDialog.visible = true
+                shortcut: StandardKey.SaveAs
+            }
+            Action {
+                text: "&Save"
+                onTriggered: mainWindow.handleQuickSave()
+                shortcut: StandardKey.Save
+            }
+            Action {
+                text: "&Close"
+                onTriggered: mainWindow.close()
+                shortcut: StandardKey.Close
+            }
+        }
+        Menu {
+            title: "&Simulation"
+            Action {
+                text: "S&ettings"
+                onTriggered: { applicationSettingsWindow.visible = true }
+            }
+            Action {
+                text: "&Run"
+                onTriggered: projectHandler.runSimulation()
+                shortcut: "Ctrl+R"
+                enabled: !simulationRunner.isRunning
+            }
+            Action {
+                text: "S&top"
+                onTriggered: projectHandler.stopSimulation()
+                enabled: simulationRunner.isRunning
+            }
+            Action {
+                text: "&Log"
+                onTriggered: logWindow.visible = true
+                shortcut: "Ctrl+L"
+            }
+        }
+    }
+
+    footer: Label {
+        id: statusBar
+        Connections {
+            target: simulationRunner
+            onNotifyStateAndProgress: {
+                let status = state
+                if (progress >= 0) {
+                    status += " " + progress + "%"
+                }
+                statusBar.text = status
+            }
         }
     }
 
@@ -135,7 +187,7 @@ ApplicationWindow {
             function highlightButtonWithSourceId(id) {
                 for (let i=0; i<toolBar.children.length; ++i) {
                     if (toolBar.children[i] instanceof ToolButton) {
-                        toolBar.children[i].highlighted = toolBar.children[i].sourceId == id
+                        toolBar.children[i].highlighted = toolBar.children[i].sourceId === id
                     }
                 }
             }
@@ -194,20 +246,19 @@ ApplicationWindow {
                     mainWindow.loadSourceId(sourceId)
                 }
             }
-            ToolButton {
-                id: runSimulationSettingsButton
-                property int sourceId: 6
-                activeFocusOnTab : false
-                text: "Run"
-                onClicked: {
-                    mainWindow.loadSourceId(sourceId)
-                }
-            }
         }
     }
 
     property var logWindow: {
         var component = Qt.createComponent("LogWindow.qml")
+        if (component.status === Component.Ready) {
+            return component.createObject(mainWindow)
+        }
+        console.assert(false)
+    }
+
+    property var applicationSettingsWindow: {
+        var component = Qt.createComponent("ApplicationSettingsWindow.qml")
         if (component.status === Component.Ready) {
             return component.createObject(mainWindow)
         }

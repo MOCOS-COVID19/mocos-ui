@@ -9,9 +9,11 @@ Window {
     title: "Settings"
     width: 640
     height: 360
+    flags: Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint | Qt.WindowStaysOnTopHint | Qt.MSWindowsFixedSizeDialogHint
 
     Item {
         anchors.fill: parent
+        anchors.margins: 5
 
         GridLayout {
             id: parametersLayout
@@ -169,8 +171,10 @@ Window {
             }
         }
         Button {
-            anchors.top: parametersLayout.bottom
-            anchors.right: parametersLayout.right
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            anchors.bottomMargin: 20
             text: "OK"
             onClicked: appSettingsWindow.visible = false
         }

@@ -156,6 +156,7 @@ class ProjectHandler(QObject):
         self._settings.phoneTracking.detectionDelayChanged.connect(setModifiedToTrue)
         self._settings.phoneTracking.usageByHouseholdChanged.connect(setModifiedToTrue)
         self._modulationModel.dataChanged.connect(lambda tr, bl, role: setModifiedToTrue())
+        self.openedNewConf.connect(self._applicationSettings.recheckPaths)
 
     def setOpenedConfModifiedIfModificationOngoing(self):
         if self._isModifyingConfOngoing:

@@ -42,14 +42,14 @@ class ApplicationSettings(QObject):
                 appSettingsFileHandle.close()
                 return
             content = json.loads(lines)
-            self._juliaCommand = getOr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value, "julia")
-            self._outputDaily = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
-            self._outputSummary = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
-            self._outputParamsDump = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
-            self._outputRunDumpPrefix = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
-            self._numOfThreads = getOr(content, ApplicationSettings.PropertyNames.NUM_OF_THREADS.value, 1)
-            if self._numOfThreads > self.getMaxNumOfThreads():
-                self._numOfThreads = self.getMaxNumOfThreads()
+            self.juliaCommand = getOr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value, "julia")
+            self.outputDaily = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
+            self.outputSummary = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
+            self.outputParamsDump = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
+            self.outputRunDumpPrefix = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
+            self.numOfThreads = getOr(content, ApplicationSettings.PropertyNames.NUM_OF_THREADS.value, 1)
+            if self.numOfThreads > self.getMaxNumOfThreads():
+                self.numOfThreads = self.getMaxNumOfThreads()
             appSettingsFileHandle.close()
         except OSError:
             pass
@@ -74,6 +74,13 @@ class ApplicationSettings(QObject):
         except OSError:
             pass
 
+    def recheckPaths(self):
+        self.juliaCommandAcceptabilityCheckReq.emit()
+        self.outputDailyAcceptabilityCheckReq.emit()
+        self.outputSummaryAcceptabilityCheckReq.emit()
+        self.outputParamsDumpAcceptabilityCheckReq.emit()
+        self.outputRunDumpPrefixAcceptabilityCheckReq.emit()
+
     @pyqtProperty(str, notify=juliaCommandChanged)
     def juliaCommand(self):
         return self._juliaCommand
@@ -94,34 +101,38 @@ class ApplicationSettings(QObject):
     def outputRunDumpPrefix(self):
         return self._outputRunDumpPrefix
 
-    def __isPathToOutputFileJld2Correct(self, path):
-        fullpath = formatPath(self._getworkdir() + "\\" + path)
-        return os.path.dirname(fullpath) != self._outputDaily and \
-            path.endswith(".jld2") and \
+    def __isPathToOutputFileJld2Correct(self, relpath):
+        fullpath = formatPath(self._getworkdir() + "\\" + relpath)
+        return os.path.dirname(fullpath) != fullpath and \
+            relpath.endswith(".jld2") and \
             os.access(os.path.dirname(fullpath), os.W_OK)
 
     @pyqtProperty(bool, notify=juliaCommandAcceptabilityCheckReq)
     def juliaCommandAcceptable(self):
-        return self._juliaCommand == "julia" or os.access(self._juliaCommand, os.X_OK)
+        return (self._juliaCommand == "julia"
+                or os.access(self._juliaCommand, os.X_OK))
 
     @pyqtProperty(bool, notify=outputDailyAcceptabilityCheckReq)
     def outputDailyAcceptable(self):
-        fullpath = formatPath(self._getworkdir() + "\\" + self._outputDaily)
-        return self._outputDaily == "" or self.__isPathToOutputFileJld2Correct(self._outputDaily)
+        return (self._outputDaily == ""
+                or self.__isPathToOutputFileJld2Correct(self._outputDaily))
 
     @pyqtProperty(bool, notify=outputSummaryAcceptabilityCheckReq)
     def outputSummaryAcceptable(self):
-        return self._outputSummary == "" or self.__isPathToOutputFileJld2Correct(self._outputSummary)
+        return (self._outputSummary == ""
+                or self.__isPathToOutputFileJld2Correct(self._outputSummary))
 
     @pyqtProperty(bool, notify=outputParamsDumpAcceptabilityCheckReq)
     def outputParamsDumpAcceptable(self):
-        return self._outputParamsDump == "" or self.__isPathToOutputFileJld2Correct(self._outputParamsDump)
+        return (self._outputParamsDump == ""
+                or self.__isPathToOutputFileJld2Correct(self._outputParamsDump))
 
     @pyqtProperty(bool, notify=outputRunDumpPrefixAcceptabilityCheckReq)
     def outputRunDumpPrefixAcceptable(self):
         fullpath = formatPath(self._getworkdir() + "\\" + self._outputRunDumpPrefix)
-        return self._outputRunDumpPrefix == "" \
-            or ( os.path.dirname(fullpath) != fullpath and os.access(os.path.dirname(fullpath), os.W_OK) )
+        return (self._outputRunDumpPrefix == ""
+                or (os.path.dirname(fullpath) != fullpath
+                    and os.access(os.path.dirname(fullpath), os.W_OK)))
 
     @pyqtProperty(int, notify=numOfThreadsChanged)
     def numOfThreads(self):

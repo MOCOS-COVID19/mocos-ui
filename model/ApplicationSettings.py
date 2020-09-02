@@ -17,6 +17,7 @@ class ApplicationSettings(QObject):
     outputParamsDumpAcceptabilityCheckReq = pyqtSignal()
     outputRunDumpPrefixAcceptabilityCheckReq = pyqtSignal()
     numOfThreadsChanged = pyqtSignal()
+    recentFilesChanged = pyqtSignal()
 
     class PropertyNames(Enum):
         JULIA_COMMAND = "julia_command"
@@ -27,36 +28,54 @@ class ApplicationSettings(QObject):
         NUM_OF_THREADS = "num_of_threads"
 
     def __init__(self, getworkdir):
+        super().__init__()
+        self._getworkdir = getworkdir
+        self._juliaCommand = "julia"
+        self._outputDaily = ""
+        self._outputSummary = ""
+        self._outputParamsDump = ""
+        self._outputRunDumpPrefix = ""
+        self._numOfThreads = 1
+        self._recentFiles = []
+        self.__loadRecentFiles()
+        self.__loadCliOptions()
+
+    def __loadRecentFiles(self):
         try:
-            QObject.__init__(self)
-            self._getworkdir = getworkdir
-            self._juliaCommand = "julia"
-            self._outputDaily = ""
-            self._outputSummary = ""
-            self._outputParamsDump = ""
-            self._outputRunDumpPrefix = ""
-            self._numOfThreads = 1
-            appSettingsFileHandle = open(os.path.join(os.path.dirname(__file__), 'app.settings'), 'rt', encoding='utf-8')
-            lines = appSettingsFileHandle.read()
-            if not lines:
-                appSettingsFileHandle.close()
-                return
-            content = json.loads(lines)
-            self.juliaCommand = getOr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value, "julia")
-            self.outputDaily = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
-            self.outputSummary = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
-            self.outputParamsDump = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
-            self.outputRunDumpPrefix = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
-            self.numOfThreads = getOr(content, ApplicationSettings.PropertyNames.NUM_OF_THREADS.value, 1)
-            if self.numOfThreads > self.getMaxNumOfThreads():
-                self.numOfThreads = self.getMaxNumOfThreads()
-            appSettingsFileHandle.close()
+            recentFileHandle = open(
+                os.path.join(os.path.dirname(__file__), '.recent'),
+                'rt', encoding='utf-8')
+            lines = recentFileHandle.read().split('\n')
+            recentFileHandle.close()
+            for path in lines:
+                if path: self._recentFiles.append(path)
         except OSError:
             pass
 
-    def __save(self):
+    def __loadCliOptions(self):
         try:
-            appSettingsFileHandle = open(os.path.join(os.path.dirname(__file__), 'app.settings'), 'w', encoding='utf-8')
+            appSettingsFileHandle = open(
+                os.path.join(os.path.dirname(__file__), '.cli_options'),
+                'rt', encoding='utf-8')
+            lines = appSettingsFileHandle.read()
+            appSettingsFileHandle.close()
+            if lines:
+                content = json.loads(lines)
+                self._outputDaily = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
+                self._outputSummary = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
+                self._outputParamsDump = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
+                self._outputRunDumpPrefix = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
+                self._numOfThreads = getOr(content, ApplicationSettings.PropertyNames.NUM_OF_THREADS.value, 1)
+                if self._numOfThreads > self.getMaxNumOfThreads():
+                    self._numOfThreads = self.getMaxNumOfThreads()
+        except OSError:
+            pass
+
+    def __saveCliOptions(self):
+        try:
+            appSettingsFileHandle = open(
+                os.path.join(os.path.dirname(__file__),
+                '.cli_options'), 'w', encoding='utf-8')
             data = {}
             if self._juliaCommand != "":
                 data[ApplicationSettings.PropertyNames.JULIA_COMMAND.value] = self._juliaCommand
@@ -81,6 +100,25 @@ class ApplicationSettings(QObject):
         self.outputParamsDumpAcceptabilityCheckReq.emit()
         self.outputRunDumpPrefixAcceptabilityCheckReq.emit()
 
+    def __saveRecentFiles(self):
+        try:
+            recentFileHandle = open(os.path.join(os.path.dirname(__file__), '.recent'), 'w', encoding='utf-8')
+            for path in self._recentFiles:
+                recentFileHandle.write(path + '\n')
+        except OSError:
+            pass
+
+    def setAsRecentFile(self, path):
+        try:
+            foundId = self._recentFiles.index(path)
+            self._recentFiles[0], self._recentFiles[foundId] = self._recentFiles[foundId], self._recentFiles[0]
+        except ValueError:
+            self._recentFiles.insert(0, path)
+            while len(self._recentFiles) <= 2:
+                del self._recentFiles[-1]
+        self.recentFilesChanged.emit()
+        self.__saveRecentFiles()
+
     @pyqtProperty(str, notify=juliaCommandChanged)
     def juliaCommand(self):
         return self._juliaCommand
@@ -103,9 +141,9 @@ class ApplicationSettings(QObject):
 
     def __isPathToOutputFileJld2Correct(self, relpath):
         fullpath = formatPath(self._getworkdir() + "\\" + relpath)
-        return os.path.dirname(fullpath) != fullpath and \
-            relpath.endswith(".jld2") and \
-            os.access(os.path.dirname(fullpath), os.W_OK)
+        return (os.path.dirname(fullpath) != fullpath
+                and relpath.endswith(".jld2")
+                and os.access(os.path.dirname(fullpath), os.W_OK))
 
     @pyqtProperty(bool, notify=juliaCommandAcceptabilityCheckReq)
     def juliaCommandAcceptable(self):
@@ -138,13 +176,17 @@ class ApplicationSettings(QObject):
     def numOfThreads(self):
         return self._numOfThreads
 
+    @pyqtProperty(list, notify=recentFilesChanged)
+    def recentFiles(self):
+        return self._recentFiles
+
     @juliaCommand.setter
     def juliaCommand(self, cmd):
         if cmd != "julia":
             cmd = formatPath(cmd)
         if self._juliaCommand != cmd:
             self._juliaCommand = cmd
-            self.__save()
+            self.__saveCliOptions()
             self.juliaCommandChanged.emit()
             self.juliaCommandAcceptabilityCheckReq.emit()
 
@@ -153,7 +195,7 @@ class ApplicationSettings(QObject):
         newpath = formatPath(path, makeRelativeTo=self._getworkdir())
         if self._outputDaily != path:
             self._outputDaily = newpath
-            self.__save()
+            self.__saveCliOptions()
             self.outputDailyChanged.emit()
             self.outputDailyAcceptabilityCheckReq.emit()
 
@@ -162,7 +204,7 @@ class ApplicationSettings(QObject):
         newpath = formatPath(path, makeRelativeTo=self._getworkdir())
         if self._outputSummary != path:
             self._outputSummary = newpath
-            self.__save()
+            self.__saveCliOptions()
             self.outputSummaryChanged.emit()
             self.outputSummaryAcceptabilityCheckReq.emit()
 
@@ -171,7 +213,7 @@ class ApplicationSettings(QObject):
         newpath = formatPath(path, makeRelativeTo=self._getworkdir())
         if self._outputParamsDump != path:
             self._outputParamsDump = newpath
-            self.__save()
+            self.__saveCliOptions()
             self.outputParamsDumpChanged.emit()
             self.outputParamsDumpAcceptabilityCheckReq.emit()
 
@@ -180,7 +222,7 @@ class ApplicationSettings(QObject):
         newpath = formatPath(path, makeRelativeTo=self._getworkdir())
         if self._outputRunDumpPrefix != path:
             self._outputRunDumpPrefix = newpath
-            self.__save()
+            self.__saveCliOptions()
             self.outputRunDumpPrefixChanged.emit()
             self.outputRunDumpPrefixAcceptabilityCheckReq.emit()
 
@@ -189,7 +231,7 @@ class ApplicationSettings(QObject):
         value = int(threadsNum)
         if value >= 1 and value <= self.getMaxNumOfThreads():
             self._numOfThreads = value
-            self.__save()
+            self.__saveCliOptions()
         self.numOfThreadsChanged.emit()
 
     @pyqtSlot(result=int)

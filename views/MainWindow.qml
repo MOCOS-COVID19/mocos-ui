@@ -91,6 +91,7 @@ ApplicationWindow {
                 + phoneTrackingSettingsButton.width
                 + spreadingSettingsButton.width
                 + 50;
+        recentFilesMenu.createMenuItems(applicationSettings.recentFiles)
     }
 
     FileDialog {
@@ -127,6 +128,43 @@ ApplicationWindow {
     menuBar: MenuBar {
         Menu {
             title: "&File"
+            id: fileMenu
+            Menu {
+                id: recentFilesMenu
+                title: "&Recent Files"
+                enabled: count > 0
+                width: {
+                    var result = 0;
+                    var padding = 0;
+                    for (var i = 0; i < count; ++i) {
+                        var item = itemAt(i);
+                        result = Math.max(item.contentItem.implicitWidth, result);
+                        padding = Math.max(item.padding, padding);
+                    }
+                    return result + padding * 2;
+                }
+
+                function clear() {
+                    while (count !== 0) {
+                        takeItem(0)
+                    }
+                    recentFilesMenu.enabled = false
+                }
+
+                function createMenuItems(paths) {
+                    for (let i=0; i<paths.length; ++i) {
+                        let item = Qt.createQmlObject(
+                            "import QtQuick.Controls 2.4\n"
+                            + "MenuItem {\n"
+                            + "text: \"" + paths[i] + "\"\n"
+                            + "onTriggered: { projectHandler.open( \"" + paths[i] + "\" ); fileMenu.close() }\n"
+                            + "}",
+                            recentFilesMenu)
+                        addItem(item)
+                    }
+                    recentFilesMenu.enabled = count > 0
+                }
+            }
             Action {
                 text: "&Open..."
                 onTriggered: projectOpenDialog.visible = true
@@ -301,6 +339,14 @@ ApplicationWindow {
                 target: contentLoader.item
                 onShowLogWindow: {
                     logWindow.visible = true
+                }
+            }
+
+            Connections {
+                target: applicationSettings
+                onRecentFilesChanged: {
+                    recentFilesMenu.clear()
+                    recentFilesMenu.createMenuItems(applicationSettings.recentFiles)
                 }
             }
         }

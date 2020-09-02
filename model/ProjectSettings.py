@@ -456,6 +456,67 @@ class PhoneTracking(QObject):
             self.Properties.UsageByHousehold.value: self._usageByHousehold
         }
 
+class Spreading(QObject):
+    _alpha = 3.0
+    _x0 = 1.0
+    _truncation = 100.0
+
+    alphaChanged = pyqtSignal()
+    x0Changed = pyqtSignal()
+    truncationChanged = pyqtSignal()
+    truncationAcceptabilityCheckReq = pyqtSignal()
+
+    class Properties(Enum):
+        Alpha = 'alpha'
+        X0 = 'x0'
+        Truncation = 'truncation'
+
+    @staticmethod
+    def description():
+        return 'spreading'
+
+    @pyqtProperty(float, notify=alphaChanged)
+    def alpha(self):
+        return self._alpha
+
+    @pyqtProperty(float, notify=x0Changed)
+    def x0(self):
+        return self._x0
+
+    @pyqtProperty(float, notify=truncationChanged)
+    def truncation(self):
+        return self._truncation
+
+    @alpha.setter
+    def alpha(self, value):
+        if self._alpha != value and value > 0.0:
+            self._alpha = value
+        self.alphaChanged.emit()
+
+    @x0.setter
+    def x0(self, value):
+        if self._x0 != value and value > 0.0:
+            self._x0 = value
+        self.x0Changed.emit()
+        self.truncationAcceptabilityCheckReq.emit()
+
+    @truncation.setter
+    def truncation(self, value):
+        if self._truncation != value and value > 0.0:
+            self._truncation = value
+        self.truncationChanged.emit()
+        self.truncationAcceptabilityCheckReq.emit()
+
+    @pyqtProperty(bool, notify=truncationAcceptabilityCheckReq)
+    def isTruncationAcceptable(self):
+        return self._truncation > self._x0
+
+    def serialize(self):
+        return {
+            self.Properties.Alpha.value      : self._alpha,
+            self.Properties.X0.value         : self._x0,
+            self.Properties.Truncation.value : self._truncation
+        }
 
 class SettingsSetter:
     @staticmethod
@@ -466,6 +527,7 @@ class SettingsSetter:
         SettingsSetter._copyModulationSettings(settings, jsonData)
         SettingsSetter._copyPhoneTracking(settings, jsonData)
         SettingsSetter._copyTransmissionProbabilities(settings, jsonData)
+        SettingsSetter._copySpreading(settings, jsonData)
 
     @staticmethod
     def _copyGeneralSettings(settings, jsonData):
@@ -529,6 +591,12 @@ class SettingsSetter:
         settings.transmissionProbabilities.isHospitalKernelEnabled = settings.transmissionProbabilities.hospital != 0
         settings.transmissionProbabilities.isFriendshipKernelEnabled = settings.transmissionProbabilities.friendship != 0
 
+        @staticmethod
+        def _copySpreading(settings, jsonData):
+            spr = jsonData[Spreading.description()]
+            settings.spreading.alpha = spr[Spreading.Properties.Alpha.value]
+            settings.spreading.x0 = spr[Spreading.Properties.X0.value]
+            settings.spreading.truncation = spr[Spreading.Properties.Truncation.value]
 
 class ProjectSettings:
     def __init__(self):
@@ -538,6 +606,7 @@ class ProjectSettings:
         self.transmissionProbabilities = TransmissionProbabilities()
         self.modulation = Modulation()
         self.phoneTracking = PhoneTracking()
+        self.spreading  = Spreading()
 
     def populate(self, jsonData):
         SettingsSetter.copySettingsFromJson(self, jsonData)
@@ -545,6 +614,7 @@ class ProjectSettings:
     def serialize(self):
         serialized = self.generalSettings.serialize()
         serialized[InitialConditions.description()] = self.initialConditions.serialize()
+        serialized[Spreading.description()] = self.spreading.serialize()
         serialized[ContactTracking.description()] = self.contactTracking.serialize()
         serialized[TransmissionProbabilities.description()] = self.transmissionProbabilities.serialize()
         if (self.modulation._function != ModulationFunctions.NONE):

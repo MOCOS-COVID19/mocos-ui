@@ -153,6 +153,9 @@ class ProjectHandler(QObject):
         self._settings.phoneTracking.usageChanged.connect(setModifiedToTrue)
         self._settings.phoneTracking.detectionDelayChanged.connect(setModifiedToTrue)
         self._settings.phoneTracking.usageByHouseholdChanged.connect(setModifiedToTrue)
+        self._settings.spreading.alphaChanged.connect(setModifiedToTrue)
+        self._settings.spreading.x0Changed.connect(setModifiedToTrue)
+        self._settings.spreading.truncationChanged.connect(setModifiedToTrue)
         self._modulationModel.dataChanged.connect(lambda tr, bl, role: setModifiedToTrue())
         self.openedNewConf.connect(self._applicationSettings.recheckPaths)
 
@@ -199,6 +202,7 @@ class ProjectHandler(QObject):
             self._openedFilePath = path
             self._isOpenedConfModified = False
             self.openedNewConf.emit()
+            self._settings.spreading.truncationAcceptabilityCheckReq.emit()
         except FileNotFoundError as error:
             self.showErrorMsg.emit(str(error))
         except json.decoder.JSONDecodeError as error:
@@ -258,12 +262,15 @@ class ProjectHandler(QObject):
         if not self._settings.generalSettings._populationPath:
             self.showErrorMsg.emit("Simulation can't be run: population path not defined.")
             return
-        if not self._applicationSettings.juliaCommandAcceptable or \
-           not self._applicationSettings.outputDailyAcceptable or \
-           not self._applicationSettings.outputSummaryAcceptable or \
-           not self._applicationSettings.outputParamsDumpAcceptable or \
-           not self._applicationSettings.outputRunDumpPrefixAcceptable:
-            self.showErrorMsg.emit("Simulation can't be run: simulation settings incorrect.")
+        if not self._settings.spreading.isTruncationAcceptable:
+            self.showErrorMsg.emit("Simulation can't be run: spreading's truncation is incorrect.")
+            return
+        if (not self._applicationSettings.juliaCommandAcceptable
+            or not self._applicationSettings.outputDailyAcceptable
+            or not self._applicationSettings.outputSummaryAcceptable
+            or not self._applicationSettings.outputParamsDumpAcceptable
+            or not self._applicationSettings.outputRunDumpPrefixAcceptable):
+            self.showErrorMsg.emit("Simulation can't be run: simulation settings are incorrect.")
             return
         self._simulationRunner.openedFilePath = self._openedFilePath
         if not self._simulationRunner.openedFilePath:

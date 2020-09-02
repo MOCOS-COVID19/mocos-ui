@@ -35,6 +35,7 @@ if __name__ == "__main__":
     engine.rootContext().setContextProperty("generalSettings", projectHandler._settings.generalSettings)
     engine.rootContext().setContextProperty("phoneTracking", projectHandler._settings.phoneTracking)
     engine.rootContext().setContextProperty("contactTracking", projectHandler._settings.contactTracking)
+    engine.rootContext().setContextProperty("spreading", projectHandler._settings.spreading)
     engine.rootContext().setContextProperty("modulationModel", projectHandler._modulationModel)
     engine.rootContext().setContextProperty("applicationSettings", projectHandler._applicationSettings)
     engine.rootContext().setContextProperty("simulationRunner", projectHandler._simulationRunner)

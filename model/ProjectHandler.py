@@ -266,10 +266,10 @@ class ProjectHandler(QObject):
             self.showErrorMsg.emit("Simulation can't be run: spreading's truncation is incorrect.")
             return
         if (not self._applicationSettings.juliaCommandAcceptable
-            or not self._applicationSettings.outputDailyAcceptable
-            or not self._applicationSettings.outputSummaryAcceptable
-            or not self._applicationSettings.outputParamsDumpAcceptable
-            or not self._applicationSettings.outputRunDumpPrefixAcceptable):
+                or not self._applicationSettings.outputDailyAcceptable
+                or not self._applicationSettings.outputSummaryAcceptable
+                or not self._applicationSettings.outputParamsDumpAcceptable
+                or not self._applicationSettings.outputRunDumpPrefixAcceptable):
             self.showErrorMsg.emit("Simulation can't be run: simulation settings are incorrect.")
             return
         self._simulationRunner.openedFilePath = self._openedFilePath

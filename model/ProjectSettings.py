@@ -456,6 +456,7 @@ class PhoneTracking(QObject):
             self.Properties.UsageByHousehold.value: self._usageByHousehold
         }
 
+
 class Spreading(QObject):
     _alpha = 3.0
     _x0 = 1.0
@@ -513,10 +514,11 @@ class Spreading(QObject):
 
     def serialize(self):
         return {
-            self.Properties.Alpha.value      : self._alpha,
-            self.Properties.X0.value         : self._x0,
-            self.Properties.Truncation.value : self._truncation
+            self.Properties.Alpha.value: self._alpha,
+            self.Properties.X0.value: self._x0,
+            self.Properties.Truncation.value: self._truncation
         }
+
 
 class SettingsSetter:
     @staticmethod
@@ -598,6 +600,7 @@ class SettingsSetter:
             settings.spreading.x0 = spr[Spreading.Properties.X0.value]
             settings.spreading.truncation = spr[Spreading.Properties.Truncation.value]
 
+
 class ProjectSettings:
     def __init__(self):
         self.initialConditions = InitialConditions()
@@ -606,7 +609,7 @@ class ProjectSettings:
         self.transmissionProbabilities = TransmissionProbabilities()
         self.modulation = Modulation()
         self.phoneTracking = PhoneTracking()
-        self.spreading  = Spreading()
+        self.spreading = Spreading()
 
     def populate(self, jsonData):
         SettingsSetter.copySettingsFromJson(self, jsonData)

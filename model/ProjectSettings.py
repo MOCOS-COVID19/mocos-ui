@@ -267,10 +267,10 @@ class ModulationFunctions(Enum):
 
     @staticmethod
     def values():
-        l = []
+        res = []
         for f in ModulationFunctions:
-            l.append(f.value)
-        return l
+            res.append(f.value)
+        return res
 
     @staticmethod
     def from_value(value):

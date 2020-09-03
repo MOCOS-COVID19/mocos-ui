@@ -48,7 +48,8 @@ class ApplicationSettings(QObject):
             lines = recentFileHandle.read().split('\n')
             recentFileHandle.close()
             for path in lines:
-                if path: self._recentFiles.append(path)
+                if path:
+                    self._recentFiles.append(path)
         except OSError:
             pass
 
@@ -74,8 +75,8 @@ class ApplicationSettings(QObject):
     def __saveCliOptions(self):
         try:
             appSettingsFileHandle = open(
-                os.path.join(os.path.dirname(__file__),
-                '.cli_options'), 'w', encoding='utf-8')
+                os.path.join(os.path.dirname(__file__), '.cli_options'),
+                'w', encoding='utf-8')
             data = {}
             if self._juliaCommand != "":
                 data[ApplicationSettings.PropertyNames.JULIA_COMMAND.value] = self._juliaCommand

@@ -1,9 +1,8 @@
 # This Python file uses the following encoding: utf-8
 from enum import Enum
-from typing import Union
-from PyQt5.QtQml import qmlRegisterType
-from PyQt5.QtCore import QObject, QMetaType, pyqtProperty, pyqtSignal, QVariant
+from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, QVariant
 from model.Utilities import formatPath
+
 
 class GeneralSettings(QObject):
     _numTrajectories = 1000
@@ -17,10 +16,10 @@ class GeneralSettings(QObject):
     stopSimulationThresholdChanged = pyqtSignal()
 
     class Properties(Enum):
-        NumTrajectories          = 'num_trajectories'
-        PopulationPath           = 'population_path'
+        NumTrajectories = 'num_trajectories'
+        PopulationPath = 'population_path'
         DetectionMildProbability = 'detection_mild_proba'
-        StopSimulationThreshold  = 'stop_simulation_threshold'
+        StopSimulationThreshold = 'stop_simulation_threshold'
 
     @pyqtProperty(int, notify=numTrajectoriesChanged)
     def numTrajectories(self):
@@ -65,11 +64,12 @@ class GeneralSettings(QObject):
 
     def serialize(self):
         return {
-            self.Properties.NumTrajectories.value          : self._numTrajectories,
-            self.Properties.PopulationPath.value           : self._populationPath,
-            self.Properties.DetectionMildProbability.value : self._detectionMildProbability,
-            self.Properties.StopSimulationThreshold.value  : self._stopSimulationThreshold
+            self.Properties.NumTrajectories.value: self._numTrajectories,
+            self.Properties.PopulationPath.value: self._populationPath,
+            self.Properties.DetectionMildProbability.value: self._detectionMildProbability,
+            self.Properties.StopSimulationThreshold.value: self._stopSimulationThreshold
         }
+
 
 class ContactTracking(QObject):
     _probability = 0.5
@@ -83,10 +83,10 @@ class ContactTracking(QObject):
     testingTimeChanged = pyqtSignal()
 
     class Properties(Enum):
-        Probability            = 'probability'
+        Probability = 'probability'
         BackwardDetectionDelay = 'backward_detection_delay'
-        ForwardDetectionDelay  = 'forward_detection_delay'
-        TestingTime            = 'testing_time'
+        ForwardDetectionDelay = 'forward_detection_delay'
+        TestingTime = 'testing_time'
 
     @staticmethod
     def description():
@@ -135,11 +135,12 @@ class ContactTracking(QObject):
 
     def serialize(self):
         return {
-            self.Properties.Probability.value            : self._probability,
-            self.Properties.BackwardDetectionDelay.value : self._backwardDetectionDelay,
-            self.Properties.ForwardDetectionDelay.value  : self._forwardDetectionDelay,
-            self.Properties.TestingTime.value            : self._testingTime
+            self.Properties.Probability.value: self._probability,
+            self.Properties.BackwardDetectionDelay.value: self._backwardDetectionDelay,
+            self.Properties.ForwardDetectionDelay.value: self._forwardDetectionDelay,
+            self.Properties.TestingTime.value: self._testingTime
         }
+
 
 class TransmissionProbabilities(QObject):
     _household = 0.3
@@ -162,9 +163,9 @@ class TransmissionProbabilities(QObject):
     friendshipKernelEnabledChanged = pyqtSignal()
 
     class Properties(Enum):
-        Household  = 'household'
-        Constant   = 'constant'
-        Hospital   = 'hospital'
+        Household = 'household'
+        Constant = 'constant'
+        Hospital = 'hospital'
         Friendship = 'friendship'
 
     @staticmethod
@@ -253,11 +254,12 @@ class TransmissionProbabilities(QObject):
 
     def serialize(self):
         return {
-            self.Properties.Household.value  : self._household if self._isHouseholdKernelEnabled else 0.0,
-            self.Properties.Constant.value   : self._constant if self._isConstantKernelEnabled else 0.0,
-            self.Properties.Hospital.value   : self._hospital if self._isHospitalKernelEnabled else 0.0,
-            self.Properties.Friendship.value : self._friendship  if self._isFriendshipKernelEnabled else 0.0
+            self.Properties.Household.value: self._household if self._isHouseholdKernelEnabled else 0.0,
+            self.Properties.Constant.value: self._constant if self._isConstantKernelEnabled else 0.0,
+            self.Properties.Hospital.value: self._hospital if self._isHospitalKernelEnabled else 0.0,
+            self.Properties.Friendship.value: self._friendship if self._isFriendshipKernelEnabled else 0.0
         }
+
 
 class ModulationFunctions(Enum):
     NONE = "None"
@@ -277,15 +279,17 @@ class ModulationFunctions(Enum):
                 return funcType
         raise NotImplementedError
 
+
 class ValueTypes(Enum):
     PositiveIntegerValue = 0
     PositiveDoubleValue = 1
     InfiniteDoubleValue = 2
 
+
 class ModulationParams:
     _properties = []
     _values = []
-    _valueTypes  = []
+    _valueTypes = []
 
     def serialize(self):
         result = {}
@@ -293,14 +297,16 @@ class ModulationParams:
             result[self._properties[i].lower().replace(" ", "_")] = self._values[i]
         return result
 
+
 class EmptyModulationParams(ModulationParams):
     def __init__(self):
-       super().__init__()
+        super().__init__()
+
 
 class TanhModulationParams(ModulationParams):
     class Properties(Enum):
         Scale = 'scale'
-        Loc   = 'loc'
+        Loc = 'loc'
         WeightDetected = 'weight_detected'
         WeightDeaths = 'weight_deaths'
         LimitValue = 'limit_value'
@@ -316,6 +322,7 @@ class TanhModulationParams(ModulationParams):
             ValueTypes.PositiveDoubleValue
         ]
 
+
 class Modulation:
     _function = ModulationFunctions.NONE
     _emptyModulationParams = EmptyModulationParams()
@@ -323,7 +330,7 @@ class Modulation:
 
     class Properties(Enum):
         Function = 'function'
-        Params   = 'params'
+        Params = 'params'
 
     @staticmethod
     def description():
@@ -339,8 +346,8 @@ class Modulation:
     def serialize(self):
         assert(self._function != ModulationFunctions.NONE)
         return {
-            self.Properties.Function.value : self._function.value,
-            self.Properties.Params.value   : self.getActiveParams().serialize()
+            self.Properties.Function.value: self._function.value,
+            self.Properties.Params.value: self.getActiveParams().serialize()
         }
 
 
@@ -368,8 +375,9 @@ class Cardinalities(QObject):
 
     def serialize(self):
         return {
-            self.Properties.Infectious.value : self._infectious
+            self.Properties.Infectious.value: self._infectious
         }
+
 
 class InitialConditions(QObject):
     _cardinalities = Cardinalities()
@@ -389,8 +397,9 @@ class InitialConditions(QObject):
 
     def serialize(self):
         return {
-            self.Properties.Cardinalities.value : self._cardinalities.serialize()
+            self.Properties.Cardinalities.value: self._cardinalities.serialize()
         }
+
 
 class PhoneTracking(QObject):
     _usage = 0.0
@@ -442,82 +451,84 @@ class PhoneTracking(QObject):
 
     def serialize(self):
         return {
-            self.Properties.Usage.value          : self._usage,
-            self.Properties.DetectionDelay.value : self._detectionDelay,
-            self.Properties.UsageByHousehold.value   : self._usageByHousehold
+            self.Properties.Usage.value: self._usage,
+            self.Properties.DetectionDelay.value: self._detectionDelay,
+            self.Properties.UsageByHousehold.value: self._usageByHousehold
         }
 
+
 class SettingsSetter:
-        @staticmethod
-        def copySettingsFromJson(settings, jsonData):
-            SettingsSetter._copyGeneralSettings(settings, jsonData)
-            SettingsSetter._copyInitialConditions(settings, jsonData)
-            SettingsSetter._copyContactTracking(settings, jsonData)
-            SettingsSetter._copyModulationSettings(settings, jsonData)
-            SettingsSetter._copyPhoneTracking(settings, jsonData)
-            SettingsSetter._copyTransmissionProbabilities(settings, jsonData)
+    @staticmethod
+    def copySettingsFromJson(settings, jsonData):
+        SettingsSetter._copyGeneralSettings(settings, jsonData)
+        SettingsSetter._copyInitialConditions(settings, jsonData)
+        SettingsSetter._copyContactTracking(settings, jsonData)
+        SettingsSetter._copyModulationSettings(settings, jsonData)
+        SettingsSetter._copyPhoneTracking(settings, jsonData)
+        SettingsSetter._copyTransmissionProbabilities(settings, jsonData)
 
-        @staticmethod
-        def _copyGeneralSettings(settings, jsonData):
-            gs = settings.generalSettings
-            gs.numTrajectories = jsonData[GeneralSettings.Properties.NumTrajectories.value]
-            gs.populationPath = jsonData[GeneralSettings.Properties.PopulationPath.value]
-            gs.detectionMildProbability = jsonData[GeneralSettings.Properties.DetectionMildProbability.value]
-            gs.stopSimulationThreshold = jsonData[GeneralSettings.Properties.StopSimulationThreshold.value]
+    @staticmethod
+    def _copyGeneralSettings(settings, jsonData):
+        gs = settings.generalSettings
+        gs.numTrajectories = jsonData[GeneralSettings.Properties.NumTrajectories.value]
+        gs.populationPath = jsonData[GeneralSettings.Properties.PopulationPath.value]
+        gs.detectionMildProbability = jsonData[GeneralSettings.Properties.DetectionMildProbability.value]
+        gs.stopSimulationThreshold = jsonData[GeneralSettings.Properties.StopSimulationThreshold.value]
 
-        @staticmethod
-        def _copyInitialConditions(settings, jsonData):
-            ic = jsonData[InitialConditions.description()]
-            cardinalities = ic[InitialConditions.Properties.Cardinalities.value]
-            settings.initialConditions.cardinalities.infectious = cardinalities[Cardinalities.Properties.Infectious.value]
+    @staticmethod
+    def _copyInitialConditions(settings, jsonData):
+        ic = jsonData[InitialConditions.description()]
+        cardinalities = ic[InitialConditions.Properties.Cardinalities.value]
+        settings.initialConditions.cardinalities.infectious = cardinalities[Cardinalities.Properties.Infectious.value]
 
-        @staticmethod
-        def _copyContactTracking(settings, jsonData):
-            ct = jsonData[ContactTracking.description()]
-            settings.contactTracking.probability = ct[ContactTracking.Properties.Probability.value]
-            settings.contactTracking.backwardDetectionDelay = ct[ContactTracking.Properties.BackwardDetectionDelay.value]
-            settings.contactTracking.forwardDetectionDelay = ct[ContactTracking.Properties.ForwardDetectionDelay.value]
-            settings.contactTracking.testingTime = ct[ContactTracking.Properties.TestingTime.value]
+    @staticmethod
+    def _copyContactTracking(settings, jsonData):
+        ct = jsonData[ContactTracking.description()]
+        settings.contactTracking.probability = ct[ContactTracking.Properties.Probability.value]
+        settings.contactTracking.backwardDetectionDelay = ct[ContactTracking.Properties.BackwardDetectionDelay.value]
+        settings.contactTracking.forwardDetectionDelay = ct[ContactTracking.Properties.ForwardDetectionDelay.value]
+        settings.contactTracking.testingTime = ct[ContactTracking.Properties.TestingTime.value]
 
-        @staticmethod
-        def _copyModulationSettings(settings, jsonData):
-            modulationSettings = jsonData.get(Modulation.description())
-            if modulationSettings == None:
-                settings.modulation._function = ModulationFunctions.NONE
-                return
-            functionType = modulationSettings.get(Modulation.Properties.Function.value)
-            if functionType == ModulationFunctions.TANH.value:
-                settings.modulation._function = ModulationFunctions.TANH
-                jsonParams = modulationSettings[Modulation.Properties.Params.value]
-                SettingsSetter._copyModulationFuncParams(settings.modulation._tanhModulationParams, jsonParams)
-            else:
-                raise NotImplementedError
+    @staticmethod
+    def _copyModulationSettings(settings, jsonData):
+        modulationSettings = jsonData.get(Modulation.description())
+        if modulationSettings is None:
+            settings.modulation._function = ModulationFunctions.NONE
+            return
+        functionType = modulationSettings.get(Modulation.Properties.Function.value)
+        if functionType == ModulationFunctions.TANH.value:
+            settings.modulation._function = ModulationFunctions.TANH
+            jsonParams = modulationSettings[Modulation.Properties.Params.value]
+            SettingsSetter._copyModulationFuncParams(settings.modulation._tanhModulationParams, jsonParams)
+        else:
+            raise NotImplementedError
 
-        @staticmethod
-        def _copyModulationFuncParams(functionParams, jsonData):
-            i = 0
-            for pr in functionParams.Properties:
-                functionParams._values[i] = jsonData[pr.value]
-                i += 1
+    @staticmethod
+    def _copyModulationFuncParams(functionParams, jsonData):
+        i = 0
+        for pr in functionParams.Properties:
+            functionParams._values[i] = jsonData[pr.value]
+            i += 1
 
-        @staticmethod
-        def _copyPhoneTracking(settings, jsonData):
-            pt = jsonData[PhoneTracking.description()]
-            settings.phoneTracking.usage = pt[PhoneTracking.Properties.Usage.value]
-            settings.phoneTracking.detectionDelay = pt[PhoneTracking.Properties.DetectionDelay.value]
-            settings.phoneTracking.usageByHousehold = pt[PhoneTracking.Properties.UsageByHousehold.value]
+    @staticmethod
+    def _copyPhoneTracking(settings, jsonData):
+        pt = jsonData[PhoneTracking.description()]
+        settings.phoneTracking.usage = pt[PhoneTracking.Properties.Usage.value]
+        settings.phoneTracking.detectionDelay = pt[PhoneTracking.Properties.DetectionDelay.value]
+        settings.phoneTracking.usageByHousehold = pt[PhoneTracking.Properties.UsageByHousehold.value]
 
-        @staticmethod
-        def _copyTransmissionProbabilities(settings, jsonData):
-            tp = jsonData[TransmissionProbabilities.description()]
-            settings.transmissionProbabilities.household = tp[TransmissionProbabilities.Properties.Household.value]
-            settings.transmissionProbabilities.constant = tp[TransmissionProbabilities.Properties.Constant.value]
-            settings.transmissionProbabilities.hospital = tp[TransmissionProbabilities.Properties.Hospital.value]
-            settings.transmissionProbabilities.friendship = tp[TransmissionProbabilities.Properties.Friendship.value]
-            settings.transmissionProbabilities.isHouseholdKernelEnabled = settings.transmissionProbabilities.household != 0
-            settings.transmissionProbabilities.isConstantKernelEnabled = settings.transmissionProbabilities.constant != 0
-            settings.transmissionProbabilities.isHospitalKernelEnabled = settings.transmissionProbabilities.hospital != 0
-            settings.transmissionProbabilities.isFriendshipKernelEnabled = settings.transmissionProbabilities.friendship != 0
+    @staticmethod
+    def _copyTransmissionProbabilities(settings, jsonData):
+        tp = jsonData[TransmissionProbabilities.description()]
+        settings.transmissionProbabilities.household = tp[TransmissionProbabilities.Properties.Household.value]
+        settings.transmissionProbabilities.constant = tp[TransmissionProbabilities.Properties.Constant.value]
+        settings.transmissionProbabilities.hospital = tp[TransmissionProbabilities.Properties.Hospital.value]
+        settings.transmissionProbabilities.friendship = tp[TransmissionProbabilities.Properties.Friendship.value]
+        settings.transmissionProbabilities.isHouseholdKernelEnabled = settings.transmissionProbabilities.household != 0
+        settings.transmissionProbabilities.isConstantKernelEnabled = settings.transmissionProbabilities.constant != 0
+        settings.transmissionProbabilities.isHospitalKernelEnabled = settings.transmissionProbabilities.hospital != 0
+        settings.transmissionProbabilities.isFriendshipKernelEnabled = settings.transmissionProbabilities.friendship != 0
+
 
 class ProjectSettings:
     def __init__(self):
@@ -533,10 +544,10 @@ class ProjectSettings:
 
     def serialize(self):
         serialized = self.generalSettings.serialize()
-        serialized[ InitialConditions.description() ] = self.initialConditions.serialize()
-        serialized[ ContactTracking.description() ] = self.contactTracking.serialize()
-        serialized[ TransmissionProbabilities.description() ] = self.transmissionProbabilities.serialize()
+        serialized[InitialConditions.description()] = self.initialConditions.serialize()
+        serialized[ContactTracking.description()] = self.contactTracking.serialize()
+        serialized[TransmissionProbabilities.description()] = self.transmissionProbabilities.serialize()
         if (self.modulation._function != ModulationFunctions.NONE):
-            serialized[ Modulation.description() ] = self.modulation.serialize()
-        serialized[ PhoneTracking.description() ] = self.phoneTracking.serialize()
+            serialized[Modulation.description()] = self.modulation.serialize()
+        serialized[PhoneTracking.description()] = self.phoneTracking.serialize()
         return serialized

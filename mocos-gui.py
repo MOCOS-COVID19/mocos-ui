@@ -2,14 +2,16 @@
 import sys
 import os
 from model.ProjectHandler import ProjectHandler
-from model.ProjectSettings import Cardinalities, ModulationFunctions
+from model.ProjectSettings import Cardinalities
 from PyQt5.QtGui import QGuiApplication
-from PyQt5.QtQml import QQmlApplicationEngine, QQmlEngine, qmlRegisterType
+from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType
 import PyQt5.QtCore
 import logging
 
+
 def shutdown():
     del globals()["engine"]
+
 
 if __name__ == "__main__":
     projectHandler = ProjectHandler()

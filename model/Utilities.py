@@ -1,6 +1,6 @@
 import sys
 import os
-import logging
+
 
 def formatPath(path, isFile=True, makeRelativeTo=None):
     result = path.replace("file:///", "")
@@ -14,16 +14,19 @@ def formatPath(path, isFile=True, makeRelativeTo=None):
         result = result.replace('\\', '/')
     return result
 
+
 def getOrEmptyStr(data, key):
-    if data.get(key) == None:
+    if data.get(key) is None:
         return ""
     return data[key]
 
+
 def getOr(data, key, alternative):
-    if data.get(key) == None:
+    if data.get(key) is None:
         return alternative
     return data[key]
 
+
 def ABS_PATH_TO_ADVANCED_CLI():
-    return os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') + \
-        "/../3rdparty/MocosSimLauncher/")
+    return os.path.dirname(os.path.dirname(os.path.realpath(__file__)).replace('\\', '/') +
+                           "/../3rdparty/MocosSimLauncher/")

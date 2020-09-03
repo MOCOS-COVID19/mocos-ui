@@ -1,18 +1,15 @@
 # This Python file uses the following encoding: utf-8
-from model.ProjectSettings import *
+from model.ProjectSettings import ModulationFunctions, ProjectSettings, EmptyModulationParams, ValueTypes
 import json
-from PyQt5.QtCore import QAbstractTableModel, pyqtSignal, pyqtSlot, Qt, QByteArray, QObject
-from PyQt5.QtWidgets import QFileDialog
-import sys
+from PyQt5.QtCore import QAbstractTableModel, pyqtSignal, pyqtSlot, Qt, QByteArray, QObject,  QVariant, pyqtProperty
 import os
 from model.ConfigurationValidator import ConfigurationValidator
 from model.Utilities import formatPath
 from model.ApplicationSettings import ApplicationSettings
 from model.SimulationRunner import SimulationRunner
 from jsonschema import ValidationError
-import logging
-import subprocess
 import tempfile
+
 
 class FunctionParametersModel(QAbstractTableModel):
     dummySignalToRemoveQmlWarning = pyqtSignal(int)
@@ -73,7 +70,7 @@ class FunctionParametersModel(QAbstractTableModel):
         return len(self._data._properties)
 
     def flags(self, index):
-        return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled
+        return Qt.ItemIsEditable | Qt.ItemIsEnabled
 
     def data(self, index, role):
         if not index.isValid():
@@ -105,9 +102,9 @@ class FunctionParametersModel(QAbstractTableModel):
 
     def roleNames(self):
         return {
-            self.PropertyName  : QByteArray().append("propertyName"),
-            self.PropertyValue : QByteArray().append("propertyValue"),
-            self.PropertyType  : QByteArray().append("propertyType")
+            self.PropertyName: QByteArray().append("propertyName"),
+            self.PropertyValue: QByteArray().append("propertyValue"),
+            self.PropertyType: QByteArray().append("propertyType")
         }
 
     def notifyDataChanged(self, topLeft, bottomRight):
@@ -116,6 +113,7 @@ class FunctionParametersModel(QAbstractTableModel):
             self.numOfDataChangedToOmit -= 1
         else:
             self.dataChanged.emit(topLeft, bottomRight)
+
 
 class ProjectHandler(QObject):
     _settings = ProjectSettings()
@@ -134,7 +132,7 @@ class ProjectHandler(QObject):
         super().__init__()
         self._applicationSettings = ApplicationSettings(lambda: self.workdir())
         self._simulationRunner = SimulationRunner(lambda: self.workdir())
-        setModifiedToTrue = lambda: self.setOpenedConfModifiedIfModificationOngoing()
+        def setModifiedToTrue(): return self.setOpenedConfModifiedIfModificationOngoing()
         self._settings.generalSettings.numTrajectoriesChanged.connect(setModifiedToTrue)
         self._settings.generalSettings.populationPathChanged.connect(setModifiedToTrue)
         self._settings.generalSettings.detectionMildProbabilityChanged.connect(setModifiedToTrue)
@@ -163,8 +161,8 @@ class ProjectHandler(QObject):
             self.setOpenedConfModified(True)
 
     def __saveConfToTempFile(self):
-        fh = tempfile.NamedTemporaryFile( mode='w', encoding='utf-8', delete=False )
-        json.dump( self._settings.serialize(), fh, indent=4, ensure_ascii=False )
+        fh = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False)
+        json.dump(self._settings.serialize(), fh, indent=4, ensure_ascii=False)
         path = formatPath(fh.name)
         fh.close()
         return path
@@ -178,7 +176,7 @@ class ProjectHandler(QObject):
     def saveAs(self, path):
         path = formatPath(path)
         fh = open(path, "w", encoding='utf-8')
-        json.dump( self._settings.serialize(), fh, indent=4, ensure_ascii=False )
+        json.dump(self._settings.serialize(), fh, indent=4, ensure_ascii=False)
         fh.close()
         self._openedFilePath = path
         self.openedNewConf.emit()
@@ -186,7 +184,7 @@ class ProjectHandler(QObject):
 
     @pyqtSlot()
     def quickSave(self):
-        assert(self._openedFilePath != None)
+        assert(self._openedFilePath is not None)
         self.saveAs(self._openedFilePath)
 
     @pyqtSlot(str)
@@ -210,14 +208,14 @@ class ProjectHandler(QObject):
 
     @pyqtSlot(result=str)
     def getOpenedConfName(self):
-        if self._openedFilePath == None:
+        if self._openedFilePath is None:
             return "new"
         else:
             return self._openedFilePath
 
     @pyqtSlot(result=bool)
     def isConfirationOpenedFromFile(self):
-        return self._openedFilePath != None
+        return self._openedFilePath is not None
 
     @pyqtSlot(result=bool)
     def isOpenedConfModified(self):

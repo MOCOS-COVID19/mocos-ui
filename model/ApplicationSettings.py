@@ -1,9 +1,9 @@
 import os
 from model.Utilities import formatPath, getOrEmptyStr, getOr
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
-import logging
 import json
 from enum import Enum
+
 
 class ApplicationSettings(QObject):
     juliaCommandChanged = pyqtSignal()
@@ -69,7 +69,7 @@ class ApplicationSettings(QObject):
             if self._outputRunDumpPrefix != "":
                 data[ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value] = self._outputRunDumpPrefix
             data[ApplicationSettings.PropertyNames.NUM_OF_THREADS.value] = self._numOfThreads
-            json.dump( data, appSettingsFileHandle, indent=4, ensure_ascii=False )
+            json.dump(data, appSettingsFileHandle, indent=4, ensure_ascii=False)
             appSettingsFileHandle.close()
         except OSError:
             pass

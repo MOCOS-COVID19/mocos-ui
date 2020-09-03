@@ -1,7 +1,8 @@
-from model.ProjectSettings import *
+from model.ProjectSettings import Modulation, ModulationFunctions
 import os
 import json
 from jsonschema import validate
+
 
 class ConfigurationValidator:
     @staticmethod
@@ -14,7 +15,7 @@ class ConfigurationValidator:
     @staticmethod
     def validateModulationParams(jsonData):
         modulation = jsonData.get(Modulation.description())
-        if modulation == None:
+        if modulation is None:
             return
         params = modulation[Modulation.Properties.Params.value]
         if modulation[Modulation.Properties.Function.value] == ModulationFunctions.TANH.value:

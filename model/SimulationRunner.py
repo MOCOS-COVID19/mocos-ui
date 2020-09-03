@@ -4,12 +4,12 @@ import subprocess
 import os
 import sys
 import enum
-import logging
 import threading
 import queue
 import tempfile
 from shutil import which
 from model.Utilities import formatPath, ABS_PATH_TO_ADVANCED_CLI
+
 
 def enqueueOutStream(output, q):
     while True:
@@ -17,6 +17,7 @@ def enqueueOutStream(output, q):
         if not line:
             break
         q.put(line)
+
 
 class SimulationRunner(QThread):
     class InitState(enum.Enum):
@@ -79,26 +80,26 @@ class SimulationRunner(QThread):
 
     @pyqtProperty(bool, notify=isRunningChanged)
     def isRunning(self):
-        return (isinstance(self.__currentState, SimulationRunner.InitState) and \
-            self.__currentState != SimulationRunner.InitState.NONE) or \
-            (isinstance(self.__currentState, SimulationRunner.SimulationState) and \
-            self.__currentState == SimulationRunner.SimulationState.SIMULATION_ONGOING)
+        return (isinstance(self.__currentState, SimulationRunner.InitState) and
+                self.__currentState != SimulationRunner.InitState.NONE) or \
+            (isinstance(self.__currentState, SimulationRunner.SimulationState) and
+             self.__currentState == SimulationRunner.SimulationState.SIMULATION_ONGOING)
 
     def __createCommand(self):
         cliname = "auto_advanced_cli.jl"
         cmd = ["julia", cliname]
         if self.outputParamsDump:
             cmd.append("--output-params-dump")
-            cmd.append( formatPath(self.__getworkdir() + "\\" + self.outputParamsDump) )
+            cmd.append(formatPath(self.__getworkdir() + "\\" + self.outputParamsDump))
         if self.outputDaily:
             cmd.append("--output-daily")
-            cmd.append( formatPath(self.__getworkdir() + "\\" + self.outputDaily) )
+            cmd.append(formatPath(self.__getworkdir() + "\\" + self.outputDaily))
         if self.outputSummary:
             cmd.append("--output-summary")
-            cmd.append( formatPath(self.__getworkdir() + "\\" + self.outputSummary) )
+            cmd.append(formatPath(self.__getworkdir() + "\\" + self.outputSummary))
         if self.outputRunDumpPrefix:
             cmd.append("--output-run-dump-prefix")
-            cmd.append( formatPath(self.__getworkdir() + "\\" + self.outputRunDumpPrefix) )
+            cmd.append(formatPath(self.__getworkdir() + "\\" + self.outputRunDumpPrefix))
         cmd.append(self.openedFilePath)
         return cmd
 
@@ -108,7 +109,7 @@ class SimulationRunner(QThread):
             return None
         max = line.find("%")
         assert(max != -1)
-        progressPercent = line[len(PROGRESS_STR) : max].strip()
+        progressPercent = line[len(PROGRESS_STR): max].strip()
         return float(progressPercent) / 100.0
 
     def __findInitStateNotif(self, line):
@@ -155,10 +156,10 @@ class SimulationRunner(QThread):
         dirname = ABS_PATH_TO_ADVANCED_CLI()
         cmd = self.__createCommand()
         self.printSimulationMsg.emit(dirname + '> ' + ' '.join(cmd) + '\n')
-        self.__process = subprocess.Popen(cmd, shell=SimulationRunner.isShellUsageRequired(), \
-            cwd=dirname, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, \
-            env={**os.environ, "JULIA_PROJECT": dirname, "JULIA_NUM_THREADS": str(self.numOfThreads)}, \
-            encoding="utf-8")
+        self.__process = subprocess.Popen(cmd, shell=SimulationRunner.isShellUsageRequired(),
+                                          cwd=dirname, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                          env={**os.environ, "JULIA_PROJECT": dirname, "JULIA_NUM_THREADS": str(self.numOfThreads)},
+                                          encoding="utf-8")
         if self.__isThreadStopped_Safe():
             self.__currentState = SimulationRunner.InitState.NONE
             return
@@ -169,7 +170,7 @@ class SimulationRunner(QThread):
         while True:
             if self.__isThreadStopped_Safe():
                 break
-            if self.__process.poll() != None:
+            if self.__process.poll() is not None:
                 break
             try:
                 line = communicates.get(timeout=.1)
@@ -177,12 +178,12 @@ class SimulationRunner(QThread):
                 continue
             self.printSimulationMsg.emit(line)
             initState, initStateProgress = self.__findInitStateNotif(line)
-            if  initState != None:
+            if initState is not None:
                 self.__currentState = initState
                 self.notifyStateAndProgress.emit(self.__currentState.toPrintable(), initStateProgress * 100)
                 continue
             simProgress = self.__findSimulationProgressNotif(line)
-            if simProgress != None:
+            if simProgress is not None:
                 self.__currentState = SimulationRunner.SimulationState.SIMULATION_ONGOING
                 self.notifyStateAndProgress.emit(self.__currentState.value, simProgress * 100)
                 continue
@@ -199,7 +200,7 @@ class SimulationRunner(QThread):
         self.clean()
 
     def stop(self):
-        if self.__process != None:
+        if self.__process is not None:
             self.__setThreadStopped_Safe(True)
             self.wait()
             self.__process.kill()

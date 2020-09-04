@@ -115,7 +115,7 @@ class ApplicationSettings(QObject):
             self._recentFiles[0], self._recentFiles[foundId] = self._recentFiles[foundId], self._recentFiles[0]
         except ValueError:
             self._recentFiles.insert(0, path)
-            while len(self._recentFiles) <= 2:
+            while len(self._recentFiles) > 5:
                 del self._recentFiles[-1]
         self.recentFilesChanged.emit()
         self.__saveRecentFiles()

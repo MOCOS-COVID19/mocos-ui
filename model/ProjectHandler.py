@@ -202,6 +202,7 @@ class ProjectHandler(QObject):
             self._openedFilePath = path
             self._isOpenedConfModified = False
             self.openedNewConf.emit()
+            self._applicationSettings.setAsRecentFile(path)
             self._settings.spreading.truncationAcceptabilityCheckReq.emit()
         except FileNotFoundError as error:
             self.showErrorMsg.emit(str(error))

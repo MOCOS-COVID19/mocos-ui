@@ -15,6 +15,7 @@ ApplicationWindow {
     property variant contentSources: [
         "InitialConditionsView.qml",
         "GeneralSettingsView.qml",
+        "SpreadingView.qml",
         "ContactTrackingSettingsView.qml",
         "TransmissionProbabilitiesView.qml",
         "ModulationSettingsView.qml",
@@ -82,9 +83,14 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        mainWindow.width = initialConditionsButton.width + generalSettingsButton.width +
-                contactTrackingSettingsButton.width + transmissionSettingsButton.width +
-                modulationSettingsButton.width + phoneTrackingSettingsButton.width + 50;
+        mainWindow.width = initialConditionsButton.width
+                + generalSettingsButton.width
+                + contactTrackingSettingsButton.width
+                + transmissionSettingsButton.width
+                + modulationSettingsButton.width
+                + phoneTrackingSettingsButton.width
+                + spreadingSettingsButton.width
+                + 50;
     }
 
     FileDialog {
@@ -211,8 +217,17 @@ ApplicationWindow {
                 }
             }
             ToolButton {
-                id: contactTrackingSettingsButton
+                id: spreadingSettingsButton
                 property int sourceId: 2
+                activeFocusOnTab : false
+                text: "Spreading"
+                onClicked: {
+                    mainWindow.loadSourceId(sourceId)
+                }
+            }
+            ToolButton {
+                id: contactTrackingSettingsButton
+                property int sourceId: 3
                 activeFocusOnTab : false
                 text: "Contact Tracking"
                 onClicked: {
@@ -221,7 +236,7 @@ ApplicationWindow {
             }
             ToolButton {
                 id: transmissionSettingsButton
-                property int sourceId: 3
+                property int sourceId: 4
                 activeFocusOnTab : false
                 text: "Transmission"
                 onClicked: {
@@ -230,7 +245,7 @@ ApplicationWindow {
             }
             ToolButton {
                 id: modulationSettingsButton
-                property int sourceId: 4
+                property int sourceId: 5
                 activeFocusOnTab : false
                 text: "Modulation"
                 onClicked: {
@@ -239,7 +254,7 @@ ApplicationWindow {
             }
             ToolButton {
                 id: phoneTrackingSettingsButton
-                property int sourceId: 5
+                property int sourceId: 6
                 activeFocusOnTab : false
                 text: "Phone Tracking"
                 onClicked: {

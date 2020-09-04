@@ -76,6 +76,6 @@
             "additionalProperties": false
         }
     },
-    "required": ["num_trajectories", "population_path", "detection_mild_proba", "stop_simulation_threshold", "initial_conditions", "contact_tracking", "transmission_probabilities", "phone_tracking"],
+    "required": ["num_trajectories", "population_path", "detection_mild_proba", "stop_simulation_threshold", "initial_conditions", "contact_tracking", "transmission_probabilities", "phone_tracking", "spreading"],
     "additionalProperties": false
 }

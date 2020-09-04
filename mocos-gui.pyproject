@@ -19,6 +19,7 @@
         "views/IntNumField.qml",
         "views/KernelEnablingButton.qml",
         "views/LogWindow.qml",
+        "views/SpreadingView.qml",
         "model/Configuration.schema",
         "model/TanhParameters.schema"
         ]

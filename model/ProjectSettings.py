@@ -593,12 +593,12 @@ class SettingsSetter:
         settings.transmissionProbabilities.isHospitalKernelEnabled = settings.transmissionProbabilities.hospital != 0
         settings.transmissionProbabilities.isFriendshipKernelEnabled = settings.transmissionProbabilities.friendship != 0
 
-        @staticmethod
-        def _copySpreading(settings, jsonData):
-            spr = jsonData[Spreading.description()]
-            settings.spreading.alpha = spr[Spreading.Properties.Alpha.value]
-            settings.spreading.x0 = spr[Spreading.Properties.X0.value]
-            settings.spreading.truncation = spr[Spreading.Properties.Truncation.value]
+    @staticmethod
+    def _copySpreading(settings, jsonData):
+        spr = jsonData[Spreading.description()]
+        settings.spreading.alpha = spr[Spreading.Properties.Alpha.value]
+        settings.spreading.x0 = spr[Spreading.Properties.X0.value]
+        settings.spreading.truncation = spr[Spreading.Properties.Truncation.value]
 
 
 class ProjectSettings:

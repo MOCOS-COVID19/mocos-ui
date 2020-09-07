@@ -87,8 +87,10 @@ class SimulationRunner(QThread):
 
     def _createCommand(self):
         cliname = "auto_advanced_cli.jl"
-        cmd = ["julia"]
+        cmd = [self.juliaCommand]
         cmd.append("--project=" + ABS_PATH_TO_ADVANCED_CLI())
+        cmd.append("--threads")
+        cmd.append(str(self.numOfThreads))
         cmd.append(cliname)
         if self.outputParamsDump:
             cmd.append("--output-params-dump")
@@ -182,7 +184,8 @@ class SimulationRunner(QThread):
 
     def run(self):
         self.clearLog.emit()
-        if (not os.access(self.juliaCommand, os.X_OK) and not which(self.juliaCommand)) or self.openedFilePath == "":
+        juliaExec = which(self.juliaCommand) if self.juliaCommand == "julia" else self.juliaCommand
+        if (not os.access(juliaExec, os.X_OK) or not self.openedFilePath):
             return
         self._currentState = SimulationRunner.InitState.INIT
         self.notifyStateAndProgress.emit(self._currentState.toPrintable(), 0)
@@ -191,7 +194,7 @@ class SimulationRunner(QThread):
         self.printSimulationMsg.emit(ABS_PATH_TO_ADVANCED_CLI() + '> ' + ' '.join(cmd) + '\n')
         self._process = subprocess.Popen(cmd, shell=SimulationRunner.isShellUsageRequired(),
                                          cwd=ABS_PATH_TO_ADVANCED_CLI(),
-                                         env={**os.environ, "JULIA_NUM_THREADS": str(self.numOfThreads)},
+                                         env={**os.environ},
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                          encoding="utf-8")
         if self._isThreadStopped_Safe():

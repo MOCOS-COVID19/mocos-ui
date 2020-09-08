@@ -8,7 +8,7 @@ import threading
 import queue
 import tempfile
 from shutil import which
-from model.Utilities import formatPath, ABS_PATH_TO_ADVANCED_CLI
+from model.Utilities import format_path, ABS_PATH_TO_ADVANCED_CLI
 
 
 def enqueueOutStream(output, q):
@@ -94,16 +94,16 @@ class SimulationRunner(QThread):
         cmd.append(cliname)
         if self.outputParamsDump:
             cmd.append("--output-params-dump")
-            cmd.append(formatPath(self._getworkdir() + "\\" + self.outputParamsDump))
+            cmd.append(format_path(self._getworkdir() + "\\" + self.outputParamsDump))
         if self.outputDaily:
             cmd.append("--output-daily")
-            cmd.append(formatPath(self._getworkdir() + "\\" + self.outputDaily))
+            cmd.append(format_path(self._getworkdir() + "\\" + self.outputDaily))
         if self.outputSummary:
             cmd.append("--output-summary")
-            cmd.append(formatPath(self._getworkdir() + "\\" + self.outputSummary))
+            cmd.append(format_path(self._getworkdir() + "\\" + self.outputSummary))
         if self.outputRunDumpPrefix:
             cmd.append("--output-run-dump-prefix")
-            cmd.append(formatPath(self._getworkdir() + "\\" + self.outputRunDumpPrefix))
+            cmd.append(format_path(self._getworkdir() + "\\" + self.outputRunDumpPrefix))
         cmd.append(self.openedFilePath)
         return cmd
 
@@ -218,5 +218,5 @@ class SimulationRunner(QThread):
             self._process = None
 
     def clean(self):
-        if self.openedFilePath.find(formatPath(tempfile.gettempdir())) != -1:
+        if self.openedFilePath.find(format_path(tempfile.gettempdir())) != -1:
             os.remove(self.openedFilePath)

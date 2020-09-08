@@ -39,16 +39,16 @@ GridLayout {
 
     Connections {
         target: contactTracking
-        onProbabilityChanged: {
+        function onProbabilityChanged() {
             probabilityInputField.text = contactTracking.probability
         }
-        onBackwardDetectionDelayChanged: {
+        function onBackwardDetectionDelayChanged() {
             backwardDetectionDelayInputField.text = contactTracking.backwardDetectionDelay
         }
-        onForwardDetectionDelayChanged: {
+        function onForwardDetectionDelayChanged() {
             forwardDetectionDelayInputField.text = contactTracking.forwardDetectionDelay
         }
-        onTestingTimeChanged: {
+        function onTestingTimeChanged() {
             testingTimeInputField.text = contactTracking.testingTime
         }
     }

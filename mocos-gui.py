@@ -3,7 +3,7 @@ import sys
 import os
 from model.ProjectHandler import ProjectHandler
 from model.ProjectSettings import Cardinalities
-from PyQt5.QtGui import QGuiApplication
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterType
 import PyQt5.QtCore
 import logging
@@ -19,10 +19,10 @@ if __name__ == "__main__":
 
     qmlRegisterType(Cardinalities, "ProjectSettingTypes", 1, 0, "Cardinalities")
 
-    QGuiApplication.setAttribute(PyQt5.QtCore.Qt.AA_EnableHighDpiScaling, True)
-    QGuiApplication.setAttribute(PyQt5.QtCore.Qt.AA_UseHighDpiPixmaps, True)
+    QApplication.setAttribute(PyQt5.QtCore.Qt.AA_EnableHighDpiScaling, True)
+    QApplication.setAttribute(PyQt5.QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
-    app = QGuiApplication([])
+    app = QApplication([])
     engine = QQmlApplicationEngine()
 
     app.aboutToQuit.connect(shutdown)

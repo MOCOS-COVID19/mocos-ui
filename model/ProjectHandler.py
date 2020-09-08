@@ -1,14 +1,15 @@
 # This Python file uses the following encoding: utf-8
 from model.ProjectSettings import ModulationFunctions, ProjectSettings, EmptyModulationParams, ValueTypes
 import json
-from PyQt5.QtCore import QAbstractTableModel, pyqtSignal, pyqtSlot, Qt, QByteArray, QObject,  QVariant, pyqtProperty
 import os
+from PyQt5.QtCore import QAbstractTableModel, pyqtSignal, pyqtSlot, Qt, QByteArray, QObject,  QVariant, pyqtProperty
 from model.ConfigurationValidator import ConfigurationValidator
-from model.Utilities import formatPath
+from model.Utilities import format_path
 from model.ApplicationSettings import ApplicationSettings
 from model.SimulationRunner import SimulationRunner
 from jsonschema import ValidationError
 import tempfile
+from model.DailyInfectionsChartGenerator import get_infections_daily, is_daily_infections_chart_available
 
 
 class FunctionParametersModel(QAbstractTableModel):
@@ -123,10 +124,14 @@ class ProjectHandler(QObject):
     _openedFilePath = None
     _isOpenedConfModified = False
     _isModifyingConfOngoing = True
+    _infectionTrajectories = None
     showErrorMsg = pyqtSignal(str, arguments=['msg'])
     modulationFunctionChanged = pyqtSignal()
     openedNewConf = pyqtSignal()
     openedConfModified = pyqtSignal()
+    infectionTrajectoriesChanged = pyqtSignal()
+    updateDailyInfectionsChart = pyqtSignal()
+    dailyInfectionsDataAvailableChanged = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -158,6 +163,10 @@ class ProjectHandler(QObject):
         self._settings.spreading.truncationChanged.connect(setModifiedToTrue)
         self._modulationModel.dataChanged.connect(lambda tr, bl, role: setModifiedToTrue())
         self.openedNewConf.connect(self._applicationSettings.recheckPaths)
+        self.openedNewConf.connect(self.dailyInfectionsDataAvailableChanged)
+        self._applicationSettings.outputDailyChanged.connect(self.dailyInfectionsDataAvailableChanged)
+        self.dailyInfectionsDataAvailableChanged.connect(self.prepareDailyInfectionsData)
+        self._simulationRunner.isRunningChanged.connect(self.dailyInfectionsDataAvailableChanged)
 
     def setOpenedConfModifiedIfModificationOngoing(self):
         if self._isModifyingConfOngoing:
@@ -166,7 +175,7 @@ class ProjectHandler(QObject):
     def __saveConfToTempFile(self):
         fh = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False)
         json.dump(self._settings.serialize(), fh, indent=4, ensure_ascii=False)
-        path = formatPath(fh.name)
+        path = format_path(fh.name)
         fh.close()
         return path
 
@@ -177,7 +186,7 @@ class ProjectHandler(QObject):
 
     @pyqtSlot(str)
     def saveAs(self, path):
-        path = formatPath(path)
+        path = format_path(path)
         fh = open(path, "w", encoding='utf-8')
         json.dump(self._settings.serialize(), fh, indent=4, ensure_ascii=False)
         fh.close()
@@ -193,7 +202,7 @@ class ProjectHandler(QObject):
     @pyqtSlot(str)
     def open(self, path):
         try:
-            path = formatPath(path)
+            path = format_path(path)
             inputFileHandle = open(path, 'r', encoding='utf-8')
             data = json.loads(inputFileHandle.read())
             ConfigurationValidator.validateAgainstSchema(data)
@@ -256,7 +265,7 @@ class ProjectHandler(QObject):
 
     @pyqtSlot(str)
     def setPopulationFilePath(self, path):
-        self._settings.generalSettings.populationPath = formatPath(path)
+        self._settings.generalSettings.populationPath = format_path(path)
 
     @pyqtSlot()
     def runSimulation(self):
@@ -287,3 +296,25 @@ class ProjectHandler(QObject):
     @pyqtSlot()
     def stopSimulation(self):
         self._simulationRunner.stop()
+
+    @pyqtSlot()
+    def prepareDailyInfectionsData(self):
+        if self.isDailyInfectionsDataAvailable:
+            dailypath = format_path(self.workdir() + "\\" + self._applicationSettings.outputDaily)
+            self._infectionTrajectories = get_infections_daily(dailypath)
+        else:
+            self._infectionTrajectories = {}
+        self.updateDailyInfectionsChart.emit()
+
+    @pyqtSlot(result=QVariant)
+    def infectionTrajectories(self):
+        return list(self._infectionTrajectories.keys())
+
+    @pyqtSlot(str, result=QVariant)
+    def infectionTrajectoryValues(self, trajectory_name):
+        return self._infectionTrajectories[trajectory_name]
+
+    @pyqtProperty(bool, notify=dailyInfectionsDataAvailableChanged)
+    def isDailyInfectionsDataAvailable(self):
+        dailypath = format_path(self.workdir() + "\\" + self._applicationSettings.outputDaily)
+        return is_daily_infections_chart_available(dailypath)

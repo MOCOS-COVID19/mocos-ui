@@ -59,13 +59,13 @@ GridLayout {
 
     Connections {
         target: generalSettings
-        onNumTrajectoriesChanged: {
+        function onNumTrajectoriesChanged() {
             numTrajectoriesInputField.text = generalSettings.numTrajectories
         }
-        onDetectionMildProbabilityChanged: {
+        function onDetectionMildProbabilityChanged() {
             detectionMildProbabilityInputField.text = generalSettings.detectionMildProbability
         }
-        onStopSimulationThresholdChanged: {
+        function onStopSimulationThresholdChanged() {
             stopSimulationThresholdInputField.text = generalSettings.stopSimulationThreshold
         }
     }

@@ -327,7 +327,7 @@ ApplicationWindow {
     }
 
     property var dailyInfectedChartWindow: {
-        var component = Qt.createComponent("DailyInfectedChartWindow.qml")
+        var component = Qt.createComponent("DailyInfectionsChartWindow.qml")
         if (component.status === Component.Ready) {
             return component.createObject(mainWindow)
         }

@@ -316,5 +316,7 @@ class ProjectHandler(QObject):
 
     @pyqtProperty(bool, notify=dailyInfectionsDataAvailableChanged)
     def isDailyInfectionsDataAvailable(self):
+        if not self._applicationSettings.outputDaily:
+            return False
         dailypath = format_path(self.workdir() + "\\" + self._applicationSettings.outputDaily)
         return is_daily_infections_chart_available(dailypath)

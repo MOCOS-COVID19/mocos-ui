@@ -11,6 +11,13 @@ Window {
     height: 360
     flags: Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint | Qt.WindowStaysOnTopHint | Qt.MSWindowsFixedSizeDialogHint
 
+    function adjustPathToOS(path) {
+        if (Qt.platform.os != "windows") {
+            return "/" + path
+        } 
+        return path
+    }
+
     Item {
         anchors.fill: parent
         anchors.margins: 5
@@ -60,7 +67,7 @@ Window {
             }
             Button {
                 function setOutputDaily() {
-                    applicationSettings.outputDaily = jld2FileSelectDialog.fileUrl
+                    applicationSettings.outputDaily = adjustPathToOS(jld2FileSelectDialog.fileUrl)
                     jld2FileSelectDialog.accepted.disconnect(setOutputDaily)
                 }
 
@@ -88,7 +95,7 @@ Window {
             }
             Button {
                 function setOutputSummary() {
-                    applicationSettings.outputSummary = jld2FileSelectDialog.fileUrl
+                    applicationSettings.outputSummary = adjustPathToOS(jld2FileSelectDialog.fileUrl)
                     jld2FileSelectDialog.accepted.disconnect(setOutputSummary)
                 }
 
@@ -116,9 +123,10 @@ Window {
             }
             Button {
                 function setOutputParamsDump() {
-                    applicationSettings.outputParamsDump = jld2FileSelectDialog.fileUrl
+                    applicationSettings.outputParamsDump = adjustPathToOS(jld2FileSelectDialog.fileUrl)
                     jld2FileSelectDialog.accepted.disconnect(setOutputParamsDump)
                 }
+
                 text: "Select"
                 onClicked: {
                     jld2FileSelectDialog.folder = "file:///" + projectHandler.workdir()
@@ -187,7 +195,7 @@ Window {
         sidebarVisible: true
         nameFilters: [ "JULIA executable (*)" ]
         onAccepted: {
-            applicationSettings.juliaCommand = juliaSelectDialog.fileUrl
+            applicationSettings.juliaCommand = adjustPathToOS(juliaSelectDialog.fileUrl)
         }
     }
 
@@ -205,7 +213,7 @@ Window {
         selectExisting: false
         sidebarVisible: true
         onAccepted: {
-            applicationSettings.outputRunDumpPrefix = runDumpPrefixSelectDialog.fileUrl
+            applicationSettings.outputRunDumpPrefix = adjustPathToOS(runDumpPrefixSelectDialog.fileUrl)
         }
     }
 }

@@ -14,7 +14,13 @@ GridLayout {
         sidebarVisible: true
         nameFilters: [ "JLD2 files (*.jld2)" ]
         onAccepted: {
-            projectHandler.setPopulationFilePath(populationFileSelectDialog.fileUrl)
+            path = ""
+            if (Qt.platform.os != "windows") {
+                path = "/" + fileUrl
+            } else {
+                path = fileUrl
+            }
+            projectHandler.setPopulationFilePath(path)
         }
     }
 

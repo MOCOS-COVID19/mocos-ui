@@ -1,16 +1,13 @@
-import sys
 import os
 
 
 def format_path(path, isFile=True, makeRelativeTo=None):
     result = path.replace("file:///", "")
     result = result.replace('\\', '/')
-    if sys.platform == "darwin" and path != "":
-        result = "/" + result
     if isFile and len(result) > 2 and result.endswith('/'):
         result = result[:-1]
-    if makeRelativeTo and os.path.isabs(result):
-        result = os.path.relpath(result, format_path(makeRelativeTo))
+    if os.path.isabs(result) and makeRelativeTo:
+        result = os.path.relpath(result, format_path(makeRelativeTo, isFile=False))
         result = result.replace('\\', '/')
     return result
 

@@ -92,6 +92,7 @@ ApplicationWindow {
                 + spreadingSettingsButton.width
                 + 50;
         recentFilesMenu.createMenuItems(applicationSettings.recentFiles)
+        projectHandler.prepareDailyInfectionsData()
     }
 
     FileDialog {

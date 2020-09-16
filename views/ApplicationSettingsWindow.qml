@@ -61,7 +61,11 @@ Window {
                 id: outputDailyField
                 text: applicationSettings.outputDaily
                 onAccepted: applicationSettings.outputDaily = text
-                onActiveFocusChanged: if (!activeFocus) applicationSettings.outputDaily = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.outputDaily !== text) {
+                        applicationSettings.outputDaily = text
+                    }
+                 }
                 color: applicationSettings.outputDailyAcceptable ? "black" : "red"
                 KeyNavigation.tab: outputSummaryField
             }
@@ -89,7 +93,11 @@ Window {
                 id: outputSummaryField
                 text: applicationSettings.outputSummary
                 onAccepted: applicationSettings.outputSummary = text
-                onActiveFocusChanged: if (!activeFocus) applicationSettings.outputSummary = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.outputSummary !== text) {
+                        applicationSettings.outputSummary = text
+                    }
+                }
                 color: applicationSettings.outputSummaryAcceptable ? "black" : "red"
                 KeyNavigation.tab: outputParamsDumpField
             }
@@ -116,8 +124,12 @@ Window {
             TextField {
                 id: outputParamsDumpField
                 text: applicationSettings.outputParamsDump
-                onFocusChanged: applicationSettings.outputParamsDump = text
                 onAccepted: applicationSettings.outputParamsDump = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.outputParamsDump !== text) {
+                        applicationSettings.outputParamsDump = text
+                    }
+                }
                 color: applicationSettings.outputParamsDumpAcceptable ? "black" : "red"
                 KeyNavigation.tab: outputRunDumpPrefixField
             }
@@ -145,7 +157,11 @@ Window {
                 id: outputRunDumpPrefixField
                 text: applicationSettings.outputRunDumpPrefix
                 onAccepted: applicationSettings.outputRunDumpPrefix = text
-                onActiveFocusChanged: if (!activeFocus) applicationSettings.outputRunDumpPrefix = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.outputRunDumpPrefix !== text) {
+                        applicationSettings.outputRunDumpPrefix = text
+                    }
+                }
                 color: applicationSettings.outputRunDumpPrefixAcceptable ? "black" : "red"
                 KeyNavigation.tab: numOfThreadsField
             }
@@ -165,7 +181,11 @@ Window {
                 text: applicationSettings.numOfThreads
                 validator: IntValidator{}
                 onAccepted: applicationSettings.numOfThreads = text
-                onActiveFocusChanged: if (!activeFocus) applicationSettings.numOfThreads = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.numOfThreads !== text) {
+                        applicationSettings.numOfThreads = text
+                    }
+                }
                 KeyNavigation.tab: juliaCommandField
             }
             Slider {

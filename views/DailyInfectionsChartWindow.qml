@@ -18,15 +18,6 @@ Window {
             Qt.size(widthField.targetValue, heightField.targetValue))
     }
 
-
-    property bool isFirstOpen: true
-    onVisibleChanged: {
-        if (visible === true && isFirstOpen) {
-            isFirstOpen = false
-            projectHandler.prepareDailyInfectionsData()
-        }
-    }
-
     FileDialog {
         id: chartSaveDialog
         folder: shortcuts.home

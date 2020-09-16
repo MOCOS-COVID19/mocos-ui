@@ -14,7 +14,7 @@ GridLayout {
         sidebarVisible: true
         nameFilters: [ "JLD2 files (*.jld2)" ]
         onAccepted: {
-            path = ""
+            let path = ""
             if (Qt.platform.os != "windows") {
                 path = "/" + fileUrl
             } else {

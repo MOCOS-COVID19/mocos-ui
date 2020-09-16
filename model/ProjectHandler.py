@@ -10,6 +10,7 @@ from model.SimulationRunner import SimulationRunner
 from jsonschema import ValidationError
 import tempfile
 from model.DailyInfectionsChartGenerator import get_infections_daily, is_daily_infections_chart_available
+import threading
 
 
 class FunctionParametersModel(QAbstractTableModel):
@@ -162,11 +163,14 @@ class ProjectHandler(QObject):
         self._settings.spreading.x0Changed.connect(setModifiedToTrue)
         self._settings.spreading.truncationChanged.connect(setModifiedToTrue)
         self._modulationModel.dataChanged.connect(lambda tr, bl, role: setModifiedToTrue())
-        self.openedNewConf.connect(self._applicationSettings.recheckPaths)
-        self.openedNewConf.connect(self.dailyInfectionsDataAvailableChanged)
-        self._applicationSettings.outputDailyChanged.connect(self.dailyInfectionsDataAvailableChanged)
-        self.dailyInfectionsDataAvailableChanged.connect(self.prepareDailyInfectionsData)
-        self._simulationRunner.isRunningChanged.connect(self.dailyInfectionsDataAvailableChanged)
+        self.openedNewConf.connect(self._applicationSettings.recheckPaths, type=Qt.QueuedConnection)
+        self.openedNewConf.connect(self.dailyInfectionsDataAvailableChanged, type=Qt.QueuedConnection)
+        self._applicationSettings.outputDailyChanged.connect(
+            self.dailyInfectionsDataAvailableChanged, type=Qt.QueuedConnection)
+        self.dailyInfectionsDataAvailableChanged.connect(
+            self.prepareDailyInfectionsData, type=Qt.QueuedConnection)
+        self._simulationRunner.isRunningChanged.connect(
+            self.dailyInfectionsDataAvailableChanged, type=Qt.QueuedConnection)
 
     def setOpenedConfModifiedIfModificationOngoing(self):
         if self._isModifyingConfOngoing:
@@ -297,14 +301,18 @@ class ProjectHandler(QObject):
     def stopSimulation(self):
         self._simulationRunner.stop()
 
-    @pyqtSlot()
-    def prepareDailyInfectionsData(self):
+    def prepareDailyInfectionsDataThreaded(self):
         if self.isDailyInfectionsDataAvailable:
             dailypath = format_path(self.workdir() + "\\" + self._applicationSettings.outputDaily)
             self._infectionTrajectories = get_infections_daily(dailypath)
         else:
             self._infectionTrajectories = {}
         self.updateDailyInfectionsChart.emit()
+
+    @pyqtSlot()
+    def prepareDailyInfectionsData(self):
+        self._dataPreparingThread = threading.Thread(target=self.prepareDailyInfectionsDataThreaded)
+        self._dataPreparingThread.start()
 
     @pyqtSlot(result=QVariant)
     def infectionTrajectories(self):

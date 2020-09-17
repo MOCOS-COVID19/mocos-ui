@@ -20,7 +20,7 @@ GridLayout {
             } else {
                 path = fileUrl
             }
-            projectHandler.setPopulationFilePath(path)
+            generalSettings.populationPath = path
         }
     }
 

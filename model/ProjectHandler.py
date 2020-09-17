@@ -267,10 +267,6 @@ class ProjectHandler(QObject):
         else:
             self._isModifyingConfOngoing = True
 
-    @pyqtSlot(str)
-    def setPopulationFilePath(self, path):
-        self._settings.generalSettings.populationPath = format_path(path)
-
     @pyqtSlot()
     def runSimulation(self):
         if not self._settings.generalSettings._populationPath:

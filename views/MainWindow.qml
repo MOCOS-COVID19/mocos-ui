@@ -9,8 +9,13 @@ ApplicationWindow {
     objectName: "mainWindow"
     title: createMainWindowTitle()
     height: 500
-
     visible: true
+
+    signal dailyInfectionSeriesAdded
+
+    onClosing: {
+        projectHandler.beforeClosingMainWindow()
+    }
 
     property variant contentSources: [
         "InitialConditionsView.qml",
@@ -215,7 +220,7 @@ ApplicationWindow {
             Action {
                 text: "Daily Infections Chart"
                 enabled: projectHandler.isDailyInfectionsDataAvailable
-                onTriggered: dailyInfectedChartWindow.visible = true
+                onTriggered: dailyInfectionsChartWindow.visible = true
             }
         }
     }
@@ -327,13 +332,13 @@ ApplicationWindow {
         console.assert(false)
     }
 
-    property var dailyInfectedChartWindow: {
+    property var dailyInfectionsChartWindow: {
         var component = Qt.createComponent("DailyInfectionsChartWindow.qml")
         if (component.status === Component.Ready) {
             return component.createObject(mainWindow)
         }
         console.assert(false)
-    }
+    }   
 
     Item {
         anchors.fill: parent

@@ -239,3 +239,16 @@ class ApplicationSettings(QObject):
     @pyqtSlot(result=int)
     def getMaxNumOfThreads(self):
         return os.cpu_count()
+
+    def abs_path(self, propertyname):
+        if propertyname == ApplicationSettings.PropertyNames.NUM_OF_THREADS:
+            raise ValueError
+        if propertyname == ApplicationSettings.PropertyNames.OUTPUT_DAILY:
+            return "" if not self._outputDaily else format_path(self._getworkdir() + "//" + self._outputDaily)
+        if propertyname == ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP:
+            return "" if not self._outputParamsDump else format_path(self._getworkdir() + "//" + self._outputParamsDump)
+        if propertyname == ApplicationSettings.PropertyNames.OUTPUT_SUMMARY:
+            return "" if not self._outputSummary else format_path(self._getworkdir() + "//" + self._outputSummary)
+        if propertyname == ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX:
+            return "" if not self._outputRunDumpPrefix else format_path(self._getworkdir() + "//" + self._outputRunDumpPrefix)
+        raise NotImplementedError

@@ -2,8 +2,8 @@
     "files": [
         "mocos-gui.py",
         "model/ApplicationSettings.py",
+        "model/charts.py",
         "model/ConfigurationValidator.py",
-        "model/DailyInfectionsChartWindow.py",
         "model/ProjectHandler.py",
         "model/ProjectSettings.py",
         "model/SimulationRunner.py",
@@ -24,5 +24,5 @@
         "views/TransmissionProbabilitiesView.qml",
         "model/Configuration.schema",
         "model/TanhParameters.schema"
-        ]
+    ]
 }

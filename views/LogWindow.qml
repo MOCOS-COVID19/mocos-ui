@@ -63,4 +63,11 @@ Window {
             progressBar.value = progress / 100
         }
     }
+    Connections {
+        target: projectHandler
+        function onLogDebug(msg) {
+            let newText = logViewer.text + msg
+            logViewer.text = newText
+        }
+    }
 }

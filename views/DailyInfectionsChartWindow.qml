@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.0
 import QtCharts 2.2
 
 Window {
-    id: appSettingsWindow
+    id: dailyInfectionsWindow
     title: "Daily Infected"
     width: 640
     height: 360
@@ -30,7 +30,7 @@ Window {
             if (path.startsWith(FILE_PREFIX)) {
                 path = path.substr(FILE_PREFIX.length, path.length)
             }
-            appSettingsWindow.saveChart(path)
+            dailyInfectionsWindow.saveChart(path)
         }
     }
 
@@ -109,21 +109,26 @@ Window {
 
     Connections {
         target: projectHandler
-        function onUpdateDailyInfectionsChart() {
+        function onUpdateDailyInfectionsChartBegin(filename) {
+            var DEFAULT_TITLE = "Daily Infected "
+            dailyInfectionsWindow.title = DEFAULT_TITLE + filename
             axisY.max = 1
             axisX.max = 1
             chartView.removeAllSeries()
-            let infections = projectHandler.infectionTrajectories()
-            for (var i=0; i<infections.length; ++i) {
-                var values = projectHandler.infectionTrajectoryValues(infections[i])
-                axisX.max = Math.max(axisX.max, values.length-1)
-                var line = chartView.createSeries(ChartView.SeriesTypeLine, infections[i], axisX, axisY)
-                for (let i=0; i<values.length; ++i) {
-                    line.append(i, values[i])
-                    axisY.max = Math.max(axisY.max, values[i])
-                }
+        }
+
+        function onAddDailyInfectionSeries(name, series) {
+            axisX.max = Math.max(axisX.max, series.length-1)
+            var line = chartView.createSeries(ChartView.SeriesTypeLine, name, axisX, axisY)
+            for (let i=0; i<series.length; ++i) {
+                line.append(i, series[i])
+                axisY.max = Math.max(axisY.max, series[i])
             }
-            saveButton.enabled = infections.length > 0
+            projectHandler.addNextDailyInfectionSeries()
+        }
+
+        function onUpdateDailyInfectionsChartDone() {
+            saveButton.enabled = chartView.count > 0
         }
     }
 }

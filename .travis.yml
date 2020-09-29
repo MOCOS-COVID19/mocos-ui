@@ -9,56 +9,39 @@ jobs:
       name: "Python 3.6"
       python: 3.6
       install:
-        - pip install -U pip setuptools wheel
-        - pip install -r requirements.txt
-        - pip install -r requirements-ci.txt
+        - ./ci.py --deps
       script:
         - flake8 .
     - stage: linter
       name: "Python 3.7"
       python: 3.7
       install:
-        - pip install -U pip setuptools wheel
-        - pip install -r requirements.txt
-        - pip install -r requirements-ci.txt
+        - ./ci.py --deps
       script:
         - flake8 .
     - stage: linter
       name: "Python 3.8"
       python: 3.8
       install:
-        - pip install -U pip setuptools wheel
-        - pip install -r requirements.txt
-        - pip install -r requirements-ci.txt
-      script:
-        - flake8 .
-    - stage: linter
-      name: "Python 3.8"
-      python: 3.8
-      install:
-        - pip install -U pip setuptools wheel
-        - pip install -r requirements.txt
-        - pip install -r requirements-ci.txt
+        - ./ci.py --deps
       script:
         - flake8 .
     - stage: build
       name: "Build Release - Linux"
       python: 3.8
       install:
-        - pip install -U pip setuptools wheel
-        - pip install -r requirements.txt
-        - pip install -r requirements-ci.txt
+        - ./ci.py --deps
       script:
-        - pyinstaller mocos-gui.py
-        - cp -r views dist/mocos-gui/
-        - zip -r mocos-gui-linux-amd64.zip dist/mocos-gui/
+        - ./ci.py --build
       deploy:
         provider: releases
         api_key: $API_TOKEN
         file_glob: true
-        file: ./*.zip
+        file: ./dist/*.zip
         skip_cleanup: true
         draft: true
+        on:
+          tags: true
     - stage: build
       name: "Build Release - Windows"
       os: windows
@@ -68,16 +51,34 @@ jobs:
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       install:
         - pip install -U setuptools wheel
-        - pip install -r requirements.txt
-        - pip install -r requirements-ci.txt
       script:
-        - pyinstaller mocos-gui.py
-        - cp -r views dist/mocos-gui/
-        - 7z a -tzip mocos-gui-win-amd64.zip dist/mocos-gui/
+        - ./ci.py --build
       deploy:
         provider: releases
         api_key: $API_TOKEN
         file_glob: true
-        file: ./*.zip
+        file: ./dist/*.zip
         skip_cleanup: true
         draft: true
+        on:
+          tags: true
+    - stage: build
+      name: "Build Release - MacOS"
+      os: osx
+      osx_image: xcode12
+      language: generic
+      before_install:
+        - brew install python
+      install:
+        - ./ci.py --deps
+      script:
+        - ./ci.py --build
+      deploy:
+        provider: releases
+        api_key: $API_TOKEN
+        file_glob: true
+        file: ./dist/*.zip
+        skip_cleanup: true
+        draft: true
+        on:
+          tags: true

@@ -1,8 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 import sys
 import os
 import argparse
 import subprocess
+
+
+if sys.version_info[0] < 3:
+     raise Exception("unsuported version of Python!")
 
 
 def run(command):

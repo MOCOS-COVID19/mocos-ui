@@ -30,9 +30,9 @@ jobs:
       name: "Build Release - Linux"
       python: 3.8
       install:
-        - ./ci.py --deps
+        - python3 ci.py --deps
       script:
-        - ./ci.py --build
+        - python3 ci.py --build
       deploy:
         provider: releases
         api_key: $API_TOKEN
@@ -50,9 +50,9 @@ jobs:
         - choco install python --version=3.8
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
       install:
-        - pip install -U setuptools wheel
+        - python3 ci.py --deps
       script:
-        - ./ci.py --build
+        - python3 ci.py --build
       deploy:
         provider: releases
         api_key: $API_TOKEN
@@ -70,9 +70,9 @@ jobs:
       before_install:
         - brew install python
       install:
-        - ./ci.py --deps
+        - python3 ci.py --deps
       script:
-        - ./ci.py --build
+        - python3 ci.py --build
       deploy:
         provider: releases
         api_key: $API_TOKEN

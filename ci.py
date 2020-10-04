@@ -17,7 +17,7 @@ def run(command):
 
 
 def deps():
-    run("pip install -U pip setuptools wheel")
+    run("pip install -U setuptools wheel")
     run("pip install -r requirements.txt")
     run("pip install -r requirements-ci.txt")
 

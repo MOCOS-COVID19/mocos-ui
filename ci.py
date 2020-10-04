@@ -30,7 +30,7 @@ def build():
         run("zip -r mocos-gui-osx-amd64.zip mocos-gui/")
     if (os.environ['TRAVIS_OS_NAME'] == "linux"):
         run("zip -r mocos-gui-linux-amd64.zip mocos-gui/")
-    else:
+    if (os.environ['TRAVIS_OS_NAME'] == "windows"):
         run("7z a -tzip mocos-gui-win-amd64.zip mocos-gui/")
 
 

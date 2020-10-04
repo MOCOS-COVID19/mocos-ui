@@ -26,12 +26,12 @@ def build():
     run("pyinstaller mocos-gui.py")
     run("cp -r views dist/mocos-gui/")
     os.chdir("./dist")
-    if (os.environ['HOME'] == "windows"):
-        run("7z a -tzip mocos-gui-win-amd64.zip mocos-gui/")
-    if (os.environ['HOME'] == "osx"):
+    if (os.environ['TRAVIS_OS_NAME'] == "osx"):
         run("zip -r mocos-gui-osx-amd64.zip mocos-gui/")
-    else:
+    if (os.environ['TRAVIS_OS_NAME'] == "linux"):
         run("zip -r mocos-gui-linux-amd64.zip mocos-gui/")
+    else:
+        run("7z a -tzip mocos-gui-win-amd64.zip mocos-gui/")
 
 
 def main():

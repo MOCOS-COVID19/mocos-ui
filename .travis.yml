@@ -68,6 +68,9 @@ jobs:
       language: generic
       before_install:
         - brew install python
+        - pip3 install virtualenv
+        - virtualenv -p python3 ~/venv
+        - source ~/venv/bin/activate
       install:
         - python ci.py --deps
       script:

@@ -6,7 +6,7 @@ import subprocess
 
 
 if sys.version_info[0] < 3:
-     raise Exception("unsuported version of Python!")
+    raise Exception("unsuported version of Python!")
 
 
 def run(command):

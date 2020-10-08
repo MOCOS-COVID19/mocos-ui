@@ -1,14 +1,86 @@
+arch: amd64
+os: linux
 dist: bionic
 language: python
-python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-# command to install dependencies
-install:
-  - pip install -U pip setuptools wheel
-  - pip install -r requirements.txt
-  - pip install -r requirements-ci.txt
-# command to run tests
-script:
-  - flake8 .
+jobs:
+  include:
+    - stage: linter
+      name: "Python 3.6"
+      python: 3.6
+      install:
+        - python ./ci.py --deps
+      script:
+        - flake8 .
+    - stage: linter
+      name: "Python 3.7"
+      python: 3.7
+      install:
+        - python ./ci.py --deps
+      script:
+        - flake8 .
+    - stage: linter
+      name: "Python 3.8"
+      python: 3.8
+      install:
+        - python ./ci.py --deps
+      script:
+        - flake8 .
+    - stage: build
+      name: "Build Release - Linux"
+      python: 3.8
+      install:
+        - python ci.py --deps
+      script:
+        - python ci.py --build
+      deploy:
+        provider: releases
+        api_key: $API_TOKEN
+        file_glob: true
+        file: ./dist/*.zip
+        skip_cleanup: true
+        draft: true
+        on:
+          tags: true
+    - stage: build
+      name: "Build Release - Windows"
+      os: windows
+      language: shell
+      before_install:
+        - choco install python --version=3.8
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      install:
+        - python ci.py --deps
+      script:
+        - python ci.py --build
+      deploy:
+        provider: releases
+        api_key: $API_TOKEN
+        file_glob: true
+        file: ./dist/*.zip
+        skip_cleanup: true
+        draft: true
+        on:
+          tags: true
+    - stage: build
+      name: "Build Release - MacOS"
+      os: osx
+      osx_image: xcode12
+      language: generic
+      before_install:
+        - brew install python
+        - pip3 install virtualenv
+        - virtualenv -p python3 ~/venv
+        - source ~/venv/bin/activate
+      install:
+        - python ci.py --deps
+      script:
+        - python ci.py --build
+      deploy:
+        provider: releases
+        api_key: $API_TOKEN
+        file_glob: true
+        file: ./dist/*.zip
+        skip_cleanup: true
+        draft: true
+        on:
+          tags: true

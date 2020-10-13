@@ -25,9 +25,16 @@ jobs:
         - python ./ci.py --deps
       script:
         - flake8 .
+    - stage: linter
+      name: "Python 3.9"
+      python: 3.9
+      install:
+        - python ./ci.py --deps
+      script:
+        - flake8 .
     - stage: build
       name: "Build Release - Linux"
-      python: 3.8
+      python: 3.9
       install:
         - python ci.py --deps
       script:
@@ -46,8 +53,8 @@ jobs:
       os: windows
       language: shell
       before_install:
-        - choco install python --version=3.8
-      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+        - choco install python --version=3.9
+      env: PATH=/c/Python39:/c/Python39/Scripts:$PATH
       install:
         - python ci.py --deps
       script:

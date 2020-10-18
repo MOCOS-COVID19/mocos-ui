@@ -25,7 +25,7 @@ Window {
         sidebarVisible: true
         nameFilters: [ "PNG files (*.png)" ]
         onAccepted: {
-            var FILE_PREFIX = "file:///"
+            var FILE_PREFIX = "file://"
             let path = fileUrl.toString()
             if (path.startsWith(FILE_PREFIX)) {
                 path = path.substr(FILE_PREFIX.length, path.length)

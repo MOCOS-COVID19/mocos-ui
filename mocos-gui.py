@@ -26,8 +26,8 @@ if __name__ == "__main__":
     engine = QQmlApplicationEngine()
 
     app.aboutToQuit.connect(shutdown)
-    app.setApplicationName("MOCOS")
-    app.setOrganizationDomain("mocos.pl")
+    app.setApplicationName("MOCOS Simulator")
+    app.setOrganizationDomain("https://mocos.pl")
 
     engine.rootContext().setContextProperty("projectHandler", projectHandler)
     engine.rootContext().setContextProperty("initialConditions", projectHandler._settings.initialConditions)

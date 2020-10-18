@@ -1,4 +1,5 @@
 # external requirements
 PyQt5>=5.15
+PyQtChart>=5.15
 jsonschema>=3.2
 h5py>=2.10.0

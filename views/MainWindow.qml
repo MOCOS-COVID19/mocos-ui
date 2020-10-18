@@ -216,11 +216,12 @@ ApplicationWindow {
             }
         }
         Menu {
-            title: "Postprocessing"
+            title: "&Postprocessing"
             Action {
-                text: "Daily Infections Chart"
+                text: "&Daily Infections Chart"
                 enabled: projectHandler.isDailyInfectionsDataAvailable
                 onTriggered: dailyInfectionsChartWindow.visible = true
+                shortcut: "Ctrl+D"
             }
         }
     }

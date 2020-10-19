@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 import time
 
 
-class daily_infections_series_preparer(QObject):
+class DailyInfectionsSeriesPreparer(QObject):
     preparing_begin = pyqtSignal(str, arguments=['filename'])
     preparing_done = pyqtSignal()
     series_prepared = pyqtSignal(str, list, arguments=['name', 'series'])

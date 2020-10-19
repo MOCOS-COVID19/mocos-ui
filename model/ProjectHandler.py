@@ -139,7 +139,7 @@ class ProjectHandler(QObject):
         self._modulationModel = FunctionParametersModel()
         self._applicationSettings = ApplicationSettings(lambda: self.workdir())
         self._simulationRunner = SimulationRunner(lambda: self.workdir())
-        self._chart_preparer = charts.daily_infections_series_preparer(
+        self._chart_preparer = charts.DailyInfectionsSeriesPreparer(
             lambda: self._applicationSettings.abs_path(
                 ApplicationSettings.PropertyNames.OUTPUT_DAILY))
         self.connect_signals()

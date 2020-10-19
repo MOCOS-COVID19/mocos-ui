@@ -1,5 +1,5 @@
 import os
-from model.Utilities import formatPath, getOrEmptyStr, getOr
+from model.Utilities import format_path, get_or_empty_str, get_or
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, pyqtSlot
 import json
 from enum import Enum
@@ -62,12 +62,12 @@ class ApplicationSettings(QObject):
             appSettingsFileHandle.close()
             if lines:
                 content = json.loads(lines)
-                self._juliaCommand = getOr(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value, "julia")
-                self._outputDaily = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
-                self._outputSummary = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
-                self._outputParamsDump = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
-                self._outputRunDumpPrefix = getOrEmptyStr(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
-                self._numOfThreads = getOr(content, ApplicationSettings.PropertyNames.NUM_OF_THREADS.value, 1)
+                self._juliaCommand = get_or(content, ApplicationSettings.PropertyNames.JULIA_COMMAND.value, "julia")
+                self._outputDaily = get_or_empty_str(content, ApplicationSettings.PropertyNames.OUTPUT_DAILY.value)
+                self._outputSummary = get_or_empty_str(content, ApplicationSettings.PropertyNames.OUTPUT_SUMMARY.value)
+                self._outputParamsDump = get_or_empty_str(content, ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP.value)
+                self._outputRunDumpPrefix = get_or_empty_str(content, ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX.value)
+                self._numOfThreads = get_or(content, ApplicationSettings.PropertyNames.NUM_OF_THREADS.value, 1)
                 if self._numOfThreads > self.getMaxNumOfThreads():
                     self._numOfThreads = self.getMaxNumOfThreads()
         except OSError:
@@ -142,7 +142,7 @@ class ApplicationSettings(QObject):
         return self._outputRunDumpPrefix
 
     def __isPathToOutputFileJld2Correct(self, relpath):
-        fullpath = formatPath(self._getworkdir() + "\\" + relpath)
+        fullpath = format_path(self._getworkdir() + "\\" + relpath)
         return (os.path.dirname(fullpath) != fullpath
                 and relpath.endswith(".jld2")
                 and os.access(os.path.dirname(fullpath), os.W_OK))
@@ -169,7 +169,7 @@ class ApplicationSettings(QObject):
 
     @pyqtProperty(bool, notify=outputRunDumpPrefixAcceptabilityCheckReq)
     def outputRunDumpPrefixAcceptable(self):
-        fullpath = formatPath(self._getworkdir() + "\\" + self._outputRunDumpPrefix)
+        fullpath = format_path(self._getworkdir() + "\\" + self._outputRunDumpPrefix)
         return (self._outputRunDumpPrefix == ""
                 or (os.path.dirname(fullpath) != fullpath
                     and os.access(os.path.dirname(fullpath), os.W_OK)))
@@ -185,7 +185,7 @@ class ApplicationSettings(QObject):
     @juliaCommand.setter
     def juliaCommand(self, cmd):
         if cmd != "julia":
-            cmd = formatPath(cmd)
+            cmd = format_path(cmd)
         if self._juliaCommand != cmd:
             self._juliaCommand = cmd
             self.__saveCliOptions()
@@ -194,7 +194,7 @@ class ApplicationSettings(QObject):
 
     @outputDaily.setter
     def outputDaily(self, path):
-        newpath = formatPath(path, makeRelativeTo=self._getworkdir())
+        newpath = format_path(path, makeRelativeTo=self._getworkdir())
         if self._outputDaily != path:
             self._outputDaily = newpath
             self.__saveCliOptions()
@@ -203,7 +203,7 @@ class ApplicationSettings(QObject):
 
     @outputSummary.setter
     def outputSummary(self, path):
-        newpath = formatPath(path, makeRelativeTo=self._getworkdir())
+        newpath = format_path(path, makeRelativeTo=self._getworkdir())
         if self._outputSummary != path:
             self._outputSummary = newpath
             self.__saveCliOptions()
@@ -212,7 +212,7 @@ class ApplicationSettings(QObject):
 
     @outputParamsDump.setter
     def outputParamsDump(self, path):
-        newpath = formatPath(path, makeRelativeTo=self._getworkdir())
+        newpath = format_path(path, makeRelativeTo=self._getworkdir())
         if self._outputParamsDump != path:
             self._outputParamsDump = newpath
             self.__saveCliOptions()
@@ -221,7 +221,7 @@ class ApplicationSettings(QObject):
 
     @outputRunDumpPrefix.setter
     def outputRunDumpPrefix(self, path):
-        newpath = formatPath(path, makeRelativeTo=self._getworkdir())
+        newpath = format_path(path, makeRelativeTo=self._getworkdir())
         if self._outputRunDumpPrefix != path:
             self._outputRunDumpPrefix = newpath
             self.__saveCliOptions()
@@ -239,3 +239,16 @@ class ApplicationSettings(QObject):
     @pyqtSlot(result=int)
     def getMaxNumOfThreads(self):
         return os.cpu_count()
+
+    def abs_path(self, propertyname):
+        if propertyname == ApplicationSettings.PropertyNames.NUM_OF_THREADS:
+            raise ValueError
+        if propertyname == ApplicationSettings.PropertyNames.OUTPUT_DAILY:
+            return "" if not self._outputDaily else format_path(self._getworkdir() + "//" + self._outputDaily)
+        if propertyname == ApplicationSettings.PropertyNames.OUTPUT_PARAMS_DUMP:
+            return "" if not self._outputParamsDump else format_path(self._getworkdir() + "//" + self._outputParamsDump)
+        if propertyname == ApplicationSettings.PropertyNames.OUTPUT_SUMMARY:
+            return "" if not self._outputSummary else format_path(self._getworkdir() + "//" + self._outputSummary)
+        if propertyname == ApplicationSettings.PropertyNames.OUTPUT_RUN_DUMP_PREFIX:
+            return "" if not self._outputRunDumpPrefix else format_path(self._getworkdir() + "//" + self._outputRunDumpPrefix)
+        raise NotImplementedError

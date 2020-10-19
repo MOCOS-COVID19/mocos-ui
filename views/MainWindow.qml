@@ -9,8 +9,13 @@ ApplicationWindow {
     objectName: "mainWindow"
     title: createMainWindowTitle()
     height: 500
-
     visible: true
+
+    signal dailyInfectionSeriesAdded
+
+    onClosing: {
+        projectHandler.beforeClosingMainWindow()
+    }
 
     property variant contentSources: [
         "InitialConditionsView.qml",
@@ -70,14 +75,14 @@ ApplicationWindow {
 
     Connections {
         target: projectHandler
-        onShowErrorMsg: {
+        function onShowErrorMsg(msg) {
             errorMessageDialog.text = msg
             errorMessageDialog.visible = true
         }
-        onOpenedNewConf: {
+        function onOpenedNewConf() {
             mainWindow.title = createMainWindowTitle()
         }
-        onOpenedConfModified: {
+        function onOpenedConfModified() {
             mainWindow.title = createMainWindowTitle()
         }
     }
@@ -92,6 +97,7 @@ ApplicationWindow {
                 + spreadingSettingsButton.width
                 + 50;
         recentFilesMenu.createMenuItems(applicationSettings.recentFiles)
+        projectHandler.prepareDailyInfectionsData()
     }
 
     FileDialog {
@@ -209,13 +215,22 @@ ApplicationWindow {
                 shortcut: "Ctrl+L"
             }
         }
+        Menu {
+            title: "&Postprocessing"
+            Action {
+                text: "&Daily Infections Chart"
+                enabled: projectHandler.isDailyInfectionsDataAvailable
+                onTriggered: dailyInfectionsChartWindow.visible = true
+                shortcut: "Ctrl+D"
+            }
+        }
     }
 
     footer: Label {
         id: statusBar
         Connections {
             target: simulationRunner
-            onNotifyStateAndProgress: {
+            function onNotifyStateAndProgress(state, progress) {
                 let status = state
                 if (progress >= 0) {
                     status += " " + progress + "%"
@@ -318,6 +333,14 @@ ApplicationWindow {
         console.assert(false)
     }
 
+    property var dailyInfectionsChartWindow: {
+        var component = Qt.createComponent("DailyInfectionsChartWindow.qml")
+        if (component.status === Component.Ready) {
+            return component.createObject(mainWindow)
+        }
+        console.assert(false)
+    }   
+
     Item {
         anchors.fill: parent
 
@@ -337,14 +360,14 @@ ApplicationWindow {
             Connections {
                 ignoreUnknownSignals: true
                 target: contentLoader.item
-                onShowLogWindow: {
+                function onShowLogWindow() {
                     logWindow.visible = true
                 }
             }
 
             Connections {
                 target: applicationSettings
-                onRecentFilesChanged: {
+                function onRecentFilesChanged() {
                     recentFilesMenu.clear()
                     recentFilesMenu.createMenuItems(applicationSettings.recentFiles)
                 }

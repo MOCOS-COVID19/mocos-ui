@@ -85,19 +85,19 @@ GridLayout {
 
     Connections {
         target: transmissionProbabilities
-        onHouseholdChanged: {
+        function onHouseholdChanged() {
             householdFactorField.targetValue = transmissionProbabilities.household
             householdFactorField.text = transmissionProbabilities.household
         }
-        onConstantChanged: {
+        function onConstantChanged() {
             constantFactorField.targetValue = transmissionProbabilities.constant
             constantFactorField.text = transmissionProbabilities.constant
         }
-        onHospitalChanged: {
+        function onHospitalChanged() {
             hospitalFactorField.targetValue = transmissionProbabilities.hospital
             hospitalFactorField.text = transmissionProbabilities.hospital
         }
-        onFriendshipChanged: {
+        function onFriendshipChanged() {
             friendshipKernelField.targetValue = transmissionProbabilities.friendship
             friendshipKernelField.text = transmissionProbabilities.friendship
         }

@@ -17,7 +17,7 @@ Item {
 
     Connections {
         target: projectHandler
-        onModulationFunctionChanged: {
+        function onModulationFunctionChanged() {
             let newIndex = projectHandler.getModulationFunctionTypes().indexOf(projectHandler.getActiveModulationFunction())
             if (modulationFuncComboBox.currentIndex === newIndex) {
                 modulationSettingsView.loadNewParams(false)

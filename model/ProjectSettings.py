@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 from enum import Enum
 from PyQt5.QtCore import QObject, pyqtProperty, pyqtSignal, QVariant
-from model.Utilities import formatPath
+from model.Utilities import format_path
 
 
 class GeneralSettings(QObject):
@@ -45,7 +45,7 @@ class GeneralSettings(QObject):
 
     @populationPath.setter
     def populationPath(self, path):
-        path = formatPath(path)
+        path = format_path(path)
         if self._populationPath != path:
             self._populationPath = path
             self.populationPathChanged.emit()

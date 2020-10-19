@@ -18,6 +18,8 @@ GridLayout {
 
     Connections {
         target: initialConditions.cardinalities
-        onInfectiousChanged: infectiousNumField.text = initialConditions.cardinalities.infectious
+        function onInfectiousChanged() {
+            infectiousNumField.text = initialConditions.cardinalities.infectious
+        }
     }
 }

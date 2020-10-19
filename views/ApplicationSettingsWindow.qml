@@ -11,6 +11,13 @@ Window {
     height: 360
     flags: Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint | Qt.WindowStaysOnTopHint | Qt.MSWindowsFixedSizeDialogHint
 
+    function adjustPathToOS(path) {
+        if (Qt.platform.os != "windows") {
+            return "/" + path
+        } 
+        return path
+    }
+
     Item {
         anchors.fill: parent
         anchors.margins: 5
@@ -54,13 +61,17 @@ Window {
                 id: outputDailyField
                 text: applicationSettings.outputDaily
                 onAccepted: applicationSettings.outputDaily = text
-                onActiveFocusChanged: if (!activeFocus) applicationSettings.outputDaily = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.outputDaily !== text) {
+                        applicationSettings.outputDaily = text
+                    }
+                 }
                 color: applicationSettings.outputDailyAcceptable ? "black" : "red"
                 KeyNavigation.tab: outputSummaryField
             }
             Button {
                 function setOutputDaily() {
-                    applicationSettings.outputDaily = jld2FileSelectDialog.fileUrl
+                    applicationSettings.outputDaily = adjustPathToOS(jld2FileSelectDialog.fileUrl)
                     jld2FileSelectDialog.accepted.disconnect(setOutputDaily)
                 }
 
@@ -82,13 +93,17 @@ Window {
                 id: outputSummaryField
                 text: applicationSettings.outputSummary
                 onAccepted: applicationSettings.outputSummary = text
-                onActiveFocusChanged: if (!activeFocus) applicationSettings.outputSummary = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.outputSummary !== text) {
+                        applicationSettings.outputSummary = text
+                    }
+                }
                 color: applicationSettings.outputSummaryAcceptable ? "black" : "red"
                 KeyNavigation.tab: outputParamsDumpField
             }
             Button {
                 function setOutputSummary() {
-                    applicationSettings.outputSummary = jld2FileSelectDialog.fileUrl
+                    applicationSettings.outputSummary = adjustPathToOS(jld2FileSelectDialog.fileUrl)
                     jld2FileSelectDialog.accepted.disconnect(setOutputSummary)
                 }
 
@@ -109,16 +124,21 @@ Window {
             TextField {
                 id: outputParamsDumpField
                 text: applicationSettings.outputParamsDump
-                onFocusChanged: applicationSettings.outputParamsDump = text
                 onAccepted: applicationSettings.outputParamsDump = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.outputParamsDump !== text) {
+                        applicationSettings.outputParamsDump = text
+                    }
+                }
                 color: applicationSettings.outputParamsDumpAcceptable ? "black" : "red"
                 KeyNavigation.tab: outputRunDumpPrefixField
             }
             Button {
                 function setOutputParamsDump() {
-                    applicationSettings.outputParamsDump = jld2FileSelectDialog.fileUrl
+                    applicationSettings.outputParamsDump = adjustPathToOS(jld2FileSelectDialog.fileUrl)
                     jld2FileSelectDialog.accepted.disconnect(setOutputParamsDump)
                 }
+
                 text: "Select"
                 onClicked: {
                     jld2FileSelectDialog.folder = "file:///" + projectHandler.workdir()
@@ -137,7 +157,11 @@ Window {
                 id: outputRunDumpPrefixField
                 text: applicationSettings.outputRunDumpPrefix
                 onAccepted: applicationSettings.outputRunDumpPrefix = text
-                onActiveFocusChanged: if (!activeFocus) applicationSettings.outputRunDumpPrefix = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.outputRunDumpPrefix !== text) {
+                        applicationSettings.outputRunDumpPrefix = text
+                    }
+                }
                 color: applicationSettings.outputRunDumpPrefixAcceptable ? "black" : "red"
                 KeyNavigation.tab: numOfThreadsField
             }
@@ -157,7 +181,11 @@ Window {
                 text: applicationSettings.numOfThreads
                 validator: IntValidator{}
                 onAccepted: applicationSettings.numOfThreads = text
-                onActiveFocusChanged: if (!activeFocus) applicationSettings.numOfThreads = text
+                onActiveFocusChanged: {
+                    if (!activeFocus && applicationSettings.numOfThreads !== text) {
+                        applicationSettings.numOfThreads = text
+                    }
+                }
                 KeyNavigation.tab: juliaCommandField
             }
             Slider {
@@ -187,7 +215,7 @@ Window {
         sidebarVisible: true
         nameFilters: [ "JULIA executable (*)" ]
         onAccepted: {
-            applicationSettings.juliaCommand = juliaSelectDialog.fileUrl
+            applicationSettings.juliaCommand = adjustPathToOS(juliaSelectDialog.fileUrl)
         }
     }
 
@@ -205,7 +233,7 @@ Window {
         selectExisting: false
         sidebarVisible: true
         onAccepted: {
-            applicationSettings.outputRunDumpPrefix = runDumpPrefixSelectDialog.fileUrl
+            applicationSettings.outputRunDumpPrefix = adjustPathToOS(runDumpPrefixSelectDialog.fileUrl)
         }
     }
 }

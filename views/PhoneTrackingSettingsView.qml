@@ -35,9 +35,13 @@ GridLayout {
 
     Connections {
         target: phoneTracking
-        onUsageChanged: usageInputField.text = phoneTracking.usage
-        onDetectionDelayChanged: detectionDelayInputField.text = phoneTracking.detectionDelay
-        onUsageByHouseholdChanged: {
+        function onUsageChanged() {
+            usageInputField.text = phoneTracking.usage
+        }
+        function onDetectionDelayChanged() {
+            detectionDelayInputField.text = phoneTracking.detectionDelay
+        }
+        function onUsageByHouseholdChanged() {
             usageByHouseholdInputField.checkState = phoneTracking.usageByHousehold ? Qt.Checked : Qt.Unchecked
         }
     }

@@ -51,14 +51,23 @@ Window {
 
     Connections {
         target: simulationRunner
-        onPrintSimulationMsg: {
+        function onPrintSimulationMsg(msg) {
             let newText = logViewer.text + msg
             logViewer.text = newText
         }
-        onClearLog: logViewer.text = ""
-        onNotifyStateAndProgress: {
+        function onClearLog() {
+            logViewer.text = ""
+        }
+        function onNotifyStateAndProgress(state, progress) {
             progressLabel.text = state
             progressBar.value = progress / 100
+        }
+    }
+    Connections {
+        target: projectHandler
+        function onLogDebug(msg) {
+            let newText = logViewer.text + msg
+            logViewer.text = newText
         }
     }
 }

@@ -1,14 +1,15 @@
 # This Python file uses the following encoding: utf-8
 from model.ProjectSettings import ModulationFunctions, ProjectSettings, EmptyModulationParams, ValueTypes
 import json
-from PyQt5.QtCore import QAbstractTableModel, pyqtSignal, pyqtSlot, Qt, QByteArray, QObject,  QVariant, pyqtProperty
 import os
+from PyQt5.QtCore import QAbstractTableModel, pyqtSignal, pyqtSlot, Qt, QByteArray, QObject,  QVariant, pyqtProperty
 from model.ConfigurationValidator import ConfigurationValidator
-from model.Utilities import formatPath
+from model.Utilities import format_path
 from model.ApplicationSettings import ApplicationSettings
 from model.SimulationRunner import SimulationRunner
 from jsonschema import ValidationError
 import tempfile
+import model.charts as charts
 
 
 class FunctionParametersModel(QAbstractTableModel):
@@ -116,22 +117,34 @@ class FunctionParametersModel(QAbstractTableModel):
 
 
 class ProjectHandler(QObject):
-    _settings = ProjectSettings()
-    _modulationModel = FunctionParametersModel()
-    _applicationSettings = None
-    _simulationRunner = None
     _openedFilePath = None
     _isOpenedConfModified = False
     _isModifyingConfOngoing = True
+    _infectionTrajectories = None
     showErrorMsg = pyqtSignal(str, arguments=['msg'])
     modulationFunctionChanged = pyqtSignal()
     openedNewConf = pyqtSignal()
     openedConfModified = pyqtSignal()
+    infectionTrajectoriesChanged = pyqtSignal()
+    dailyInfectionsDataAvailableChanged = pyqtSignal()
+
+    updateDailyInfectionsChartBegin = pyqtSignal(str, arguments=['filename'])
+    addDailyInfectionSeries = pyqtSignal(str, list, arguments=['name', 'series'])
+    updateDailyInfectionsChartDone = pyqtSignal()
+    logDebug = pyqtSignal(str, arguments=['msg'])
 
     def __init__(self):
         super().__init__()
+        self._settings = ProjectSettings()
+        self._modulationModel = FunctionParametersModel()
         self._applicationSettings = ApplicationSettings(lambda: self.workdir())
         self._simulationRunner = SimulationRunner(lambda: self.workdir())
+        self._chart_preparer = charts.DailyInfectionsSeriesPreparer(
+            lambda: self._applicationSettings.abs_path(
+                ApplicationSettings.PropertyNames.OUTPUT_DAILY))
+        self.connect_signals()
+
+    def connect_signals(self):
         def setModifiedToTrue(): return self.setOpenedConfModifiedIfModificationOngoing()
         self._settings.generalSettings.numTrajectoriesChanged.connect(setModifiedToTrue)
         self._settings.generalSettings.populationPathChanged.connect(setModifiedToTrue)
@@ -157,16 +170,29 @@ class ProjectHandler(QObject):
         self._settings.spreading.x0Changed.connect(setModifiedToTrue)
         self._settings.spreading.truncationChanged.connect(setModifiedToTrue)
         self._modulationModel.dataChanged.connect(lambda tr, bl, role: setModifiedToTrue())
-        self.openedNewConf.connect(self._applicationSettings.recheckPaths)
+        self.openedNewConf.connect(self._applicationSettings.recheckPaths, type=Qt.QueuedConnection)
+        self.openedNewConf.connect(self.dailyInfectionsDataAvailableChanged, type=Qt.QueuedConnection)
+        self._applicationSettings.outputDailyChanged.connect(
+            self.dailyInfectionsDataAvailableChanged, type=Qt.QueuedConnection)
+        self.dailyInfectionsDataAvailableChanged.connect(
+            self.prepareDailyInfectionsData, type=Qt.QueuedConnection)
+        self._simulationRunner.isRunningChanged.connect(
+            self.dailyInfectionsDataAvailableChanged, type=Qt.QueuedConnection)
+        self._chart_preparer.series_prepared.connect(self.addDailyInfectionSeries)
+        self._chart_preparer.preparing_begin.connect(
+            self.updateDailyInfectionsChartBegin, type=Qt.QueuedConnection)
+        self._chart_preparer.preparing_done.connect(
+           self.updateDailyInfectionsChartDone, type=Qt.QueuedConnection)
+        self._chart_preparer.log_debug.connect(self.logDebug)
 
     def setOpenedConfModifiedIfModificationOngoing(self):
         if self._isModifyingConfOngoing:
             self.setOpenedConfModified(True)
 
-    def __saveConfToTempFile(self):
+    def _saveConfToTempFile(self):
         fh = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False)
         json.dump(self._settings.serialize(), fh, indent=4, ensure_ascii=False)
-        path = formatPath(fh.name)
+        path = format_path(fh.name)
         fh.close()
         return path
 
@@ -177,7 +203,7 @@ class ProjectHandler(QObject):
 
     @pyqtSlot(str)
     def saveAs(self, path):
-        path = formatPath(path)
+        path = format_path(path)
         fh = open(path, "w", encoding='utf-8')
         json.dump(self._settings.serialize(), fh, indent=4, ensure_ascii=False)
         fh.close()
@@ -193,7 +219,8 @@ class ProjectHandler(QObject):
     @pyqtSlot(str)
     def open(self, path):
         try:
-            path = formatPath(path)
+            self._chart_preparer.stop()
+            path = format_path(path)
             inputFileHandle = open(path, 'r', encoding='utf-8')
             data = json.loads(inputFileHandle.read())
             ConfigurationValidator.validateAgainstSchema(data)
@@ -210,6 +237,8 @@ class ProjectHandler(QObject):
             self.showErrorMsg.emit("File: json schema is corrupted: {0}".format(str(error)))
         except ValidationError as error:
             self.showErrorMsg.emit("Unable to open file at: {0} due to wrong input data: {1}".format(path, str(error)))
+        finally:
+            inputFileHandle.close()
 
     @pyqtSlot(result=str)
     def getOpenedConfName(self):
@@ -254,10 +283,6 @@ class ProjectHandler(QObject):
         else:
             self._isModifyingConfOngoing = True
 
-    @pyqtSlot(str)
-    def setPopulationFilePath(self, path):
-        self._settings.generalSettings.populationPath = formatPath(path)
-
     @pyqtSlot()
     def runSimulation(self):
         if not self._settings.generalSettings._populationPath:
@@ -273,9 +298,10 @@ class ProjectHandler(QObject):
                 or not self._applicationSettings.outputRunDumpPrefixAcceptable):
             self.showErrorMsg.emit("Simulation can't be run: simulation settings are incorrect.")
             return
+        self._chart_preparer.stop()
         self._simulationRunner.openedFilePath = self._openedFilePath
         if not self._simulationRunner.openedFilePath:
-            self._simulationRunner.openedFilePath = self.__saveConfToTempFile()
+            self._simulationRunner.openedFilePath = self._saveConfToTempFile()
         self._simulationRunner.juliaCommand = self._applicationSettings.juliaCommand
         self._simulationRunner.outputDaily = self._applicationSettings.outputDaily
         self._simulationRunner.outputSummary = self._applicationSettings.outputSummary
@@ -287,3 +313,21 @@ class ProjectHandler(QObject):
     @pyqtSlot()
     def stopSimulation(self):
         self._simulationRunner.stop()
+
+    @pyqtSlot()
+    def prepareDailyInfectionsData(self):
+        self._chart_preparer.start_preparing_data()
+
+    @pyqtProperty(bool, notify=dailyInfectionsDataAvailableChanged)
+    def isDailyInfectionsDataAvailable(self):
+        dailypath = self._applicationSettings.abs_path(ApplicationSettings.PropertyNames.OUTPUT_DAILY)
+        return charts.is_daily_infections_data_available(dailypath)
+
+    @pyqtSlot()
+    def addNextDailyInfectionSeries(self):
+        self._chart_preparer.on_series_added()
+
+    @pyqtSlot()
+    def beforeClosingMainWindow(self):
+        self.stopSimulation()
+        self._chart_preparer.stop()
